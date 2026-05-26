@@ -1,8 +1,19 @@
 # Requirements Mind
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![Tests](https://img.shields.io/badge/tests-34%20passed-brightgreen.svg)](tests/)
+[![CLI-first](https://img.shields.io/badge/CLI--first-markdown--first-purple.svg)](#)
+
 **Requirements Mind** — это CLI-first, markdown-first и multi-agent инструмент для автоматизации работы с проектными требованиями, разработки спецификаций и проведения системного и бизнес-анализа на базе **BMAD METHOD**.
 
 Инструмент спроектирован **исключительно для инженерии требований** и полностью очищен от любых процессов классической разработки ПО (написание кода, спринты, задачи разработчиков, Epics/Stories), унаследованных от базового БМАД-метода.
+
+<p align="center">
+  <img src="docs/screenshots/cli-status.svg" alt="cli.py status — обзор FSM проекта" width="780"/>
+  <br/>
+  <em>Команда <code>cli.py status</code> — read-only обзор статуса FSM проекта и его артефактов.</em>
+</p>
 
 ---
 
@@ -185,6 +196,70 @@ uv run cli.py update
 
 ---
 
+## 🗂 Структура проекта
+
+```
+requirements-mind/
+├── cli.py                  # Главный CLI-контроллер FSM (argparse + Pydantic + rich)
+├── install.py              # Bootstrap-установщик (Python, venv, IDE-интеграция, демо)
+├── pyproject.toml          # Метаданные пакета и dev-зависимости (pytest)
+├── requirements.txt        # Runtime-зависимости (5 пакетов, без LLM-SDK)
+├── LICENSE                 # MIT
+│
+├── skills/
+│   ├── rm/                 # ИИ-навыки Requirements Mind (a0…a6, master-orchestrator, reqmind)
+│   ├── bmad/               # Базовые BMAD-скиллы (party-mode, validate, edge-case-hunter, …)
+│   └── custom/             # TOML-override для кастомизаций BMAD-агентов
+│
+├── kb/                     # Чеклисты эталонов (BRD/SRS/Tech Design/API Contract) + glossary
+├── flows/                  # Описания этапов конвейера для агентов (00-onboarding…09-elicitation)
+│
+├── projects/<name>/        # Рабочая папка одного проекта (создаётся CLI)
+│   ├── state.json          # FSM-состояние (источник истины для cli.py)
+│   ├── context.md          # Накапливаемый контекст с frontmatter rm_status
+│   ├── context-changelog.md
+│   ├── input/              # Сырые материалы (транскрипты, тикеты, импорт из Web)
+│   ├── draft/              # Черновики спецификаций по версиям (BRD-v1.md, SRS-v2.md, …)
+│   ├── messages/           # Отчёты валидации с frontmatter rm_verdict
+│   ├── validation/         # Лог-файлы валидаций
+│   ├── analysis/           # Свободный анализ (Режим B)
+│   └── final/              # Финализированные одобренные документы
+│
+├── scripts/                # Утилиты: import_web (CDP), sync_to_vault, export_to_notebooklm
+├── tests/                  # pytest-набор: FSM, frontmatter, sanitize, reset
+├── docs/                   # user_guide.md, specification_v2.md, screenshots/
+├── vault/                  # Сгенерированный Obsidian Vault (в .gitignore)
+└── notebooklm/             # Экспорты для Google NotebookLM (в .gitignore)
+```
+
+---
+
+## 🩺 Диагностика и ручное управление FSM
+
+Если автоматика ИИ-агента дала сбой (не услышал RM-код, неправильно сформировал артефакт, IDE отказалась запускать CLI), у вас есть две полностью ручные команды для отладки и отката.
+
+### `cli.py status` — что сейчас происходит с проектом
+
+```bash
+uv run cli.py status --project=my-app
+```
+
+Read-only обзор: текущий статус FSM, документ/итерация, активные агенты, открытые вопросы, маркер `rm_status` в `context.md` и сводка артефактов по всем шести поддиректориям проекта. Ничего не пишет, безопасно вызывать в любой момент.
+
+### `cli.py reset` — принудительный перевод FSM
+
+```bash
+# С подтверждением в TTY
+uv run cli.py reset --project=my-app --to=intake
+
+# Без подтверждения (для скриптов)
+uv run cli.py reset --project=my-app --to=drafting --yes
+```
+
+Разрешённые значения `--to`: `onboarding | intake | needs_questions | drafting | validating | needs_revision | approved`. Команда правит **только** `state.json` и автоматически выставляет `active_agents` под целевой статус. Артефакты на диске (`draft/`, `messages/`, `final/`) не трогаются.
+
+---
+
 ## ⚠️ Ограничения и известные риски (Limitations)
 
 Requirements Mind — это «детерминированный CLI-контроллер поверх недетерминированных ИИ-агентов». Чтобы избежать завышенных ожиданий, ниже честно перечислены границы возможностей текущей версии.
@@ -208,24 +283,16 @@ Requirements Mind — это «детерминированный CLI-контр
 
 ### Аварийный ручной режим (если автоматика молчит)
 
-Если ИИ-агент завис и не запускает CLI, любой этап конвейера можно выполнить руками. Полезные команды:
+Любой этап конвейера выполняется вручную через CLI, минуя чат:
 
 ```bash
-# Посмотреть, в каком статусе сейчас застрял проект и какие артефакты есть на диске
-uv run cli.py status --project=my-app
-
-# Принудительно вернуть FSM в нужный статус (state.json правится, артефакты остаются)
-uv run cli.py reset --project=my-app --to=intake
-uv run cli.py reset --project=my-app --to=drafting --yes     # без подтверждения
-
-# Запустить любой этап вручную, минуя чат
-uv run cli.py intake --project=my-app
-uv run cli.py draft  --project=my-app --doc=BRD
+uv run cli.py intake   --project=my-app
+uv run cli.py draft    --project=my-app --doc=BRD
 uv run cli.py validate --project=my-app --doc=BRD --version=1
-uv run cli.py final --project=my-app --doc=BRD --version=1
+uv run cli.py final    --project=my-app --doc=BRD --version=1
 ```
 
-Разрешённые значения `--to`: `onboarding | intake | needs_questions | drafting | validating | needs_revision | approved`.
+Для отладки застрявшего FSM смотрите раздел [«Диагностика и ручное управление FSM»](#-диагностика-и-ручное-управление-fsm) — там описаны команды `status` и `reset`.
 
 ### Тесты
 
