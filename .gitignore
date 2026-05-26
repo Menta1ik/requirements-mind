@@ -1,0 +1,32 @@
+# Supabase
+.branches
+.temp
+
+# Environment
+.env
+.env.local
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+uploads/
+
+# BMAD Local Environment (Среда разработки BMAD)
+_bmad/
+_bmad-output/
+.agent/
+.agents/
+.claude/
+.antigravitycli/
+
+# Generated Vault and Exports (Локальные сгенерированные базы и экспорты)
+vault/
+notebooklm/

@@ -1,0 +1,53 @@
+# Правила работы для IDE Cursor (Requirements Mind v2.0)
+
+Вы находитесь в проекте **Requirements Mind** — CLI-first, markdown-first мультиагентном инструменте для работы с требованиями.
+
+---
+
+## 📁 Структура папок и источник истины
+
+* **База знаний и чеклисты:** `kb/` (содержит строгие чек-листы для BRD, SRS, Tech Design и API Contract).
+* **Сценарии процессов:** `flows/` (описывают шаги работы ИИ-агентов).
+* **Локальные папки проектов:** `projects/<project-name>/`.
+* **Черновики:** `projects/<project-name>/draft/`.
+* **Финальные спецификации:** `projects/<project-name>/final/`.
+* **Свободный анализ:** `projects/<project-name>/analysis/`.
+* **Единый источник истины:** Файл `projects/<project-name>/context.md` и файл состояния `state.json`.
+
+---
+
+## 🛠️ Правила работы в IDE
+
+1. **Строгое следование Спецификации:** Любое изменение структуры проекта должно быть согласовано с консолидированной спецификацией в `docs/specification_v2.md`.
+2. **Никакого веб-кода:** Не пишите веб-интерфейсы, HTML/JS/CSS для браузера. Проект полностью работает через CLI на Python.
+3. **Запуск команд:** Всегда используйте пакетный менеджер `uv` для запуска команд:
+   - Инициализация: `uv run cli.py init --project=<name>`
+   - Первичный разбор: `uv run cli.py intake --project=<name>`
+   - Генерация спецификаций: `uv run cli.py draft --project=<name> --doc=BRD`
+   - Валидация: `uv run cli.py validate --project=<name> --doc=BRD --version=1`
+   - Межагентный чат: `uv run cli.py collaborate --project=<name>`
+   - Финализация: `uv run cli.py final --project=<name> --doc=BRD --version=1`
+   - Анализ (Режим B): `uv run cli.py analyze --project=<name> --task="задача"`
+4. **Принцип "Не додумывать":** Если контекст в `context.md` или `input/` неясен, остановите работу и сгенерируйте вопросы в `questions.md` с помощью агента A3. Не придумывайте функционал от себя.
+5. **Сохранение версий:** Никогда не перезаписывайте файлы в `draft/` при итерациях. Создавайте новые файлы: `BRD-v1.md`, `BRD-v2.md` и т.д.
+6. **Obsidian & NotebookLM:**
+   - После изменения файлов всегда предлагайте пользователю запустить синхронизацию с Obsidian: `uv run cli.py sync-vault`.
+   - Для глубокого RAG-анализа предлагайте экспортировать файлы для NotebookLM: `uv run cli.py export-notebooklm --project=<name>`.
+
+---
+
+## 🗣️ Распознавание уникальных слэш-команд ИИ-агентов (Capabilities Menu)
+
+Вы обязаны реагировать на уникальные слэш-команды и требования-ориентированные коды, вводимые пользователем. При их получении немедленно переключайтесь на выполнение роли соответствующего ИИ-агента Requirements Mind и используйте соответствующий Markdown-навык:
+
+* **`/RMONB`** или **`RMONB`** — Вызвать **A0 — Onboarding Wizard** (`skills/rm/a0-onboarding-wizard.md`) для проведения онбординга и Project Discovery.
+* **`/RME`** или **`RME`** — Вызвать **A3 — Elicitation Expert** (`skills/rm/a3-elicitation.md`) для глубокого сбора требований с нуля по стандарту "Практичный аналитик".
+* **`/RMIN`** или **`RMIN`** — Вызвать **A1 — Intake Analyst** (`skills/rm/a1-intake-analyst.md`) для анализа сырых материалов и создания context.md.
+* **`/RMQ`** или **`RMQ`** — Вызвать **A3 — Question Generator** (`skills/rm/a3-question-generator.md`) для бесшовного опроса и закрытия пробелов.
+* **`/RMDW`** или **`RMDW`** — Вызвать **A4 — Document Writer** (`skills/rm/a4-document-writer.md`) для написания черновиков документов (BRD, SRS и др.).
+* **`/RMVAL`** или **`RMVAL`** — Вызвать **A2 — Requirements Validator** (`skills/rm/a2-requirements-validator.md`) для жесткого контроля качества черновика.
+* **`/RMAN`** или **`RMAN`** — Вызвать **A6 — Analysis Writer** (`skills/rm/a6-analysis-writer.md`) для свободного анализа требований Режима B.
+* **`/reqmind`** или **`reqmind`** — Вызвать **reqmind** (`skills/rm/reqmind.md`) для отображения интерактивного Capabilities Menu (шпаргалка по всем командам, кодам вызова и сценариям работы).
+
+**Правило обработки:** Пользователь может вводить команду со слэшем (`/RMONB`), как короткую фразу (`RMONB my-project`), упоминать через `@` или как ключевое слово в обычном предложении на русском языке. Всегда активируйте соответствующий навык и по окончании работы инициируйте автозапуск нужной CLI-команды.
+

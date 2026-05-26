@@ -1,0 +1,12 @@
+{
+  "project": "example-project",
+  "mode": "draft",
+  "document": "BRD",
+  "iteration": 1,
+  "status": "approved",
+  "active_agents": [
+    "master-orchestrator"
+  ],
+  "open_questions": 0,
+  "last_updated": "2026-05-26T10:00:00.000000"
+}
