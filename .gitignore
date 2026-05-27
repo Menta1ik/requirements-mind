@@ -30,3 +30,6 @@ _bmad-output/
 # Generated Vault and Exports (Локальные сгенерированные базы и экспорты)
 vault/
 notebooklm/
+
+# Analyst's working sandbox (рабочие файлы аналитика — не для репо)
+check/

@@ -384,6 +384,130 @@ def handle_final(args):
         title="Финализация завершена"
     ))
 
+def handle_augment(args):
+    """Запускает augment-режим: baseline-документ + артефакты → дополненная версия.
+
+    Команда:
+      1) копирует baseline в projects/<name>/input/baseline/<filename>,
+      2) пишет/обновляет context.md с frontmatter rm_mode: augment + baseline_doc.*,
+      3) переводит state.json в status=drafting, mode=augment, document=<doc>,
+      4) выводит инструкцию для ИИ-ассистента запустить A1 → A4 в защищённом режиме.
+
+    Контракт augment-режима описан в:
+      - flows/09-augment.md
+      - skills/rm/a4-document-writer.md (блок «Режим Augment»)
+      - skills/rm/a1-intake-analyst.md (различение baseline vs artifacts)
+      - skills/rm/master-orchestrator.md (контроль соблюдения контракта)
+    """
+    project = _validate_project_name(args.project)
+    baseline_arg = args.baseline
+    doc = args.doc
+
+    # 1. Проверки на входе
+    allowed_docs = {"BRD", "SRS", "Tech-Design", "API-Contract"}
+    if doc not in allowed_docs:
+        console.print(
+            f"[red]❌ Недопустимый тип документа: {doc!r}.[/red]\n"
+            f"Разрешены: {', '.join(sorted(allowed_docs))}."
+        )
+        sys.exit(2)
+
+    if not os.path.isfile(baseline_arg):
+        console.print(f"[red]❌ Baseline-файл не найден: {baseline_arg}[/red]")
+        sys.exit(2)
+
+    # 2. Подготовка папок и копирование baseline
+    ensure_project_dirs(project)
+    project_dir = get_project_dir(project)
+    baseline_dir = os.path.join(project_dir, "input", "baseline")
+    os.makedirs(baseline_dir, exist_ok=True)
+
+    baseline_filename = os.path.basename(baseline_arg)
+    baseline_dest = os.path.join(baseline_dir, baseline_filename)
+    baseline_rel = os.path.join("input", "baseline", baseline_filename)
+
+    # Не копируем сам в себя, если пользователь уже положил файл в input/baseline/
+    if os.path.abspath(baseline_arg) != os.path.abspath(baseline_dest):
+        shutil.copy2(baseline_arg, baseline_dest)
+
+    # 3. Обновляем/создаём context.md с frontmatter augment
+    today = datetime.now().strftime("%Y-%m-%d")
+    context_path = os.path.join(project_dir, "context.md")
+    augment_frontmatter = (
+        "---\n"
+        "rm_status: incomplete\n"
+        f"updated_at: {today}\n"
+        "rm_mode: augment\n"
+        "baseline_doc:\n"
+        f"  path: {baseline_rel}\n"
+        f"  type: {doc}\n"
+        "  preserve_structure: true\n"
+        "---\n"
+    )
+
+    if os.path.exists(context_path):
+        # Сохраняем существующий контент, заменяем только frontmatter
+        with open(context_path, "r", encoding="utf-8") as f:
+            existing = f.read()
+        if existing.startswith("---"):
+            # Срезаем старый frontmatter
+            end = existing.find("\n---", 3)
+            if end != -1:
+                body = existing[end + 4 :].lstrip("\n")
+            else:
+                body = existing  # некорректный frontmatter, не трогаем
+        else:
+            body = existing
+        new_context = augment_frontmatter + "\n" + body
+        with open(context_path, "w", encoding="utf-8") as f:
+            f.write(new_context)
+        context_action = "обновлён"
+    else:
+        starter_body = (
+            "# 🎯 Vision и бизнес-цели\n\n*(A1 заполнит из артефактов)*\n\n"
+            "# 👥 Стейкхолдеры\n\n*(A1 заполнит из артефактов)*\n\n"
+            "# ⚡ Ограничения\n\n*(A1 заполнит из артефактов)*\n\n"
+            "## 🔄 Дельта для дополнения baseline\n\n"
+            f"*(A1 опишет здесь: что нового пришло из артефактов и где встроить в `{baseline_rel}`)*\n\n"
+            "## ❓ Открытые вопросы и пробелы\n\n"
+            "*(A1 / A3 ведут реестр здесь)*\n"
+        )
+        with open(context_path, "w", encoding="utf-8") as f:
+            f.write(augment_frontmatter + "\n" + starter_body)
+        context_action = "создан"
+
+    # 4. Обновляем state.json
+    state = load_state(project)
+    state.mode = "augment"
+    state.document = doc
+    state.status = "drafting"
+    state.active_agents = ["a1"]  # сначала A1 разберёт артефакты под augment
+    save_state(project, state)
+
+    # 5. Инструкция пользователю
+    console.print(Panel(
+        f"[green]🛡️  Augment-режим активирован для проекта [bold]{project}[/bold][/green]\n\n"
+        f"📄 Baseline: [cyan]{baseline_rel}[/cyan]  (тип: {doc})\n"
+        f"📝 context.md {context_action} с frontmatter [yellow]rm_mode: augment[/yellow]\n"
+        f"⚙️  state.json: status=[yellow]drafting[/yellow], mode=[yellow]augment[/yellow]\n\n"
+        f"[bold white]Что делать дальше:[/bold white]\n"
+        f"1. Положите остальные артефакты (транскрипты, заметки, новые BR) в [cyan]projects/{project}/input/[/cyan] "
+        f"(НЕ в подпапку baseline/).\n"
+        f"2. Попросите ИИ-ассистента в IDE:\n"
+        f"   [yellow]«Запусти a1-intake-analyst для проекта {project}. "
+        f"Это augment-режим, baseline — {baseline_rel}, не растворяй его в context.md, "
+        f"опиши только дельту из артефактов»[/yellow]\n"
+        f"3. После того как A1 запишет context.md и context-changelog.md — зафиксируйте:\n"
+        f"   [cyan]uv run cli.py intake --project={project}[/cyan]\n"
+        f"4. Затем попросите ИИ запустить [cyan]a4-document-writer[/cyan]. "
+        f"Он обязан показать diff-план в чате и дождаться вашего OK прежде, чем записывать "
+        f"[cyan]draft/{doc}-v<N>.md[/cyan].\n\n"
+        f"[dim]Контракт защиты baseline описан в flows/09-augment.md.[/dim]",
+        title="Requirements Mind — Augment Mode",
+        border_style="cyan"
+    ))
+
+
 def handle_analyze(args):
     project = _validate_project_name(args.project)
     task = args.task
@@ -847,6 +971,16 @@ def main():
     parser_analyze.add_argument("--project", required=True, help="Название проекта")
     parser_analyze.add_argument("--task", required=True, help="Суть аналитического исследования")
     parser_analyze.set_defaults(func=handle_analyze)
+
+    # Augment: доработка существующего документа артефактами (защищённый режим, см. flows/09-augment.md)
+    parser_augment = subparsers.add_parser(
+        "augment",
+        help="Запустить augment-режим: дополнить существующий документ артефактами, сохранив структуру"
+    )
+    parser_augment.add_argument("--project", required=True, help="Название проекта")
+    parser_augment.add_argument("--baseline", required=True, help="Путь к baseline-документу (SRS/BRD/Tech-Design/API-Contract)")
+    parser_augment.add_argument("--doc", required=True, help="Тип документа: BRD / SRS / Tech-Design / API-Contract")
+    parser_augment.set_defaults(func=handle_augment)
 
     # collaborate
     parser_collaborate = subparsers.add_parser("collaborate", help="Подсказать инструкцию для Party Mode")

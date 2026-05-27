@@ -67,6 +67,7 @@ Requirements Mind v2.0 полностью интегрирован со сред
 | **`RMDW`** | **Написание черновика** (`a4-document-writer`) | Генерирует первый черновик спецификации (BRD, SRS, Tech Design, API) строго по чеклистам базы `kb/`. |
 | **`RMVAL`** | **Жесткая валидация** (`a2-requirements-validator`) | Проверяет качество черновика на edge-cases и полноту, выдает отчет с вердиктом `PASSED`/`FAILED`. |
 | **`RMAN`** | **Аналитическое исследование** (`a6-analysis-writer`) | Проводит свободный анализ (риски, противоречия, сравнение документов) в папку `analysis/`. |
+| **`RMAUG`** | **Доработка существующего документа** (Augment Mode) | Аккуратно дополняет уже существующий SRS/BRD/Tech-Design новыми артефактами, **сохраняя структуру и формулировки** baseline. Обязательный diff-план в чате + подтверждение пользователя до записи. Подробно: [`docs/walkthroughs/augment-dams-srs.md`](docs/walkthroughs/augment-dams-srs.md). |
 | **`reqmind`** | **Меню управления** (`reqmind`) | Интерактивный навигатор Requirements Mind. Выводит список всех RM-кодов, команд CLI и сценариев. |
 
 > [!TIP]
@@ -227,7 +228,7 @@ requirements-mind/
 │
 ├── scripts/                # Утилиты: import_web (CDP), sync_to_vault, export_to_notebooklm
 ├── tests/                  # pytest-набор: FSM, frontmatter, sanitize, reset
-├── docs/                   # user_guide.md, specification_v2.md, screenshots/
+├── docs/                   # user_guide.md, specification_v2.md, walkthroughs/ (подробные кейсы), screenshots/
 ├── vault/                  # Сгенерированный Obsidian Vault (в .gitignore)
 └── notebooklm/             # Экспорты для Google NotebookLM (в .gitignore)
 ```
@@ -308,4 +309,5 @@ uv run pytest
 
 ## 📘 Дополнительные материалы
 * [Подробное руководство пользователя](docs/user_guide.md) — Детальное описание каждого шага, настройки Obsidian и NotebookLM.
+* [Walkthroughs — подробные кейсы](docs/walkthroughs/README.md) — Пошаговые разборы реальных кейсов с промптами, командами и ожидаемыми артефактами. Дополняют user_guide там, где формального описания недостаточно.
 * [Описание Агентов (AGENTS.md)](AGENTS.md) — Описание ролей виртуальной ИИ-команды.
