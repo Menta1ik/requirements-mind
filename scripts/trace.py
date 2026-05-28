@@ -231,23 +231,44 @@ def check_bg_coverage(indexes: list[DocIndex], issues: list[Issue]) -> None:
             )
 
 
-def collect_doc_files(project: str, doc: str | None, version: str | None) -> list[Path]:
-    """Resolve which files to scan for `--project=...` mode."""
-    proj_dir = PROJECTS_DIR / project
-    docs_dir = proj_dir / "docs"
-    if not docs_dir.is_dir():
-        raise FileNotFoundError(f"Папка не найдена: {docs_dir}")
+DOC_SUBDIRS = ("draft", "final")
 
-    files = sorted(docs_dir.glob("*.md"))
+
+def collect_doc_files(project: str, doc: str | None, version: str | None) -> list[Path]:
+    """Resolve which files to scan for `--project=...` mode.
+
+    Реальная структура проекта Requirements Mind держит документы в двух папках:
+    `draft/` (рабочие версии BRD-vN.md, SRS-vN.md, …) и `final/` (утверждённые
+    `*-final.md`). Сканируем обе — trace должен ловить нарушения и в свежих
+    черновиках (до RMVAL), и в финалах (если кто-то правил их вручную).
+    """
+    proj_dir = PROJECTS_DIR / project
+    if not proj_dir.is_dir():
+        raise FileNotFoundError(f"Папка проекта не найдена: {proj_dir}")
+
+    found_subdirs = [proj_dir / sub for sub in DOC_SUBDIRS if (proj_dir / sub).is_dir()]
+    if not found_subdirs:
+        raise FileNotFoundError(
+            f"В {proj_dir} нет ни одной из папок документов: {', '.join(DOC_SUBDIRS)}"
+        )
+
+    files: list[Path] = []
+    for sub in found_subdirs:
+        files.extend(sorted(sub.glob("*.md")))
     if not files:
-        raise FileNotFoundError(f"В {docs_dir} нет .md файлов")
+        raise FileNotFoundError(
+            f"В {proj_dir}/{{{','.join(DOC_SUBDIRS)}}} нет .md файлов"
+        )
 
     if doc:
         prefix = f"{doc}-"
         files = [f for f in files if f.name.startswith(prefix)]
     if version:
-        suffix = f"-v{version}.md"
-        files = [f for f in files if f.name.endswith(suffix)]
+        # final/-файлы оканчиваются на `-vN-final.md`, draft/ — на `-vN.md`.
+        files = [
+            f for f in files
+            if f.name.endswith(f"-v{version}.md") or f.name.endswith(f"-v{version}-final.md")
+        ]
 
     if not files:
         raise FileNotFoundError("Подходящих файлов не найдено по фильтрам --doc/--version")

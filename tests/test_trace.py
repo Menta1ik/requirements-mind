@@ -174,13 +174,50 @@ def test_main_returns_two_on_missing_file(capsys: pytest.CaptureFixture) -> None
 def test_main_project_mode(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture) -> None:
     # Подменяем PROJECTS_DIR в модуле, чтобы не требовать chdir.
     proj = tmp_path / "projects" / "demo"
-    docs = proj / "docs"
-    docs.mkdir(parents=True)
-    (docs / "BRD-v1.md").write_text("- BG-1: цель\n", encoding="utf-8")
-    (docs / "SRS-v1.md").write_text("- FR-01: покрывает BG-1\n", encoding="utf-8")
+    draft = proj / "draft"
+    draft.mkdir(parents=True)
+    (draft / "BRD-v1.md").write_text("- BG-1: цель\n", encoding="utf-8")
+    (draft / "SRS-v1.md").write_text("- FR-01: покрывает BG-1\n", encoding="utf-8")
 
     monkeypatch.setattr(trace_mod, "PROJECTS_DIR", tmp_path / "projects")
     rc = trace_mod.main(["--project", "demo"])
     assert rc == 0
     out = capsys.readouterr().out
     assert "2 файл(ов)" in out
+
+
+def test_main_project_mode_scans_draft_and_final(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    """Реальный сценарий: BRD утверждён (final/), SRS в работе (draft/).
+    Линтер должен видеть оба и ловить orphan-ссылку из SRS на несуществующий FR."""
+    proj = tmp_path / "projects" / "demo"
+    (proj / "final").mkdir(parents=True)
+    (proj / "draft").mkdir(parents=True)
+    (proj / "final" / "BRD-v1-final.md").write_text("- BG-1: цель\n", encoding="utf-8")
+    (proj / "draft" / "SRS-v1.md").write_text(
+        "- FR-01: покрывает BG-1\nСм. также FR-42 (TBD).\n", encoding="utf-8"
+    )
+
+    monkeypatch.setattr(trace_mod, "PROJECTS_DIR", tmp_path / "projects")
+    rc = trace_mod.main(["--project", "demo"])
+    assert rc == 1  # orphan FR-42
+    out = capsys.readouterr().out
+    assert "2 файл(ов)" in out
+    assert "FR-42" in out
+
+
+def test_main_project_mode_filters_final_by_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`--version=1` должен ловить и `-v1.md`, и `-v1-final.md`."""
+    proj = tmp_path / "projects" / "demo"
+    (proj / "draft").mkdir(parents=True)
+    (proj / "final").mkdir(parents=True)
+    (proj / "draft" / "BRD-v2.md").write_text("- BG-2: новая\n", encoding="utf-8")
+    (proj / "final" / "BRD-v1-final.md").write_text("- BG-1: старая\n", encoding="utf-8")
+
+    monkeypatch.setattr(trace_mod, "PROJECTS_DIR", tmp_path / "projects")
+    files = trace_mod.collect_doc_files("demo", doc="BRD", version="1")
+    assert len(files) == 1
+    assert files[0].name == "BRD-v1-final.md"
