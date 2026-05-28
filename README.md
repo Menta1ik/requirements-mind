@@ -219,8 +219,13 @@ Invoke-WebRequest -Uri https://raw.githubusercontent.com/Menta1ik/requirements-m
      # ЗАПУСКАЕТСЯ АВТОМАТИЧЕСКИ ИИ-АГЕНТОМ ПОСЛЕ ПОДТВЕРЖДЕНИЯ В ЧАТЕ
      uv run cli.py draft --project=my-delivery-app --doc=BRD
      ```
-4. **Жесткий контроль качества (RMVAL):**
-   * Напишите ИИ-агенту: **`«Запусти RMVAL для my-delivery-app»`**.
+4. **Жесткий контроль качества (RMVAL + Tier 1 trace):**
+   * Перед запуском LLM-валидатора рекомендуется прогнать дешёвую детерминированную проверку формы — линтер ID и трассируемости:
+     ```bash
+     uv run cli.py trace --project=my-delivery-app
+     ```
+     Он ловит дубли `FR-01`, orphan-ссылки (ID упомянут, но нигде не определён), Business Goals без покрытия FR в SRS — за миллисекунды, без LLM. Подходит для pre-commit / CI.
+   * После — запускайте семантическую LLM-валидацию: **`«Запусти RMVAL для my-delivery-app»`**.
    * ИИ-агент A2 проверит черновик на логические нестыковки, пограничные случаи (edge cases) и упущенные детали, сформирует отчет с вердиктом `PASSED`/`FAILED`.
    * ИИ-агент автоматически предложит зафиксировать результаты валидации:
      ```bash
@@ -345,6 +350,30 @@ uv run cli.py reset --project=my-app --to=drafting --yes
 ```
 
 Разрешённые значения `--to`: `onboarding | intake | needs_questions | drafting | validating | needs_revision | approved`. Команда правит **только** `state.json` и автоматически выставляет `active_agents` под целевой статус. Артефакты на диске (`draft/`, `messages/`, `final/`) не трогаются.
+
+### `cli.py trace` — Tier 1 детерминированная валидация ID
+
+```bash
+# Весь проект
+uv run cli.py trace --project=my-app
+
+# Один документ конкретной версии
+uv run cli.py trace --project=my-app --doc=SRS --version=1
+
+# Произвольный .md файл (вне проектной структуры)
+uv run cli.py trace --file=path/to/SRS-v1.md
+```
+
+Регексп-линтер без LLM. **Дополняет** `RMVAL` (семантический LLM-валидатор A2), а не заменяет:
+
+| Слой | Кто проверяет | Что ловит |
+| :---: | :--- | :--- |
+| **Tier 1** — `cli.py trace` | regex, миллисекунды | Дубли `FR-01` в одном документе, orphan-ссылки (ID упомянут, но нигде не определён), Business Goals из BRD без покрытия FR в SRS, форма ID (`FR-01`, `FR-REG-01`, `NFR-CAP-02`, `BG-1`) |
+| **Tier 2** — `RMVAL` / `cli.py validate` | A2 (LLM), секунды-минуты | Семантика: измеримы ли NFR, есть ли альтернативы в Use Case, согласуется ли SRS с BRD, нет ли поверхностных формулировок |
+
+**Exit codes** машиночитаемы (`0` — чисто, `1` — есть ошибки, `2` — ошибка вызова) — встраивается в pre-commit hook или CI без обвязки. **`state.json` не трогает** — это чистая проверка, не FSM-переход.
+
+Канонический алфавит ID: 2-5 заглавных букв + 0-3 субдомена + 1-4 цифры. Примеры из «зелёной» зоны: `FR-01`, `FR-REG-01`, `NFR-CAP-02`, `UC-REG-AS-1`, `VAL-03`. Не пройдёт: `fr-01` (строчные), `FR_01` (подчёркивание), `FR-01234567` (хвост >4 цифр — warning `RM-TR-010`).
 
 ---
 
