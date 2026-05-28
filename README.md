@@ -2,8 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-34%20passed-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-60%20passed-brightgreen.svg)](tests/)
 [![CLI-first](https://img.shields.io/badge/CLI--first-markdown--first-purple.svg)](#)
+[![Tier 1 + Tier 2](https://img.shields.io/badge/validation-Tier_1_trace_%2B_Tier_2_LLM-orange.svg)](#-clipy-trace--tier-1-детерминированная-валидация-id)
 
 **Requirements Mind** — это CLI-first, markdown-first и multi-agent инструмент для автоматизации работы с проектными требованиями, разработки спецификаций и проведения системного и бизнес-анализа на базе **BMAD METHOD**.
 
@@ -352,6 +353,12 @@ uv run cli.py reset --project=my-app --to=drafting --yes
 Разрешённые значения `--to`: `onboarding | intake | needs_questions | drafting | validating | needs_revision | approved`. Команда правит **только** `state.json` и автоматически выставляет `active_agents` под целевой статус. Артефакты на диске (`draft/`, `messages/`, `final/`) не трогаются.
 
 ### `cli.py trace` — Tier 1 детерминированная валидация ID
+
+<p align="center">
+  <img src="docs/screenshots/cli-trace.svg" alt="cli.py trace — Tier 1 deterministic линтер ID и трассируемости" width="900"/>
+  <br/>
+  <em>Команда <code>cli.py trace</code> — детерминированный regex-линтер ID. Ловит дубли (RM-TR-001), orphan-ссылки (RM-TR-002) и непокрытые Business Goals (RM-TR-020) за миллисекунды, без LLM.</em>
+</p>
 
 ```bash
 # Весь проект
