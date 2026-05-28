@@ -571,6 +571,48 @@ def handle_export_notebooklm(args):
     except Exception as e:
         console.print(f"[red]❌ Не удалось запустить скрипт экспорта: {e}[/red]")
 
+def handle_trace(args):
+    """Запускает Tier 1 deterministic линтер трассируемости ID (scripts/trace.py)."""
+    project = _validate_project_name(args.project) if args.project else None
+    import subprocess
+
+    cmd = [sys.executable, "scripts/trace.py"]
+    if project:
+        cmd += ["--project", project]
+    if args.doc:
+        cmd += ["--doc", args.doc]
+    if args.version:
+        cmd += ["--version", str(args.version)]
+    if args.file:
+        cmd += ["--file", args.file]
+
+    target = project or args.file or "?"
+    console.print(Panel(
+        f"[cyan]🔎 RM Trace Linter — проверка ID и трассируемости[/cyan]\n"
+        f"📁 Цель: [yellow]{target}[/yellow]"
+        + (f"\n📄 Документ: [yellow]{args.doc}[/yellow]" if args.doc else "")
+        + (f"\n🔢 Версия: [yellow]v{args.version}[/yellow]" if args.version else ""),
+        title="Tier 1 валидация",
+    ))
+
+    try:
+        # stdout/stderr напрямую в консоль — линтер уже форматирует вывод сам.
+        res = subprocess.run(cmd)
+        if res.returncode == 0:
+            console.print("[green]✅ trace: ошибок не найдено.[/green]")
+        elif res.returncode == 1:
+            console.print("[red]❌ trace: найдены ошибки трассируемости (см. отчёт выше).[/red]")
+        else:
+            console.print(f"[red]❌ trace: ошибка запуска (код {res.returncode}).[/red]")
+        sys.exit(res.returncode)
+    except FileNotFoundError:
+        console.print("[red]❌ scripts/trace.py не найден — переустановите Requirements Mind.[/red]")
+        sys.exit(2)
+    except Exception as e:
+        console.print(f"[red]❌ Не удалось запустить trace: {e}[/red]")
+        sys.exit(2)
+
+
 def handle_import_web(args):
     project = _validate_project_name(args.project)
     port = args.port
@@ -990,6 +1032,17 @@ def main():
     parser_collaborate.add_argument("--project", required=True, help="Название проекта")
     parser_collaborate.add_argument("--agents", default="a2,a4", help="Список кодов агентов через запятую")
     parser_collaborate.set_defaults(func=handle_collaborate)
+
+    # trace (Tier 1 деректминированная валидация ID)
+    parser_trace = subparsers.add_parser(
+        "trace",
+        help="Tier 1 валидация: линтер ID требований и трассируемости (без LLM)",
+    )
+    parser_trace.add_argument("--project", help="Название проекта (сканирует projects/<name>/docs/)")
+    parser_trace.add_argument("--doc", choices=["BRD", "SRS", "Tech-Design", "API-Contract"], help="Фильтр по типу документа")
+    parser_trace.add_argument("--version", help="Фильтр по версии (без префикса v)")
+    parser_trace.add_argument("--file", help="Альтернатива --project: путь к одиночному .md-файлу")
+    parser_trace.set_defaults(func=handle_trace)
 
     # sync-vault
     parser_sync = subparsers.add_parser("sync-vault", help="Синхронизировать папки проектов с Obsidian Vault")
