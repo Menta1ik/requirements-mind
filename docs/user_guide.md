@@ -11,12 +11,22 @@ Requirements Mind — это профессиональный инструмен
 
 ## 0. Первоначальная настройка (Интерактивный установщик)
 
-Для максимальной простоты и автоматизации развертывания рабочего окружения аналитика с нуля в любой папке на вашем компьютере выполните в терминале одну команду:
+Для максимальной простоты и автоматизации развертывания рабочего окружения аналитика с нуля в любой папке на вашем компьютере выполните в терминале одну команду — выберите блок под вашу ОС.
 
+**🍎 macOS / 🐧 Linux (Bash / Zsh):**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Menta1ik/requirements-mind/main/install.py -o install.py && python3 install.py
 ```
-*(Или, если вы уже склонировали репозиторий локально, запустите `python3 install.py` в корневой папке).*
+
+**🪟 Windows (PowerShell):**
+```powershell
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/Menta1ik/requirements-mind/main/install.py -OutFile install.py; python install.py
+```
+
+> **Требуется на Windows:** Python 3.10+ (`python --version`), Git и PowerShell 5.1+ (встроен в Windows 10/11).
+> Если `python` не находится — установите Python с [python.org](https://www.python.org/downloads/) и отметьте чек-бокс **«Add Python to PATH»**.
+
+*(Или, если вы уже склонировали репозиторий локально, запустите `python3 install.py` на macOS/Linux или `python install.py` на Windows в корневой папке).*
 
 **Что делает установщик:**
 1. **Проверяет систему:** верность версии Python (требуется >= 3.10) и наличие Git.
@@ -112,11 +122,31 @@ curl -fsSL https://raw.githubusercontent.com/Menta1ik/requirements-mind/main/ins
 
 #### Шаг B1: Подготовка браузера Google Chrome
 Для того чтобы ИИ-агент мог считать данные без необходимости ввода паролей и обхода двухфакторной аутентификации (2FA), мы используем подключение к вашему запущенному браузеру:
-1. Полностью закройте Chrome (нажмите **Cmd + Q** на Mac).
-2. Запустите его из терминала с включенным портом удаленной отладки:
+
+1. **Полностью закройте Chrome:**
+   * macOS — **Cmd + Q**.
+   * Windows / Linux — закройте все окна Chrome и убедитесь, что в трее/процессах его нет (Диспетчер задач → завершить все `chrome.exe`).
+
+2. **Запустите Chrome из терминала с портом удалённой отладки** — выберите блок под вашу ОС:
+
+   **🍎 macOS:**
    ```bash
    open -a "Google Chrome" --args --remote-debugging-port=9222
    ```
+
+   **🐧 Linux:**
+   ```bash
+   google-chrome --remote-debugging-port=9222
+   # или: chromium --remote-debugging-port=9222
+   ```
+
+   **🪟 Windows (PowerShell):**
+   ```powershell
+   Start-Process "chrome.exe" -ArgumentList "--remote-debugging-port=9222"
+   ```
+   > Если `chrome.exe` не находится в PATH, укажите полный путь:
+   > `Start-Process "C:\Program Files\Google\Chrome\Application\chrome.exe" -ArgumentList "--remote-debugging-port=9222"`
+
 3. Откройте в этом окне вкладку со статьей Confluence или тикетом Jira, откуда нужно извлечь требования.
 
 #### Шаг B2: Запрос на автоматический импорт в чате IDE/CLI

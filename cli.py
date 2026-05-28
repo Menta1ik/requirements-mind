@@ -547,7 +547,9 @@ def handle_sync_vault(args):
     console.print("[cyan]🔄 Запуск скрипта синхронизации с Obsidian Vault...[/cyan]")
     import subprocess
     try:
-        res = subprocess.run(["python3", "scripts/sync_to_vault.py"], capture_output=True, text=True)
+        # sys.executable вместо "python3" — на Windows интерпретатор обычно "python",
+        # а sys.executable указывает на активный venv в любой ОС.
+        res = subprocess.run([sys.executable, "scripts/sync_to_vault.py"], capture_output=True, text=True)
         if res.returncode == 0:
             console.print("[green]✅ Синхронизация с Obsidian выполнена успешно.[/green]")
         else:
@@ -560,7 +562,8 @@ def handle_export_notebooklm(args):
     console.print(f"[cyan]📤 Запуск подготовки экспорта для NotebookLM проекта {project}...[/cyan]")
     import subprocess
     try:
-        res = subprocess.run(["python3", "scripts/export_to_notebooklm.py", "--project", project], capture_output=True, text=True)
+        # sys.executable вместо "python3" — на Windows интерпретатор обычно "python".
+        res = subprocess.run([sys.executable, "scripts/export_to_notebooklm.py", "--project", project], capture_output=True, text=True)
         if res.returncode == 0:
             console.print("[green]✅ Экспорт для NotebookLM подготовлен.[/green]")
         else:

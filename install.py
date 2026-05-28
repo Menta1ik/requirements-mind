@@ -278,7 +278,9 @@ def setup_ide_integration(python_path):
         choice = "1"
         
     if choice == "6":
-        print_color("  • Шаг пропущен. Вы можете связать их позже вручную: `python3 cli.py setup-ide`.", C_YELLOW)
+        # Подсказка с правильным именем Python для текущей ОС
+        py_hint = "python" if platform.system() == "Windows" else "python3"
+        print_color(f"  • Шаг пропущен. Вы можете связать их позже вручную: `{py_hint} cli.py setup-ide`.", C_YELLOW)
         return
         
     print("  • Привязка навыков в IDE...")
