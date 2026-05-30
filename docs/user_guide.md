@@ -64,7 +64,7 @@ Instead of writing long prompts in the IDE chat, use the letter codes to invoke 
 * **`RMDW`** — **Write a specification draft** (`a4-document-writer`). Generates the first draft of a document (BRD, SRS, Tech Design, API Contract) strictly per the `kb/` knowledge-base checklists.
 * **`RMVAL`** — **Run quality control** (`a2-requirements-validator`). Checks the draft for edge cases and completeness, and produces a report with a `PASSED`/`FAILED` verdict.
 * **`RMAN`** — **Start an analytical investigation** (`a6-analysis-writer`). Runs a free-form analysis (risks, contradictions, document comparison) into the `analysis/` folder.
-* **`RMAUG`** — **Start extending an existing document** (Augment Mode). You already have an SRS/BRD/Tech-Design/API-Contract and need to **carefully extend** it with new artifacts (a meeting transcript, updated BRs, notes), **preserving the structure and wording** of the baseline. The AI must show a diff plan in the chat and wait for your confirmation **before** writing a new version. See the [detailed walkthrough](walkthroughs/augment-dams-srs.md).
+* **`RMAUG`** — **Start extending an existing document** (Augment Mode). You already have an SRS/BRD/Tech-Design/API-Contract and need to **carefully extend** it with new artifacts (a meeting transcript, updated BRs, notes), **preserving the structure and wording** of the baseline. The AI must show a diff plan in the chat and wait for your confirmation **before** writing a new version. See the [detailed walkthrough](walkthroughs/augment-srs-example.md).
 * **`reqmind`** — **Interactive control menu** (`reqmind`). Displays a clear interactive cheat sheet of all available RM codes, CLI commands, and step-by-step scenarios.
 
 > [!TIP]
@@ -298,7 +298,7 @@ uv run cli.py draft --project=my-app --doc=SRS    # → status: validating
 # Next — the standard validation (RMVAL) and finalization cycle (Steps B4–B5)
 ```
 
-> 📖 **A full walkthrough on the real DAMS case** — with the Δ1–Δ7 delta, a sample diff plan, and a table of protection mechanisms: [`docs/walkthroughs/augment-dams-srs.md`](walkthroughs/augment-dams-srs.md).
+> 📖 **A full augment walkthrough** — with the Δ1–Δ7 delta, a sample diff plan, and a table of protection mechanisms: [`docs/walkthroughs/augment-srs-example.md`](walkthroughs/augment-srs-example.md).
 
 ---
 

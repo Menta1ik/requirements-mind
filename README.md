@@ -70,7 +70,7 @@ So that you don't have to type long prompts to your IDE assistant by hand, we ha
 | **`RMDW`** | **Draft writing** (`a4-document-writer`) | Generates the first draft of a specification (BRD, SRS, Tech Design, API) strictly following the `kb/` checklists. |
 | **`RMVAL`** | **Strict validation** (`a2-requirements-validator`) | Checks the draft's quality for edge cases and completeness, and produces a report with a `PASSED`/`FAILED` verdict. |
 | **`RMAN`** | **Analytical research** (`a6-analysis-writer`) | Performs free-form analysis (risks, contradictions, document comparison) into the `analysis/` folder. |
-| **`RMAUG`** | **Augmenting an existing document** (Augment Mode) | Carefully enriches an existing SRS/BRD/Tech-Design with new artifacts, **preserving the structure and wording** of the baseline. A diff plan in chat and user confirmation are mandatory before writing. Details: [`docs/walkthroughs/augment-dams-srs.md`](docs/walkthroughs/augment-dams-srs.md). |
+| **`RMAUG`** | **Augmenting an existing document** (Augment Mode) | Carefully enriches an existing SRS/BRD/Tech-Design with new artifacts, **preserving the structure and wording** of the baseline. A diff plan in chat and user confirmation are mandatory before writing. Details: [`docs/walkthroughs/augment-srs-example.md`](docs/walkthroughs/augment-srs-example.md). |
 | **`reqmind`** | **Control menu** (`reqmind`) | The interactive Requirements Mind navigator. Lists all RM codes, CLI commands, and scenarios. |
 
 > [!TIP]

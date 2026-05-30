@@ -70,7 +70,7 @@ Requirements Mind v2.0 полностью интегрирован со сред
 | **`RMDW`** | **Написание черновика** (`a4-document-writer`) | Генерирует первый черновик спецификации (BRD, SRS, Tech Design, API) строго по чеклистам базы `kb/`. |
 | **`RMVAL`** | **Жесткая валидация** (`a2-requirements-validator`) | Проверяет качество черновика на edge-cases и полноту, выдает отчет с вердиктом `PASSED`/`FAILED`. |
 | **`RMAN`** | **Аналитическое исследование** (`a6-analysis-writer`) | Проводит свободный анализ (риски, противоречия, сравнение документов) в папку `analysis/`. |
-| **`RMAUG`** | **Доработка существующего документа** (Augment Mode) | Аккуратно дополняет уже существующий SRS/BRD/Tech-Design новыми артефактами, **сохраняя структуру и формулировки** baseline. Обязательный diff-план в чате + подтверждение пользователя до записи. Подробно: [`docs/walkthroughs/augment-dams-srs.md`](docs/walkthroughs/augment-dams-srs.md). |
+| **`RMAUG`** | **Доработка существующего документа** (Augment Mode) | Аккуратно дополняет уже существующий SRS/BRD/Tech-Design новыми артефактами, **сохраняя структуру и формулировки** baseline. Обязательный diff-план в чате + подтверждение пользователя до записи. Подробно: [`docs/walkthroughs/augment-srs-example.md`](docs/walkthroughs/augment-srs-example.md). |
 | **`reqmind`** | **Меню управления** (`reqmind`) | Интерактивный навигатор Requirements Mind. Выводит список всех RM-кодов, команд CLI и сценариев. |
 
 > [!TIP]

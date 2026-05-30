@@ -14,7 +14,7 @@ Walkthroughs are needed where the formal description is not enough — when the 
 
 | File | Scenario | On which case |
 |---|---|---|
-| [`augment-dams-srs.md`](augment-dams-srs.md) | `09-augment` — extending an existing SRS with artifacts | DAMS (Document Asset Management Service): SRS-v1 + a meeting transcript from 26.06 → SRS-v2 with the markers `*(new)*` / `*(changed)*` |
+| [`augment-srs-example.md`](augment-srs-example.md) | `09-augment` — extending an existing SRS with artifacts | A fictional File Storage Service (FSS): SRS-v1 + a meeting transcript → SRS-v2 with the markers `*(new)*` / `*(changed)*` |
 
 ## 🗺️ Roadmap
 
@@ -22,7 +22,7 @@ Detailed walkthroughs like this are planned for **all modes** of Requirements Mi
 
 | Scenario | File (planned) | When it is needed | Status |
 |---|---|---|---|
-| `09-augment` | `augment-dams-srs.md` | Extending an existing document with artifacts without rebuilding the structure. **High risk of "made-up content" if done without guardrails.** | ✅ Ready |
+| `09-augment` | `augment-srs-example.md` | Extending an existing document with artifacts without rebuilding the structure. **High risk of "made-up content" if done without guardrails.** | ✅ Ready |
 | `04-draft` | `draft-greenfield-srs.md` | Writing an SRS/BRD from scratch per the checklist. The basic scenario, but the team needs a reference example of "what a good context.md → BRD-v1 → SRS-v1 should look like". | ⏳ Planned |
 | `01-intake` | `intake-noisy-inputs.md` | When "dirt" arrives in `input/` (mixed-format files, contradictions, incompleteness). How A1 correctly records conflicts in `## ⚠️ Detected requirement conflicts`. | ⏳ Planned |
 | `05-validate` + `06-final` | `validation-and-finalize.md` | The A4 ↔ A2 validation cycle with findings, the transition to `final/`. How to read `messages/a2-to-a4-vN.md` and not get stuck in iterations. | ⏳ Planned |
