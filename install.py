@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import platform
 
-# Определение цветов терминала
+# Terminal color definitions
 C_CYAN = "\033[96m"
 C_GREEN = "\033[92m"
 C_YELLOW = "\033[93m"
@@ -16,24 +16,24 @@ C_BOLD = "\033[1m"
 C_RESET = "\033[0m"
 
 def print_color(text, color_code):
-    """Печатает текст с подсветкой, если терминал поддерживает цвета."""
-    # Проверяем, поддерживает ли терминал цвета
+    """Prints text with highlighting if the terminal supports colors."""
+    # Check whether the terminal supports colors
     if sys.stdout.isatty():
         print(f"{color_code}{text}{C_RESET}")
     else:
         print(text)
 
 def print_panel(text, title="", color_code=C_GREEN):
-    """Отрисовывает красивую терминальную панель (рамку) вокруг текста."""
+    """Draws a nice terminal panel (box) around the text."""
     lines = text.split("\n")
     max_len = max(len(l) for l in lines)
     if title:
         max_len = max(max_len, len(title) + 4)
-    
+
     border_top = f"┏━ {title} " + "━" * (max_len - len(title) - 4) + "┓"
     if not title:
         border_top = "┏" + "━" * (max_len + 2) + "┓"
-        
+
     print_color(border_top, color_code)
     for line in lines:
         padding = " " * (max_len - len(line))
@@ -41,14 +41,14 @@ def print_panel(text, title="", color_code=C_GREEN):
             print(f"{color_code}┃{C_RESET} {line}{padding} {color_code}┃{C_RESET}")
         else:
             print(f"| {line}{padding} |")
-            
+
     border_bottom = "┗" + "━" * (max_len + 2) + "┛"
     print_color(border_bottom, color_code)
 
 def draw_banner():
-    """Рисует приветственный баннер."""
+    """Draws the welcome banner."""
     banner = fr"""
-{C_CYAN}  ____                                                              _         __  __ _           _ 
+{C_CYAN}  ____                                                              _         __  __ _           _
  |  _ \ ___  __ _ _   _ _ _ __ ___ _ __ ___   ___  _ __  _ __  ___  | \/ | ___|  \/  (_)_ __   __| |
  | |_) / _ \/ _` | | | | | '__/ _ \ '_ ` _ \ / _ \| '_ \| '_ \/ __| | |\/| / _ \ |\/| | | '_ \ / _` |
  |  _ <  __/ (_| | |_| | | | |  __/ | | | | |  __/| | | | | | \__ \ | |  |  __/ |  | | | | | | (_| |
@@ -57,132 +57,132 @@ def draw_banner():
     """
     print(banner)
     print_panel(
-        "Добро пожаловать в Requirements Mind!\n"
-        "Интерактивный установщик локального рабочего окружения.\n\n"
-        "Этот скрипт подготовит Python-зависимости, свяжет ИИ-навыки с вашей IDE,\n"
-        "настроит базу знаний Obsidian Vault и Google NotebookLM.",
+        "Welcome to Requirements Mind!\n"
+        "Interactive installer for your local working environment.\n\n"
+        "This script will prepare the Python dependencies, link the AI skills to your IDE,\n"
+        "and set up the Obsidian Vault knowledge base and Google NotebookLM.",
         title=" Requirements Mind v2.0 Setup ",
         color_code=C_CYAN
     )
 
 def detect_and_bootstrap():
-    """Фаза 0: Проверяет наличие файлов ядра в текущей папке. Если их нет, скачивает дистрибутив с GitHub."""
+    """Phase 0: Checks for core files in the current folder. If absent, downloads the distribution from GitHub."""
     required_files = ["cli.py", "requirements.txt"]
     required_folders = ["skills", "kb"]
-    
+
     is_installed = all(os.path.exists(f) for f in required_files) and \
                    all(os.path.exists(d) and os.path.isdir(d) for d in required_folders)
-                   
+
     if is_installed:
         return
-        
-    print_color("\n⚠️  Внимание: В текущей папке не обнаружены файлы ядра Requirements Mind.", C_YELLOW)
-    print_color("🚀 Запущена процедура глобальной bootstrap-установки с нуля!", C_CYAN)
-    
-    ans = input("Хотите скачать и развернуть дистрибутив в текущую папку? [Y/n]: ").strip().lower()
+
+    print_color("\n⚠️  Warning: no Requirements Mind core files were found in the current folder.", C_YELLOW)
+    print_color("🚀 Starting a from-scratch global bootstrap installation!", C_CYAN)
+
+    ans = input("Download and unpack the distribution into the current folder? [Y/n]: ").strip().lower()
     if ans not in ('', 'y', 'yes'):
-        print_color("❌ Установка отменена пользователем.", C_RED)
+        print_color("❌ Installation cancelled by user.", C_RED)
         sys.exit(0)
-        
+
     url = "https://github.com/Menta1ik/requirements-mind/archive/refs/heads/main.zip"
-    print(f"  • Скачивание дистрибутива из {url} ... ", end="", flush=True)
-    
+    print(f"  • Downloading the distribution from {url} ... ", end="", flush=True)
+
     import urllib.request
     import zipfile
     import tempfile
-    
+
     try:
         req = urllib.request.Request(
-            url, 
+            url,
             headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         )
         with urllib.request.urlopen(req, timeout=30) as response:
             zip_data = response.read()
         print_color("OK", C_GREEN)
     except Exception as e:
-        print_color("ОШИБКА", C_RED)
-        print(f"Не удалось скачать дистрибутив: {e}")
+        print_color("ERROR", C_RED)
+        print(f"Failed to download the distribution: {e}")
         sys.exit(1)
-        
-    print("  • Распаковка файлов дистрибутива ... ", end="", flush=True)
+
+    print("  • Unpacking the distribution files ... ", end="", flush=True)
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
             zip_path = os.path.join(temp_dir, "dist.zip")
             with open(zip_path, "wb") as f:
                 f.write(zip_data)
-                
+
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(temp_dir)
-                
+
             extracted_items = os.listdir(temp_dir)
             dist_folder_name = None
             for item in extracted_items:
                 if item.startswith("requirements-mind") and os.path.isdir(os.path.join(temp_dir, item)):
                     dist_folder_name = item
                     break
-                    
+
             if not dist_folder_name:
-                raise Exception("Не удалось найти корневую папку дистрибутива в архиве.")
-                
+                raise Exception("Could not find the distribution root folder inside the archive.")
+
             dist_folder_path = os.path.join(temp_dir, dist_folder_name)
-            
-            # Копируем всё содержимое в текущую папку
+
+            # Copy all contents into the current folder
             for root, dirs, files in os.walk(dist_folder_path):
                 rel_path = os.path.relpath(root, dist_folder_path)
                 target_root = os.getcwd() if rel_path == "." else os.path.join(os.getcwd(), rel_path)
-                
+
                 if rel_path != ".":
                     os.makedirs(target_root, exist_ok=True)
-                    
+
                 for file in files:
                     if rel_path == "." and file == "install.py":
                         continue
                     src_file = os.path.join(root, file)
                     dest_file = os.path.join(target_root, file)
                     shutil.copy2(src_file, dest_file)
-                    
+
         print_color("OK", C_GREEN)
         print_panel(
-            "Все файлы ядра Requirements Mind успешно загружены!\n"
-            "Переходим к интерактивной настройке окружения.",
-            title=" Загрузка завершена ",
+            "All Requirements Mind core files have been downloaded successfully!\n"
+            "Moving on to interactive environment setup.",
+            title=" Download complete ",
             color_code=C_GREEN
         )
     except Exception as e:
-        print_color("ОШИБКА", C_RED)
-        print(f"Не удалось распаковать дистрибутив: {e}")
+        print_color("ERROR", C_RED)
+        print(f"Failed to unpack the distribution: {e}")
         sys.exit(1)
 
 def check_environment():
-    """Шаг 1: Проверка базового окружения."""
-    print_color("\n🔍 Шаг 1: Проверка базового системного окружения...", C_BOLD)
-    
-    # 1. Проверка версии Python
+    """Step 1: Check the base environment."""
+    print_color("\n🔍 Step 1: Checking the base system environment...", C_BOLD)
+
+    # 1. Check the Python version
     py_version = sys.version_info
-    print(f"  • Версия Python: {py_version.major}.{py_version.minor}.{py_version.micro} ... ", end="")
+    print(f"  • Python version: {py_version.major}.{py_version.minor}.{py_version.micro} ... ", end="")
     if py_version.major < 3 or (py_version.major == 3 and py_version.minor < 10):
-        print_color("НЕПОДДЕРЖИВАЕМАЯ", C_RED)
+        print_color("UNSUPPORTED", C_RED)
         print_panel(
-            "Ошибка: Requirements Mind требует версию Python 3.10 или выше.\n"
-            "Пожалуйста, обновите Python и запустите установщик снова.",
-            title=" Ошибка Python ",
+            "Error: Requirements Mind requires Python 3.10 or higher.\n"
+            "Please upgrade Python and run the installer again.",
+            title=" Python error ",
             color_code=C_RED
         )
         sys.exit(1)
     else:
         print_color("OK", C_GREEN)
-        
-    # 2. Проверка Git
-    print("  • Проверка Git ... ", end="")
+
+    # 2. Check Git
+    print("  • Checking Git ... ", end="")
     git_path = shutil.which("git")
     if not git_path:
-        print_color("НЕ НАЙДЕН", C_RED)
+        print_color("NOT FOUND", C_RED)
         print_panel(
-            "Предупреждение: Git не обнаружен в вашей системе.\n"
-            "Requirements Mind использует Git для совместной работы нескольких аналитиков\n"
-            "и версионирования требований.\n\n"
-            "Рекомендуем установить Git: https://git-scm.com/",
-            title=" Предупреждение о Git ",
+            "Warning: Git was not detected on your system.\n"
+            "Requirements Mind uses Git for collaboration between multiple analysts\n"
+            "and for versioning requirements.\n\n"
+            "We recommend installing Git: https://git-scm.com/",
+            title=" Git warning ",
             color_code=C_YELLOW
         )
     else:
@@ -193,34 +193,34 @@ def check_environment():
             print_color("OK", C_GREEN)
 
 def setup_virtualenv():
-    """Шаг 2: Создание виртуального окружения и установка зависимостей."""
-    print_color("\n📦 Шаг 2: Настройка виртуального окружения и зависимостей...", C_BOLD)
-    
-    # 1. Проверяем наличие uv
+    """Step 2: Create the virtual environment and install dependencies."""
+    print_color("\n📦 Step 2: Setting up the virtual environment and dependencies...", C_BOLD)
+
+    # 1. Check for uv
     uv_path = shutil.which("uv")
     use_uv = False
-    
+
     if uv_path:
-        print_color("  • Обнаружен uv! Установка будет выполнена в 10 раз быстрее.", C_GREEN)
+        print_color("  • uv detected! Installation will be 10x faster.", C_GREEN)
         use_uv = True
     else:
-        ans = input(f"  • [Опционально] Хотите установить 'uv' для сверхбыстрого запуска зависимостей? [y/N]: ").strip().lower()
+        ans = input(f"  • [Optional] Install 'uv' for ultra-fast dependency handling? [y/N]: ").strip().lower()
         if ans in ('y', 'yes'):
-            print("  • Попытка установки uv...")
+            print("  • Attempting to install uv...")
             try:
-                # Пытаемся установить uv глобально через pip
+                # Try to install uv globally via pip
                 subprocess.run([sys.executable, "-m", "pip", "install", "uv"], check=True)
                 uv_path = shutil.which("uv")
                 if uv_path:
-                    print_color("  • 'uv' успешно установлен!", C_GREEN)
+                    print_color("  • 'uv' installed successfully!", C_GREEN)
                     use_uv = True
             except Exception:
-                print_color("  • Не удалось установить uv. Будет использован стандартный pip.", C_YELLOW)
-                
-    # 2. Создаем виртуальное окружение
+                print_color("  • Could not install uv. Falling back to standard pip.", C_YELLOW)
+
+    # 2. Create the virtual environment
     venv_dir = ".venv"
     if not os.path.exists(venv_dir):
-        print(f"  • Создание виртуального окружения в папке '{venv_dir}' ... ", end="")
+        print(f"  • Creating the virtual environment in '{venv_dir}' ... ", end="")
         try:
             if use_uv:
                 subprocess.run(["uv", "venv", venv_dir], check=True, capture_output=True)
@@ -228,13 +228,13 @@ def setup_virtualenv():
                 subprocess.run([sys.executable, "-m", "venv", venv_dir], check=True)
             print_color("OK", C_GREEN)
         except Exception as e:
-            print_color("ОШИБКА", C_RED)
-            print(f"Не удалось создать venv: {e}")
+            print_color("ERROR", C_RED)
+            print(f"Failed to create venv: {e}")
             sys.exit(1)
     else:
-        print_color(f"  • Виртуальное окружение '{venv_dir}' уже существует. Пропускаем создание.", C_CYAN)
+        print_color(f"  • Virtual environment '{venv_dir}' already exists. Skipping creation.", C_CYAN)
 
-    # 3. Опеределяем пути к исполняемым файлам venv
+    # 3. Determine the paths to the venv executables
     if platform.system() == "Windows":
         pip_path = os.path.join(venv_dir, "Scripts", "pip")
         python_path = os.path.join(venv_dir, "Scripts", "python")
@@ -242,178 +242,178 @@ def setup_virtualenv():
         pip_path = os.path.join(venv_dir, "bin", "pip")
         python_path = os.path.join(venv_dir, "bin", "python")
 
-    # 4. Установка зависимостей
-    print("  • Установка необходимых библиотек (Rich, Pydantic, Playwright)... ")
+    # 4. Install dependencies
+    print("  • Installing the required libraries (Rich, Pydantic, Playwright)... ")
     try:
         if use_uv:
             subprocess.run(["uv", "pip", "install", "-r", "requirements.txt"], check=True)
         else:
             subprocess.run([pip_path, "install", "-U", "pip"], check=True, capture_output=True)
             subprocess.run([pip_path, "install", "-r", "requirements.txt"], check=True)
-        print_color("  • Все зависимости успешно установлены!", C_GREEN)
+        print_color("  • All dependencies installed successfully!", C_GREEN)
     except Exception as e:
-        print_color(f"  • Ошибка при установке зависимостей: {e}", C_RED)
+        print_color(f"  • Error installing dependencies: {e}", C_RED)
         sys.exit(1)
 
     return python_path
 
 def setup_ide_integration(python_path):
-    """Шаг 3: Настройка ИИ-навыков в IDE."""
-    print_color("\n💻 Шаг 3: Интеграция ИИ-ассистентов IDE...", C_BOLD)
+    """Step 3: Set up the AI skills in the IDE."""
+    print_color("\n💻 Step 3: Integrating IDE AI assistants...", C_BOLD)
     print(
-        "Requirements Mind версии 2.0 использует IDE-Native ИИ-ассистентов.\n"
-        "Мы свяжем наши ИИ-навыки (skills) со служебными папками ваших сред разработки.\n"
+        "Requirements Mind version 2.0 uses IDE-native AI assistants.\n"
+        "We will link our AI skills to the service folders of your development environments.\n"
     )
-    
-    print("Выберите ваш ИИ-ассистент:")
-    print("  [1] Cursor / VS Code + Copilot  (рекомендуется)")
+
+    print("Choose your AI assistant:")
+    print("  [1] Cursor / VS Code + Copilot  (recommended)")
     print("  [2] Claude Code")
     print("  [3] Google Antigravity")
     print("  [4] OpenAI Codex CLI")
-    print("  [5] Все вышеперечисленные")
-    print("  [6] Пропустить этот шаг")
-    
-    choice = input(f"\nВведите номер выбора [1-6, по умолчанию 1]: ").strip()
+    print("  [5] All of the above")
+    print("  [6] Skip this step")
+
+    choice = input(f"\nEnter your choice [1-6, default 1]: ").strip()
     if not choice:
         choice = "1"
-        
+
     if choice == "6":
-        # Подсказка с правильным именем Python для текущей ОС
+        # Hint with the correct Python name for the current OS
         py_hint = "python" if platform.system() == "Windows" else "python3"
-        print_color(f"  • Шаг пропущен. Вы можете связать их позже вручную: `{py_hint} cli.py setup-ide`.", C_YELLOW)
+        print_color(f"  • Step skipped. You can link them later manually: `{py_hint} cli.py setup-ide`.", C_YELLOW)
         return
-        
-    print("  • Привязка навыков в IDE...")
+
+    print("  • Linking the skills into the IDE...")
     try:
-        # Вызываем встроенный обработчик в cli.py через python из venv
+        # Call the built-in handler in cli.py via the venv python
         subprocess.run([python_path, "cli.py", "setup-ide"], check=True)
     except Exception as e:
-        print_color(f"  • Ошибка при настройке IDE: {e}", C_RED)
+        print_color(f"  • Error setting up the IDE: {e}", C_RED)
 
 def setup_obsidian_integration(python_path):
-    """Шаг 4: Настройка Obsidian."""
-    print_color("\n📓 Шаг 4: Настройка визуализации в Obsidian...", C_BOLD)
-    ans = input("Хотите настроить Obsidian Vault для интерактивного графа требований? [Y/n]: ").strip().lower()
+    """Step 4: Set up Obsidian."""
+    print_color("\n📓 Step 4: Setting up visualization in Obsidian...", C_BOLD)
+    ans = input("Set up an Obsidian Vault for an interactive requirements graph? [Y/n]: ").strip().lower()
     if ans in ('', 'y', 'yes'):
         vault_dir = "vault"
         os.makedirs(vault_dir, exist_ok=True)
-        print_color(f"  • Локальный каталог '{vault_dir}/' подготовлен.", C_GREEN)
-        print("  • Синхронизация файлов с Obsidian...")
+        print_color(f"  • Local directory '{vault_dir}/' prepared.", C_GREEN)
+        print("  • Syncing files with Obsidian...")
         try:
             subprocess.run([python_path, "cli.py", "sync-vault"], check=True)
-            print_color("  • Успешно синхронизировано!", C_GREEN)
+            print_color("  • Synced successfully!", C_GREEN)
         except Exception as e:
-            print_color(f"  • Не удалось выполнить синхронизацию: {e}", C_RED)
+            print_color(f"  • Sync failed: {e}", C_RED)
         return True
     else:
-        print_color("  • Шаг пропущен.", C_YELLOW)
+        print_color("  • Step skipped.", C_YELLOW)
         return False
 
 def setup_notebooklm_integration():
-    """Шаг 5: Настройка Google NotebookLM."""
-    print_color("\n📤 Шаг 5: Настройка Google NotebookLM...", C_BOLD)
-    ans = input("Хотите инициализировать папку экспорта для Google NotebookLM? [Y/n]: ").strip().lower()
+    """Step 5: Set up Google NotebookLM."""
+    print_color("\n📤 Step 5: Setting up Google NotebookLM...", C_BOLD)
+    ans = input("Initialize the export folder for Google NotebookLM? [Y/n]: ").strip().lower()
     if ans in ('', 'y', 'yes'):
         os.makedirs("notebooklm", exist_ok=True)
-        print_color("  • Локальный каталог 'notebooklm/' успешно создан.", C_GREEN)
+        print_color("  • Local directory 'notebooklm/' created successfully.", C_GREEN)
         return True
     else:
-        print_color("  • Шаг пропущен.", C_YELLOW)
+        print_color("  • Step skipped.", C_YELLOW)
         return False
 
 def setup_demo_project(python_path, notebooklm_enabled):
-    """Шаг 6: Инициализация демонстрационного проекта."""
-    print_color("\n🚀 Шаг 6: Создание демонстрационного проекта...", C_BOLD)
-    ans = input("Хотите развернуть готовый демо-проект для быстрого ознакомления? [Y/n]: ").strip().lower()
+    """Step 6: Initialize the demo project."""
+    print_color("\n🚀 Step 6: Creating the demo project...", C_BOLD)
+    ans = input("Deploy a ready-made demo project for a quick tour? [Y/n]: ").strip().lower()
     if ans in ('', 'y', 'yes'):
         project_name = "demo-project"
-        print(f"  • Инициализация проекта '{project_name}' ... ", end="")
+        print(f"  • Initializing the project '{project_name}' ... ", end="")
         try:
             subprocess.run([python_path, "cli.py", "init", "--project", project_name], check=True, capture_output=True)
             subprocess.run([python_path, "cli.py", "onboard", "--project", project_name], check=True, capture_output=True)
             print_color("OK", C_GREEN)
         except Exception as e:
-            print_color("ОШИБКА", C_RED)
-            print(f"Не удалось инициализировать демо-проект: {e}")
+            print_color("ERROR", C_RED)
+            print(f"Failed to initialize the demo project: {e}")
             return
-            
-        # Записываем демонстрационные сырые требования
+
+        # Write the demo raw requirements
         input_req_file = f"projects/{project_name}/input/requirements.md"
-        demo_requirements = """# Демонстрационные требования: Сервис доставки еды "БыстроБайт"
+        demo_requirements = """# Demo requirements: "QuickBite" food-delivery service
 
-## 1. Описание концепции
-Мы хотим запустить мобильное приложение и веб-сайт для ультрабыстрой доставки готовой еды из наших dark-kitchens.
-Время доставки не должно превышать 20 минут с момента заказа.
+## 1. Concept description
+We want to launch a mobile app and a website for ultra-fast delivery of ready-made meals from our dark kitchens.
+Delivery time must not exceed 20 minutes from the moment of ordering.
 
-## 2. Основной функционал (MVP)
-* Авторизация пользователя по номеру телефона и одноразовому СМС-коду.
-* Интерактивная карта для выбора адреса доставки (с проверкой зоны покрытия доставки).
-* Каталог меню с возможностью добавления блюд в корзину и учета аллергенов.
-* Оплата банковской картой или через СБП.
-* Отслеживание курьера на карте в реальном времени.
+## 2. Core functionality (MVP)
+* User authentication by phone number and a one-time SMS code.
+* Interactive map for choosing the delivery address (with delivery-zone coverage check).
+* Menu catalog with the ability to add dishes to the cart and track allergens.
+* Payment by bank card or via instant bank transfer.
+* Real-time courier tracking on the map.
 
-## 3. Нефункциональные требования
-* Приложение должно работать даже при слабом 3G интернете.
-* Высокая отказоустойчивость в пиковые часы (с 12:00 до 14:00 и с 19:00 до 21:00).
+## 3. Non-functional requirements
+* The app must work even on a weak 3G connection.
+* High fault tolerance during peak hours (12:00–14:00 and 19:00–21:00).
 """
         try:
             with open(input_req_file, "w", encoding="utf-8") as f:
                 f.write(demo_requirements)
-            print_color(f"  • Демонстрационные требования записаны в {input_req_file}", C_GREEN)
+            print_color(f"  • Demo requirements written to {input_req_file}", C_GREEN)
         except Exception as e:
-            print(f"  • Не удалось записать демо-требования: {e}")
-            
-        # Если NotebookLM включен, сразу генерируем демо-экспорт
+            print(f"  • Failed to write the demo requirements: {e}")
+
+        # If NotebookLM is enabled, generate the demo export right away
         if notebooklm_enabled:
-            print("  • Автоматическая генерация демо-экспорта для Google NotebookLM...")
+            print("  • Auto-generating the demo export for Google NotebookLM...")
             try:
                 subprocess.run([python_path, "cli.py", "export-notebooklm", "--project", project_name], check=True, capture_output=True)
-                print_color(f"  • Готовый файл экспорта создан по пути: notebooklm/{project_name}.json", C_GREEN)
+                print_color(f"  • Export file created at: notebooklm/{project_name}.json", C_GREEN)
             except Exception as e:
-                print(f"  • Ошибка генерации демо-экспорта для NotebookLM: {e}")
+                print(f"  • Error generating the demo export for NotebookLM: {e}")
         return True
     else:
-        print_color("  • Шаг пропущен.", C_YELLOW)
+        print_color("  • Step skipped.", C_YELLOW)
         return False
 
 def show_welcome_tour(obsidian_enabled, notebooklm_enabled):
-    """Выводит шпаргалку и поздравление."""
+    """Prints the cheat sheet and congratulations."""
     welcome_text = (
-        "Поздравляем! Requirements Mind полностью установлен и настроен!\n\n"
-        f"{C_BOLD}БЫСТРЫЙ СТАРТ ДЛЯ АНАЛИТИКА:{C_RESET}\n"
-        "• Для демонстрационного проекта (demo-project):\n"
-        "  1. Откройте чат ИИ-ассистента в вашей IDE и запустите Intake:\n"
-        f"     {C_CYAN}«Мэри, запусти RMIN для проекта demo-project»{C_RESET}\n"
-        "  2. ИИ-агент автоматически предложит и выполнит команду в терминале:\n"
+        "Congratulations! Requirements Mind is fully installed and configured!\n\n"
+        f"{C_BOLD}QUICK START FOR THE ANALYST:{C_RESET}\n"
+        "• For the demo project (demo-project):\n"
+        "  1. Open your IDE's AI assistant chat and start Intake:\n"
+        f"     {C_CYAN}\"Mary, run RMIN for the demo-project project\"{C_RESET}\n"
+        "  2. The AI agent will automatically propose and run the command in the terminal:\n"
         f"     {C_YELLOW}uv run cli.py intake --project=demo-project{C_RESET}\n\n"
-        f"{C_BOLD}КАК НАЧАТЬ НОВЫЙ СОБСТВЕННЫЙ ПРОЕКТ (ПОЛНОСТЬЮ БЕЗ CLI-КОМАНД):{C_RESET}\n"
-        f"  1. Просто напишите Мэри в чате вашей IDE:\n"
-        f"     {C_CYAN}«Мэри, запусти RMONB для нового проекта my-project»{C_RESET} (или {C_CYAN}«RME для нового проекта my-project»{C_RESET} с нуля).\n"
-        f"  2. ИИ-агент **самостоятельно создаст все папки проекта на диске, сформирует state.json и автоматически запустит** необходимые CLI-команды в вашем терминале IDE!\n"
-        f"  *Вам больше не нужно вручную писать ни одной команды в консоли — просто подтверждайте автозапуск в чате IDE!*{C_RESET}\n\n"
-        f"{C_BOLD}ДОПОЛНИТЕЛЬНЫЕ ИНТЕГРАЦИИ:{C_RESET}\n"
+        f"{C_BOLD}HOW TO START A NEW PROJECT OF YOUR OWN (FULLY WITHOUT CLI COMMANDS):{C_RESET}\n"
+        f"  1. Just tell Mary in your IDE's chat:\n"
+        f"     {C_CYAN}\"Mary, run RMONB for a new project my-project\"{C_RESET} (or {C_CYAN}\"RME for a new project my-project\"{C_RESET} from scratch).\n"
+        f"  2. The AI agent will **create all the project folders on disk on its own, build state.json, and automatically run** the necessary CLI commands in your IDE terminal!\n"
+        f"  *You no longer need to type a single command in the console by hand — just confirm the auto-run in the IDE chat!*{C_RESET}\n\n"
+        f"{C_BOLD}ADDITIONAL INTEGRATIONS:{C_RESET}\n"
     )
-    
+
     if obsidian_enabled:
-        welcome_text += "• Obsidian: Откройте папку 'vault/' в приложении Obsidian. Там вас ждет визуальная база знаний.\n"
+        welcome_text += "• Obsidian: Open the 'vault/' folder in the Obsidian app. A visual knowledge base awaits you there.\n"
     if notebooklm_enabled:
         welcome_text += (
-            "• Google NotebookLM: Зайдите на https://notebooklm.google/, создайте новый блокнот\n"
-            "  и загрузите туда файл 'notebooklm/demo-project.json' для глубокого ИИ-анализа проекта.\n"
+            "• Google NotebookLM: Go to https://notebooklm.google/, create a new notebook,\n"
+            "  and upload the file 'notebooklm/demo-project.json' there for deep AI analysis of the project.\n"
         )
-        
-    welcome_text += "\nВсе подробные инструкции и сценарии лежат в папке docs/user_guide.md."
-    
+
+    welcome_text += "\nAll detailed instructions and scenarios live in the docs/user_guide.md folder."
+
     print("\n")
-    print_panel(welcome_text, title=" 🎉 Успешная установка! ", color_code=C_GREEN)
+    print_panel(welcome_text, title=" 🎉 Installation successful! ", color_code=C_GREEN)
 
 def main():
-    # Очистка экрана для красивого начала (если поддерживается)
+    # Clear the screen for a clean start (if supported)
     if platform.system() != "Windows" and sys.stdout.isatty():
         os.system("clear")
-        
+
     draw_banner()
-    
+
     try:
         detect_and_bootstrap()
         check_environment()
@@ -424,7 +424,7 @@ def main():
         setup_demo_project(python_path, nlm_enabled)
         show_welcome_tour(obs_enabled, nlm_enabled)
     except KeyboardInterrupt:
-        print_color("\n\n❌ Установка прервана пользователем.", C_RED)
+        print_color("\n\n❌ Installation interrupted by user.", C_RED)
         sys.exit(1)
 
 if __name__ == "__main__":

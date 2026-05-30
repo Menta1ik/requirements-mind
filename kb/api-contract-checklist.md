@@ -1,55 +1,55 @@
-# Чек-лист: API Contract (Спецификация API проекта)
+# Checklist: API Contract
 
-Этот чек-лист используется агентом **A2 Validator** для проверки полноты спецификаций API и агентом **A4 Writer** в качестве шаблона для генерации документа.
+This checklist is used by the **A2 Validator** agent to check the completeness of the API specifications, and by the **A4 Writer** agent as a template for generating the document.
 
-## Augment-policy (как читать чеклист)
+## Augment policy (how to read the checklist)
 
-С версии v2.2 каждая секция помечена тегом `[required]` или `[optional-augment]` после заголовка:
+As of v2.2, each section is tagged with `[required]` or `[optional-augment]` after the heading:
 
-- `[required]` — критическая секция смысла. **Обязательна в любом режиме.** Это: список эндпоинтов с методами и параметрами, модели ответов и коды ошибок, схема авторизации.
-- `[optional-augment]` — рекомендуемая секция формы. В `rm_mode: draft` обязательна, в `rm_mode: augment` отсутствие → **warning** в блоке «⚠️ Augment-soft», не блокер. Это: общие заголовки (могут быть зафиксированы один раз в baseline и не повторяться по эндпоинтам), curl/OpenAPI-примеры (если baseline уже содержит OpenAPI-спеку рядом — допустимо не дублировать).
+- `[required]` — a critical, meaning-bearing section. **Mandatory in any mode.** These are: the list of endpoints with their methods and parameters, the response models and error codes, the authorization scheme.
+- `[optional-augment]` — a recommended, form-bearing section. In `rm_mode: draft` it is mandatory; in `rm_mode: augment` its absence → a **warning** in the "⚠️ Augment-soft" block, not a blocker. These are: common headers (may be recorded once in a baseline and not repeated per endpoint), curl/OpenAPI examples (if the baseline already includes an OpenAPI spec alongside — it is acceptable not to duplicate).
 
-A2 определяет режим через frontmatter `context.md` (`rm_mode: draft | augment`).
-
----
-
-## 1. Базовая информация об API `[required]`
-- [ ] Указан базовый URL и поддерживаемые версии API (версионирование через URL или заголовки). `[required]`
-- [ ] Описаны используемые форматы данных (JSON, XML, Protocol Buffers). `[required]`
-- [ ] Задокументированы общие HTTP-заголовки запросов и ответов (например, `Content-Type`, `Authorization`). `[optional-augment]`
+A2 determines the mode via the `context.md` frontmatter (`rm_mode: draft | augment`).
 
 ---
 
-## 2. Спецификация эндпоинтов (Endpoints) `[required]`
-- [ ] Для каждого эндпоинта указан HTTP-метод (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`). `[required]`
-- [ ] Описаны все query-параметры, path-параметры и их типы данных. `[required]`
-- [ ] Приведен полный пример тела запроса (Request Body) с описанием обязательности полей. `[required]`
-- [ ] Описана валидация входных данных (максимальная длина, форматы строк, диапазоны чисел). `[required]`
+## 1. Basic API information `[required]`
+- [ ] The base URL and the supported API versions are specified (versioning via URL or headers). `[required]`
+- [ ] The data formats used are described (JSON, XML, Protocol Buffers). `[required]`
+- [ ] The common HTTP request and response headers are documented (for example, `Content-Type`, `Authorization`). `[optional-augment]`
 
 ---
 
-## 3. Модели ответов и коды статусов `[required]`
-- [ ] Приведены детальные примеры успешных ответов (например, HTTP 200 OK, 201 Created). `[required]`
-- [ ] Задокументированы примеры всех возможных ошибок (например, HTTP 400 Bad Request, 401 Unauthorized, 404 Not Found, 422 Unprocessable Entity, 500 Internal Server Error). `[required]`
-- [ ] Ошибки оформлены строго по стандарту RFC 7807 (Problem Details). `[optional-augment]`
+## 2. Endpoint specification (Endpoints) `[required]`
+- [ ] The HTTP method is specified for each endpoint (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`). `[required]`
+- [ ] All query parameters, path parameters, and their data types are described. `[required]`
+- [ ] A full Request Body example is provided, with a description of which fields are mandatory. `[required]`
+- [ ] Input-data validation is described (maximum length, string formats, number ranges). `[required]`
 
 ---
 
-## 4. Безопасность и ограничения `[required]`
-- [ ] Указана схема авторизации для каждого эндпоинта (требуется ли авторизация, какой тип токена). `[required]`
-- [ ] Документирована политика ограничения частоты запросов (Rate Limiting) для эндпоинтов. `[required]`
+## 3. Response models and status codes `[required]`
+- [ ] Detailed examples of successful responses are provided (for example, HTTP 200 OK, 201 Created). `[required]`
+- [ ] Examples of all possible errors are documented (for example, HTTP 400 Bad Request, 401 Unauthorized, 404 Not Found, 422 Unprocessable Entity, 500 Internal Server Error). `[required]`
+- [ ] Errors are formatted strictly per the RFC 7807 standard (Problem Details). `[optional-augment]`
 
 ---
 
-## 5. Интерактивные примеры `[optional-augment]`
-- [ ] Приведены рабочие примеры вызовов через `curl` или спецификацию в формате OpenAPI / Swagger 3.0. `[optional-augment]`
+## 4. Security and limits `[required]`
+- [ ] The authorization scheme is specified for each endpoint (whether authorization is required, which token type). `[required]`
+- [ ] The rate-limiting policy for the endpoints is documented. `[required]`
 
 ---
 
-## Блокирующие проблемы (FAIL)
+## 5. Interactive examples `[optional-augment]`
+- [ ] Working call examples are provided via `curl` or a specification in OpenAPI / Swagger 3.0 format. `[optional-augment]`
 
-Документ получает статус FAIL если:
-- Отсутствует любой пункт `[required]` (в любом режиме).
-- В режиме `rm_mode: draft` — отсутствует любой пункт `[optional-augment]`.
+---
 
-В режиме `rm_mode: augment` отсутствие `[optional-augment]` пунктов → **warning** в блоке «⚠️ Augment-soft» отчёта, не блокер.
+## Blocking problems (FAIL)
+
+The document gets a FAIL status if:
+- Any `[required]` item is missing (in any mode).
+- In `rm_mode: draft` — any `[optional-augment]` item is missing.
+
+In `rm_mode: augment` mode, the absence of `[optional-augment]` items → a **warning** in the "⚠️ Augment-soft" block of the report, not a blocker.

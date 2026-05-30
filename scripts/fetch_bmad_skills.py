@@ -3,26 +3,26 @@ import os
 import shutil
 import sys
 
-# Пути к репозиториям
+# Repository paths
 BMAD_REPO_PATH = "/Users/macbook/Projects/BMAD-METHOD"
 CURRENT_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEST_SKILLS_PATH = os.path.join(CURRENT_PROJECT_PATH, "skills", "bmad")
 
-# Полный маппинг 17 навыков из спецификации
+# The full mapping of the 17 skills from the specification
 SKILLS_MAPPING = {
-    # Из bmm-skills/1-analysis/
+    # From bmm-skills/1-analysis/
     "bmad-agent-analyst": "src/bmm-skills/1-analysis/bmad-agent-analyst",
     "bmad-agent-tech-writer": "src/bmm-skills/1-analysis/bmad-agent-tech-writer",
     "research": "src/bmm-skills/1-analysis/research",
-    
-    # Из bmm-skills/2-plan-workflows/
+
+    # From bmm-skills/2-plan-workflows/
     "bmad-agent-pm": "src/bmm-skills/2-plan-workflows/bmad-agent-pm",
     "bmad-create-prd": "src/bmm-skills/2-plan-workflows/bmad-create-prd",
     "bmad-edit-prd": "src/bmm-skills/2-plan-workflows/bmad-edit-prd",
     "bmad-validate-prd": "src/bmm-skills/2-plan-workflows/bmad-validate-prd",
     "bmad-prd": "src/bmm-skills/2-plan-workflows/bmad-prd",
-    
-    # Из core-skills/
+
+    # From core-skills/
     "bmad-party-mode": "src/core-skills/bmad-party-mode",
     "bmad-advanced-elicitation": "src/core-skills/bmad-advanced-elicitation",
     "bmad-spec": "src/core-skills/bmad-spec",
@@ -36,44 +36,44 @@ SKILLS_MAPPING = {
 
 def main():
     print("====================================================")
-    print("🚀 Запуск скрипта импорта 17 навыков из BMAD-METHOD")
+    print("🚀 Running the script to import the 17 skills from BMAD-METHOD")
     print("====================================================")
 
-    # 1. Проверяем наличие репозитория BMAD-METHOD
+    # 1. Check that the BMAD-METHOD repository is present
     if not os.path.exists(BMAD_REPO_PATH):
-        print(f"❌ Ошибка: Локальный репозиторий BMAD-METHOD не найден по пути: {BMAD_REPO_PATH}")
-        print("Пожалуйста, убедитесь, что репозиторий клонирован правильно.")
+        print(f"❌ Error: The local BMAD-METHOD repository was not found at: {BMAD_REPO_PATH}")
+        print("Please make sure the repository is cloned correctly.")
         sys.exit(1)
 
-    print(f"✅ Найден репозиторий BMAD-METHOD: {BMAD_REPO_PATH}")
-    print(f"📁 Целевая папка для навыков: {DEST_SKILLS_PATH}")
-    
-    # Создаем целевую директорию, если она не существует
+    print(f"✅ Found the BMAD-METHOD repository: {BMAD_REPO_PATH}")
+    print(f"📁 Target folder for the skills: {DEST_SKILLS_PATH}")
+
+    # Create the target directory if it does not exist
     os.makedirs(DEST_SKILLS_PATH, exist_ok=True)
 
-    # 2. Копируем навыки согласно маппингу
+    # 2. Copy the skills according to the mapping
     success_count = 0
     for skill_name, rel_path in SKILLS_MAPPING.items():
         src_path = os.path.join(BMAD_REPO_PATH, rel_path)
         dest_path = os.path.join(DEST_SKILLS_PATH, skill_name)
 
         if not os.path.exists(src_path):
-            print(f"⚠️  Ошибка: Исходная папка для навыка '{skill_name}' не найдена по пути: {src_path}")
+            print(f"⚠️  Error: The source folder for the skill '{skill_name}' was not found at: {src_path}")
             continue
 
-        # Если целевая папка уже существует, удаляем её перед копированием
+        # If the target folder already exists, remove it before copying
         if os.path.exists(dest_path):
             shutil.rmtree(dest_path)
 
         try:
             shutil.copytree(src_path, dest_path)
-            print(f"✅ Успешно скопирован навык: {skill_name} -> skills/bmad/{skill_name}")
+            print(f"✅ Successfully copied the skill: {skill_name} -> skills/bmad/{skill_name}")
             success_count += 1
         except Exception as e:
-            print(f"❌ Ошибка при копировании навыка {skill_name}: {e}")
+            print(f"❌ Error copying the skill {skill_name}: {e}")
 
     print("====================================================")
-    print(f"🎉 Скрипт завершил работу. Успешно импортировано навыков: {success_count}/{len(SKILLS_MAPPING)}")
+    print(f"🎉 The script has finished. Skills successfully imported: {success_count}/{len(SKILLS_MAPPING)}")
     print("====================================================")
 
 if __name__ == "__main__":

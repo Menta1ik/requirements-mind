@@ -1,28 +1,28 @@
-# Сценарий: 06-final (Финализация документов)
+# Flow: 06-final (Finalizing the documents)
 
-Этот сценарий описывает процесс финализации и перевода утвержденных черновиков в окончательный статус.
+This flow describes the process of finalizing approved drafts and moving them to their final status.
 
-## 👥 Участвующие роли
+## 👥 Roles involved
 * **Master Orchestrator**
 
-## 🏁 Входные данные
-* Одобренный черновик спецификации (например, `projects/<project-name>/draft/BRD-v2.md`).
-* Статус `approved` в `state.json`.
+## 🏁 Inputs
+* An approved specification draft (for example, `projects/<project-name>/draft/BRD-v2.md`).
+* Status `approved` in `state.json`.
 
-## ⚙️ Пошаговый процесс
+## ⚙️ Step-by-step process
 
-1. **Запуск финализации:**
-   ИИ-агент автоматически предлагает выполнить в вашем терминале команду финализации:
+1. **Launch finalization:**
+   The AI agent automatically proposes running the finalization command in your terminal:
    ```bash
-   # ЗАПУСКАЕТСЯ АВТОМАТИЧЕСКИ ИИ-АГЕНТОМ ПОСЛЕ ПОДТВЕРЖДЕНИЯ В ЧАТЕ
+   # RUN AUTOMATICALLY BY THE AI AGENT AFTER CONFIRMATION IN THE CHAT
    uv run cli.py final --project=<name> --doc=BRD --version=2
    ```
-   *(Вам достаточно нажать кнопку подтверждения запуска в чате).*
-2. **Перенос документа:**
-   Оркестратор копирует одобренную версию черновика `draft/BRD-v2.md` в папку финальных версий `final/BRD-v2-final.md`.
-3. **Обновление реестра:**
-   В `metadata.json` записывается информация об успешной финализации с указанием даты и хэша версии.
-4. **Формирование отчета решения:**
-   Оркестратор генерирует `messages/orchestrator-decision.md` с резюме проделанной работы.
-5. **Готовность к следующему этапу:**
-   Проект переводится в нейтральное состояние, готовое к началу генерации следующего документа в иерархии (например, SRS на основе финализированного BRD).
+   *(You just press the confirm-run button in the chat.)*
+2. **Move the document:**
+   The orchestrator copies the approved draft version `draft/BRD-v2.md` into the final-versions folder `final/BRD-v2-final.md`.
+3. **Update the registry:**
+   Information about the successful finalization is recorded in `metadata.json`, including the date and the version hash.
+4. **Produce the decision report:**
+   The orchestrator generates `messages/orchestrator-decision.md` with a summary of the work done.
+5. **Readiness for the next stage:**
+   The project is moved to a neutral state, ready to start generating the next document in the hierarchy (for example, an SRS based on the finalized BRD).

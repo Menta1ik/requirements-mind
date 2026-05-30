@@ -288,7 +288,7 @@ uv run cli.py update
 > * `vault/` и `notebooklm/` — сгенерированные базы и экспорты;
 > * любые ваши кастомизации вне списка файлов ядра.
 
-📖 Полное описание процесса обновления и сценариев восстановления — в [`docs/user_guide.md` §5](docs/user_guide.md#5-автоматическое-обновление-requirements-mind-update-в-1-клик).
+📖 Полное описание процесса обновления и сценариев восстановления — в [`docs/user_guide.md` §5](docs/user_guide.md#5-automatic-requirements-mind-update-one-click-update).
 
 ---
 

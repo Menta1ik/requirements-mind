@@ -1,27 +1,27 @@
-# Сценарий: 04-draft (Разработка черновиков документов)
+# Flow: 04-draft (Drafting the documents)
 
-Этот сценарий описывает процесс написания спецификаций (Режим A) по жестким чеклистам.
+This flow describes the process of writing specifications (Mode A) against rigid checklists.
 
-## 👥 Участвующие роли
+## 👥 Roles involved
 * **A4 — Document Writer**
-* **A5 — Research Assistant** (по запросу)
+* **A5 — Research Assistant** (on request)
 
-## 🏁 Входные данные
+## 🏁 Inputs
 * `projects/<project-name>/context.md`
-* Чек-листы из `kb/` (например, `kb/srs-checklist.md`).
+* Checklists from `kb/` (for example, `kb/srs-checklist.md`).
 
-## ⚙️ Пошаговый процесс
+## ⚙️ Step-by-step process
 
-1. **Запуск генерации:**
-   Пользователь вызывает команду:
+1. **Launch generation:**
+   The user runs the command:
    ```bash
    uv run cli.py draft --project=<name> --doc=BRD
    ```
-2. **Проверка требований чеклиста:**
-   A4 загружает соответствующий чеклист из `kb/` и приступает к написанию разделов спецификации.
-3. **Запрос исследования (Опционально):**
-   При необходимости A4 может запустить A5 для уточнения стандартов безопасности или паттернов проектирования.
-4. **Запись черновика:**
-   A4 генерирует файл `projects/<project-name>/draft/BRD-vN.md` (где `N` — текущий номер итерации).
-5. **Обновление состояния:**
-   ИИ-оркестратор увеличивает номер итерации и переводит статус проекта в `validating`.
+2. **Check the checklist requirements:**
+   A4 loads the corresponding checklist from `kb/` and starts writing the specification sections.
+3. **Research request (optional):**
+   If needed, A4 can invoke A5 to clarify security standards or design patterns.
+4. **Write the draft:**
+   A4 generates the file `projects/<project-name>/draft/BRD-vN.md` (where `N` is the current iteration number).
+5. **Update the state:**
+   The AI orchestrator increments the iteration number and moves the project status to `validating`.

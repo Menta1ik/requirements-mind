@@ -1,66 +1,66 @@
 # BRD Checklist
 
-Используется агентом A2 для валидации Business Requirements Document.
-Основан на: ISO/IEC/IEEE 29148:2018, BABOK v3, PMBOK 7.
+Used by agent A2 to validate the Business Requirements Document.
+Based on: ISO/IEC/IEEE 29148:2018, BABOK v3, PMBOK 7.
 
-## Augment-policy (как читать колонку «Обязательна»)
+## Augment policy (how to read the "Required" column)
 
-С версии v2.2 каждой секции присвоен **augment-policy** для случая, когда документ дорабатывается из baseline (`rm_mode: augment`):
+As of v2.2, each section is assigned an **augment-policy** for the case where the document is being extended from a baseline (`rm_mode: augment`):
 
-- `required` — критическая секция смысла. **Обязательна в любом режиме.** Если в baseline её нет — A2 ставит `FAILED`. Это секции про бизнес-цели, измеримые метрики, scope, основные стейкхолдеры — без них документ не имеет ценности.
-- `optional-augment` — рекомендуемая секция формы. В режиме `draft` она обязательна (`FAILED`), в режиме `augment` её отсутствие репортится как **warning** в блоке «⚠️ Augment-soft» отчёта валидации, но не блокирует переход в `approved`. Это секции, которые в baseline могут называться иначе или быть встроены в другие разделы.
-- `if-applicable` — секция «по применимости». Если бизнес-контекст её требует — обязательна, иначе пропускается. Без изменений между режимами.
+- `required` — a critical, meaning-bearing section. **Mandatory in any mode.** If it is absent in the baseline, A2 assigns `FAILED`. These are the sections on business goals, measurable metrics, scope, key stakeholders — without them the document has no value.
+- `optional-augment` — a recommended, form-bearing section. In `draft` mode it is mandatory (`FAILED`); in `augment` mode its absence is reported as a **warning** in the "⚠️ Augment-soft" block of the validation report, but does not block the transition to `approved`. These are sections that in a baseline may be named differently or embedded in other sections.
+- `if-applicable` — an "as applicable" section. If the business context requires it, it is mandatory; otherwise it is skipped. No difference between modes.
 
-A2 определяет режим через frontmatter `context.md` (`rm_mode: draft | augment`).
+A2 determines the mode via the `context.md` frontmatter (`rm_mode: draft | augment`).
 
-## Обязательные секции
+## Mandatory sections
 
-| Секция | Обязательна | Augment-policy | Критерий полноты |
+| Section | Required | Augment-policy | Completeness criterion |
 |---|---|---|---|
-| 0. Document Control | ✅ | optional-augment | Версия, статус, автор, approvers, revision history |
-| 1. Executive Summary | ✅ | required | Problem Statement + Proposed Solution присутствуют |
-| 2.2 Business Problem | ✅ | required | Проблема сформулирована чётко, не расплывчато |
-| 2.3 AS-IS | ✅ | optional-augment | Текущее состояние описано |
-| 2.4 TO-BE | ✅ | optional-augment | Желаемое состояние описано |
-| 2.5 Gap Analysis | ✅ | optional-augment | Разрыв между AS-IS и TO-BE указан |
-| 3.1 In Scope | ✅ | required | Минимум 3 пункта |
-| 3.2 Out of Scope | ✅ | required | Минимум 2 пункта (что явно НЕ входит) |
-| 3.3 Assumptions | ✅ | required | Минимум 3 допущения |
-| 3.4 Constraints | ✅ | required | Минимум 2 ограничения |
-| 4.1 Stakeholder Register | ✅ | required | Таблица: роль, имя/должность, интересы, влияние |
-| 4.2 RACI Matrix | ✅ | optional-augment | Все роли из Stakeholder Register покрыты |
-| 5.1 Business Goals | ✅ | required | SMART формат, минимум 2 цели |
-| 5.3 Success Criteria / KPIs | ✅ | required | Измеримые метрики (не «улучшить», а «+20% за 6 мес») |
-| 5.4 Business Rules | ✅ | required | Минимум 3 правила |
-| 5.5 Functional Requirements | ✅ | required | Высокий уровень, минимум 5 требований |
-| 5.6 Non-Functional Requirements | ✅ | required | Упомянуты: performance, security, availability |
-| 5.7 Data Requirements | ⚠️ | if-applicable | Если система работает с данными — обязательно |
-| 5.8 Compliance & Regulatory | ⚠️ | if-applicable | Если применимо — обязательно |
-| 6.2 High-level Use Cases | ✅ | optional-augment | Таблица: ID, название, актор, цель, приоритет |
-| 7.1 Risk Register | ✅ | required | Минимум 3 риска с митигацией |
-| 7.2 Open Issues | ✅ | optional-augment | Все открытые вопросы с ответственным и дедлайном |
-| 8. Glossary | ✅ | optional-augment | Все специфические термины из текста |
+| 0. Document Control | ✅ | optional-augment | Version, status, author, approvers, revision history |
+| 1. Executive Summary | ✅ | required | Problem Statement + Proposed Solution present |
+| 2.2 Business Problem | ✅ | required | The problem is stated clearly, not vaguely |
+| 2.3 AS-IS | ✅ | optional-augment | The current state is described |
+| 2.4 TO-BE | ✅ | optional-augment | The desired state is described |
+| 2.5 Gap Analysis | ✅ | optional-augment | The gap between AS-IS and TO-BE is stated |
+| 3.1 In Scope | ✅ | required | At least 3 items |
+| 3.2 Out of Scope | ✅ | required | At least 2 items (what is explicitly NOT included) |
+| 3.3 Assumptions | ✅ | required | At least 3 assumptions |
+| 3.4 Constraints | ✅ | required | At least 2 constraints |
+| 4.1 Stakeholder Register | ✅ | required | Table: role, name/title, interests, influence |
+| 4.2 RACI Matrix | ✅ | optional-augment | All roles from the Stakeholder Register are covered |
+| 5.1 Business Goals | ✅ | required | SMART format, at least 2 goals |
+| 5.3 Success Criteria / KPIs | ✅ | required | Measurable metrics (not "improve", but "+20% in 6 months") |
+| 5.4 Business Rules | ✅ | required | At least 3 rules |
+| 5.5 Functional Requirements | ✅ | required | High level, at least 5 requirements |
+| 5.6 Non-Functional Requirements | ✅ | required | Mentioned: performance, security, availability |
+| 5.7 Data Requirements | ⚠️ | if-applicable | If the system works with data — mandatory |
+| 5.8 Compliance & Regulatory | ⚠️ | if-applicable | If applicable — mandatory |
+| 6.2 High-level Use Cases | ✅ | optional-augment | Table: ID, name, actor, goal, priority |
+| 7.1 Risk Register | ✅ | required | At least 3 risks with mitigation |
+| 7.2 Open Issues | ✅ | optional-augment | All open issues with an owner and a deadline |
+| 8. Glossary | ✅ | optional-augment | All domain-specific terms from the text |
 
-## Качество требований
+## Requirements quality
 
-- [ ] Нет противоречий между секциями
-- [ ] Все термины из текста есть в Glossary
-- [ ] Все stakeholders из RACI есть в Stakeholder Register
-- [ ] Все цели из раздела 2 покрыты в разделе 5
-- [ ] Нет допущений спрятанных в тексте (все вынесены в 3.3)
-- [ ] Нет открытых вопросов без ответственного и дедлайна
-- [ ] Business Goals в SMART формате
-- [ ] KPIs измеримы (числа, проценты, сроки)
+- [ ] No contradictions between sections
+- [ ] All terms from the text are in the Glossary
+- [ ] All stakeholders from RACI are in the Stakeholder Register
+- [ ] All goals from section 2 are covered in section 5
+- [ ] No assumptions hidden in the text (all are moved into 3.3)
+- [ ] No open issues without an owner and a deadline
+- [ ] Business Goals are in SMART format
+- [ ] KPIs are measurable (numbers, percentages, deadlines)
 
-## Блокирующие проблемы (FAIL)
+## Blocking problems (FAIL)
 
-Документ получает статус FAIL если:
-- Отсутствует любая секция с `augment-policy: required` (в любом режиме).
-- В режиме `rm_mode: draft` — отсутствует любая секция с `augment-policy: optional-augment`.
-- Business Goals не измеримы.
-- Нет In Scope / Out of Scope.
-- Нет Stakeholder Register.
-- Нет Risk Register.
-- Прямые противоречия между секциями.
+The document gets a FAIL status if:
+- Any section with `augment-policy: required` is missing (in any mode).
+- In `rm_mode: draft` — any section with `augment-policy: optional-augment` is missing.
+- Business Goals are not measurable.
+- There is no In Scope / Out of Scope.
+- There is no Stakeholder Register.
+- There is no Risk Register.
+- There are direct contradictions between sections.
 
-В режиме `rm_mode: augment` отсутствие `optional-augment` секций → **warning** в блоке «⚠️ Augment-soft» отчёта, не блокер.
+In `rm_mode: augment` mode, the absence of `optional-augment` sections → a **warning** in the "⚠️ Augment-soft" block of the report, not a blocker.

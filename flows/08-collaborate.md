@@ -1,29 +1,29 @@
-# Сценарий: 08-collaborate (Межагентный круглый стол / Party Mode)
+# Flow: 08-collaborate (Cross-agent round table / Party Mode)
 
-Этот сценарий описывает процесс запуска совместного обсуждения требований группой ИИ-агентов.
+This flow describes the process of launching a collaborative requirements discussion by a group of AI agents.
 
-## 👥 Участвующие роли
+## 👥 Roles involved
 * **Master Orchestrator**
-* Набор выбранных агентов (например, **A1, A2, A4**)
+* A set of selected agents (for example, **A1, A2, A4**)
 
-## 🏁 Входные данные
-* Текущий статус проекта в `state.json`.
-* Тема или проблема для обсуждения.
+## 🏁 Inputs
+* The current project status in `state.json`.
+* A topic or problem to discuss.
 
-## ⚙️ Пошаговый процесс
+## ⚙️ Step-by-step process
 
-1. **Запуск круглого стола:**
-   Пользователь вызывает команду:
+1. **Launch the round table:**
+   The user runs the command:
    ```bash
    uv run cli.py collaborate --project=<name> --agents="a2,a4"
    ```
-2. **Инициализация сессии:**
-   Оркестратор подготавливает контекст круглого стола, собирает последние версии документов и распределяет системные промпты выбранным агентам.
-3. **Обмен сообщениями:**
-   - Валидатор (A2) генерирует свои возражения и критику.
-   - Писатель (A4) реагирует на критику, описывая планируемые изменения.
-   - Все сообщения сохраняются в файлы межагентных писем `projects/<project-name>/messages/`.
-4. **Резюме оркестратора:**
-   Оркестратор анализирует дискуссию, формирует `orchestrator-decision.md` с окончательными решениями и планом действий.
-5. **Фиксация результатов:**
-   В `state.json` обновляются активные агенты и текущий статус, проект переводится на этап исправления черновиков.
+2. **Initialize the session:**
+   The orchestrator prepares the round-table context, gathers the latest document versions, and distributes the system prompts to the selected agents.
+3. **Exchange messages:**
+   - The Validator (A2) generates its objections and critique.
+   - The Writer (A4) reacts to the critique, describing the planned changes.
+   - All messages are saved into the cross-agent letter files in `projects/<project-name>/messages/`.
+4. **Orchestrator summary:**
+   The orchestrator analyzes the discussion and produces `orchestrator-decision.md` with the final decisions and an action plan.
+5. **Record the results:**
+   The active agents and the current status are updated in `state.json`, and the project is moved to the draft-revision stage.

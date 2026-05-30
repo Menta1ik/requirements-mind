@@ -1,4 +1,4 @@
-"""Тесты для `cli._read_frontmatter` — мини-парсера YAML-блока в начале .md."""
+"""Tests for `cli._read_frontmatter` — the mini parser for the YAML block at the start of an .md."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -18,8 +18,8 @@ def test_reads_simple_frontmatter(tmp_path: Path) -> None:
 
 
 def test_no_frontmatter_returns_empty(tmp_path: Path) -> None:
-    p = _write(tmp_path / "ctx.md", "# Просто заголовок\nrm_status: complete\n")
-    # Первая строка — не `---`, значит frontmatter не распознан.
+    p = _write(tmp_path / "ctx.md", "# Just a heading\nrm_status: complete\n")
+    # The first line is not `---`, so the frontmatter is not recognized.
     assert cli._read_frontmatter(p) == {}
 
 
@@ -35,10 +35,10 @@ def test_handles_quotes_and_whitespace(tmp_path: Path) -> None:
 
 
 def test_stops_at_closing_delimiter(tmp_path: Path) -> None:
-    """Пары `key: value` после второго `---` не должны попадать в frontmatter."""
+    """`key: value` pairs after the second `---` must not leak into the frontmatter."""
     p = _write(
         tmp_path / "ctx.md",
-        "---\nrm_status: incomplete\n---\n\n## Раздел\nignored_key: should_not_leak\n",
+        "---\nrm_status: incomplete\n---\n\n## Section\nignored_key: should_not_leak\n",
     )
     fm = cli._read_frontmatter(p)
     assert fm == {"rm_status": "incomplete"}

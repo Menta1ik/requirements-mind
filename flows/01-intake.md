@@ -1,26 +1,26 @@
-# Сценарий: 01-intake (Первичный сбор требований)
+# Flow: 01-intake (Initial requirements gathering)
 
-Этот сценарий описывает процесс разбора сырых входных данных из папки `input/` и формирования первичного контекста проекта.
+This flow describes the process of parsing the raw inputs from the `input/` folder and building the project's initial context.
 
-## 👥 Участвующие роли
+## 👥 Roles involved
 * **A1 — Intake Analyst**
 
-## 🏁 Входные данные
-* Файлы в папке `projects/<project-name>/input/` (например, `transcript.md`, `requirements.md`).
+## 🏁 Inputs
+* Files in the `projects/<project-name>/input/` folder (for example, `transcript.md`, `requirements.md`).
 
-## ⚙️ Пошаговый процесс
+## ⚙️ Step-by-step process
 
-1. **Запуск команды:**
-   Пользователь или скрипт вызывает:
+1. **Launch the command:**
+   The user or a script invokes:
    ```bash
    uv run cli.py intake --project=<name>
    ```
-2. **Анализ входов:**
-   Агент A1 сканирует все файлы в `input/`, индексирует их содержание, очищает от шума и классифицирует требования.
-3. **Оценка достаточности:**
-   - Если исходного текста достаточно для выделения Vision и хотя бы трех функциональных требований → переход к шагу 4.
-   - Если файлы пусты или содержат бессвязный шум → A1 выставляет статус `needs_questions` в `state.json` и прерывает сценарий.
-4. **Создание context.md:**
-   A1 генерирует файл `projects/<project-name>/context.md` со строгой трассировкой на исходные файлы.
-5. **Обновление состояния:**
-   ИИ-оркестратор переводит `state.json` в статус `drafting` (или `needs_questions` при нехватке данных).
+2. **Analyze the inputs:**
+   Agent A1 scans all files in `input/`, indexes their content, removes noise, and classifies the requirements.
+3. **Assess sufficiency:**
+   - If the source text is enough to extract a Vision and at least three functional requirements → proceed to step 4.
+   - If the files are empty or contain incoherent noise → A1 sets the status `needs_questions` in `state.json` and aborts the flow.
+4. **Create context.md:**
+   A1 generates the file `projects/<project-name>/context.md` with strict traceability to the source files.
+5. **Update the state:**
+   The AI orchestrator moves `state.json` to status `drafting` (or `needs_questions` when data is insufficient).

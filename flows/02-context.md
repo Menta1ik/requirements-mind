@@ -1,24 +1,24 @@
-# Сценарий: 02-context (Ведение контекста проекта)
+# Flow: 02-context (Maintaining the project context)
 
-Этот сценарий описывает правила ведения и обновления файла `context.md` как единого источника истины.
+This flow describes the rules for maintaining and updating the `context.md` file as the single source of truth.
 
-## 👥 Участвующие роли
+## 👥 Roles involved
 * **A1 — Intake Analyst**
 * **Master Orchestrator**
 
-## 🏁 Входные данные
-* Существующий `projects/<project-name>/context.md`
-* Новые ответы пользователя из `qa-history.md` (при наличии)
+## 🏁 Inputs
+* The existing `projects/<project-name>/context.md`
+* New user answers from `qa-history.md` (if present)
 
-## ⚙️ Пошаговый процесс
+## ⚙️ Step-by-step process
 
-1. **Запуск обновления:**
-   При поступлении новых данных от пользователя запускается процесс обогащения контекста.
-2. **Интеграция ответов:**
-   Агент A1 сопоставляет вопросы из `questions.md` и ответы пользователя из `qa-history.md`.
-3. **Обновление context.md:**
-   A1 интегрирует новые факты в соответствующие разделы `context.md` (например, дополняет требования к стеку технологий или функционал), сохраняя обратную совместимость.
-4. **Очистка вопросов:**
-   Агент A1 удаляет отвеченные вопросы из `questions.md`, обнуляет поле `open_questions` в `state.json`.
-5. **Фиксация версии:**
-   В `state.json` обновляется поле `last_updated`. Контекст готов к этапу разработки черновиков (`drafting`).
+1. **Launch the update:**
+   When new data arrives from the user, the context-enrichment process starts.
+2. **Integrate the answers:**
+   Agent A1 matches the questions from `questions.md` against the user's answers in `qa-history.md`.
+3. **Update context.md:**
+   A1 integrates the new facts into the corresponding sections of `context.md` (for example, extends the technology-stack requirements or the functionality), preserving backward compatibility.
+4. **Clean up the questions:**
+   Agent A1 removes the answered questions from `questions.md` and resets the `open_questions` field in `state.json`.
+5. **Record the version:**
+   The `last_updated` field is updated in `state.json`. The context is ready for the draft-development stage (`drafting`).

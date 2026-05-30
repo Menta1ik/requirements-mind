@@ -2,63 +2,64 @@
 
 [agent]
 persistent_facts = [
-  "Requirements Mind — это CLI-first и markdown-first инструмент на базе BMAD METHOD.",
-  "Иерархия проектных документов: BRD -> SRS -> Tech Design -> API Contract.",
-  "Каждый проект имеет структуру в projects/<project-name>/: input/, draft/, final/, validation/, messages/, state.json.",
+  "Requirements Mind is a CLI-first and markdown-first tool built on BMAD METHOD.",
+  "Hierarchy of project documents: BRD -> SRS -> Tech Design -> API Contract.",
+  "Each project has a structure under projects/<project-name>/: input/, draft/, final/, validation/, messages/, state.json.",
   "file:{project-root}/kb/*.md",
-  "file:{project-root}/projects/**/state.json"
+  "file:{project-root}/projects/**/state.json",
+  "Always detect the user's language and respond in it."
 ]
 
-# === УНИКАЛЬНЫЕ КОМАНДЫ REQUIREMENTS MIND ===
+# === REQUIREMENTS MIND UNIQUE COMMANDS ===
 
 [[agent.menu]]
 code = "RMONB"
-description = "Запустить онбординг проекта и Project Discovery (a0-onboarding-wizard)"
-prompt = "Запусти кастомный навык a0-onboarding-wizard для текущего проекта. Проведи первичное онбординг-интервью и помоги мне выбрать один из 6 профилей требований на русском языке."
+description = "Start project onboarding and Project Discovery (a0-onboarding-wizard)"
+prompt = "Run the custom a0-onboarding-wizard skill for the current project. Conduct the initial onboarding interview and help me choose one of the 6 requirement profiles. Detect the user's language and respond in it."
 
 [[agent.menu]]
 code = "RMDW"
-description = "Сгенерировать черновик спецификации (BRD, SRS, Tech Design, API Contract)"
-prompt = "Пожалуйста, запусти и выполни кастомный навык a4-document-writer для текущего проекта. Напиши черновик спецификации (BRD, SRS, Tech Design или API Contract) на основе context.md и чеклиста из папки kb/ и сохрани его в projects/<project-name>/draft/ на русском языке."
+description = "Generate a specification draft (BRD, SRS, Tech Design, API Contract)"
+prompt = "Please run and execute the custom a4-document-writer skill for the current project. Write a specification draft (BRD, SRS, Tech Design, or API Contract) based on context.md and the checklist from the kb/ folder, and save it to projects/<project-name>/draft/. Detect the user's language and respond in it."
 
 [[agent.menu]]
 code = "RMVAL"
-description = "Провести жесткий контроль качества черновика (a2-requirements-validator)"
-prompt = "Пожалуйста, запусти и выполни кастомный навык a2-requirements-validator для текущего проекта. Проверь черновик спецификации в draft/ по соответствующему чеклисту в kb/ и сохрани подробный отчет с вердиктом PASSED или FAILED в projects/<project-name>/messages/ на русском языке."
+description = "Run strict quality control on the draft (a2-requirements-validator)"
+prompt = "Please run and execute the custom a2-requirements-validator skill for the current project. Check the specification draft in draft/ against the matching checklist in kb/ and save a detailed report with a PASSED or FAILED verdict to projects/<project-name>/messages/. Detect the user's language and respond in it."
 
 [[agent.menu]]
 code = "RMQ"
-description = "Сгенерировать уточняющие вопросы по требованиям (a3-question-generator)"
-prompt = "Пожалуйста, запусти и выполни кастомный навык a3-question-generator для текущего проекта. Найди бизнес-пробелы в context.md и запиши до 5 точечных вопросов в projects/<project-name>/questions.md на русском языке."
+description = "Generate clarifying questions about the requirements (a3-question-generator)"
+prompt = "Please run and execute the custom a3-question-generator skill for the current project. Find business gaps in context.md and write up to 5 targeted questions to projects/<project-name>/questions.md. Detect the user's language and respond in it."
 
 [[agent.menu]]
 code = "RMAN"
-description = "Запустить аналитическое исследование спецификаций (Режим B - a6-analysis-writer)"
-prompt = "Пожалуйста, запусти и выполни кастомный навык a6-analysis-writer для проведения свободного аналитического исследования требований и сохранения отчетов в projects/<project-name>/analysis/ на русском языке."
+description = "Run an analytical study of the specifications (Mode B - a6-analysis-writer)"
+prompt = "Please run and execute the custom a6-analysis-writer skill to perform free-form analytical research on the requirements and save the reports to projects/<project-name>/analysis/. Detect the user's language and respond in it."
 
-# === ОТКЛЮЧЕННЫЕ СТАНДАРТНЫЕ БМАД-КОДЫ (Заглушки для предотвращения галлюцинаций) ===
+# === DISABLED STANDARD BMAD CODES (stubs to prevent hallucinations) ===
 
 [[agent.menu]]
 code = "DP"
-description = "[ОТКЛЮЧЕНО] Используйте RMONB для запуска онбординга"
-prompt = "Этот код отключен в Requirements Mind v2.0. Пожалуйста, сообщите пользователю, что для запуска онбординга и Project Discovery используется команда RMONB."
+description = "[DISABLED] Use RMONB to start onboarding"
+prompt = "This code is disabled in Requirements Mind v2.0. Please tell the user that the RMONB command is used to start onboarding and Project Discovery."
 
 [[agent.menu]]
 code = "WD"
-description = "[ОТКЛЮЧЕНО] Используйте RMDW для написания спецификаций"
-prompt = "Этот код отключен. Сообщите пользователю, что для написания спецификаций используется команда RMDW."
+description = "[DISABLED] Use RMDW to write specifications"
+prompt = "This code is disabled. Tell the user that the RMDW command is used to write specifications."
 
 [[agent.menu]]
 code = "VD"
-description = "[ОТКЛЮЧЕНО] Используйте RMVAL для контроля качества"
-prompt = "Этот код отключен. Сообщите пользователю, что для запуска жесткой валидации требований используется команда RMVAL."
+description = "[DISABLED] Use RMVAL for quality control"
+prompt = "This code is disabled. Tell the user that the RMVAL command is used to run strict requirements validation."
 
 [[agent.menu]]
 code = "MG"
-description = "[ОТКЛЮЧЕНО] Схемы Mermaid генерируются внутри RMDW"
-prompt = "Этот код отключен. Сообщите пользователю, что схемы и диаграммы Mermaid автоматически генерируются ИИ-агентом A4 в рамках процесса RMDW."
+description = "[DISABLED] Mermaid diagrams are generated inside RMDW"
+prompt = "This code is disabled. Tell the user that Mermaid charts and diagrams are generated automatically by the A4 AI agent as part of the RMDW process."
 
 [[agent.menu]]
 code = "EC"
-description = "[ОТКЛЮЧЕНО] Используйте RMQ для генерации вопросов"
-prompt = "Этот код отключен. Сообщите пользователю, что для выявления пробелов и генерации уточняющих вопросов используется команда RMQ."
+description = "[DISABLED] Use RMQ to generate questions"
+prompt = "This code is disabled. Tell the user that the RMQ command is used to identify gaps and generate clarifying questions."

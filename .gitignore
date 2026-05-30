@@ -19,7 +19,7 @@ venv/
 .DS_Store
 uploads/
 
-# BMAD Local Environment (Среда разработки BMAD)
+# BMAD Local Environment
 _bmad/
 _bmad-output/
 .agent/
@@ -27,9 +27,9 @@ _bmad-output/
 .claude/
 .antigravitycli/
 
-# Generated Vault and Exports (Локальные сгенерированные базы и экспорты)
+# Generated Vault and Exports
 vault/
 notebooklm/
 
-# Analyst's working sandbox (рабочие файлы аналитика — не для репо)
+# Analyst's working sandbox (working files, not for the repo)
 check/

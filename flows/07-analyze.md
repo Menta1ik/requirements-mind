@@ -1,27 +1,27 @@
-# Сценарий: 07-analyze (Общий анализ требований в Режиме B)
+# Flow: 07-analyze (General requirements analysis in Mode B)
 
-Этот сценарий описывает процесс запуска свободного и гибкого аналитического исследования.
+This flow describes the process of launching a free-form, flexible analytical investigation.
 
-## 👥 Участвующие роли
+## 👥 Roles involved
 * **A6 — Analysis Writer**
-* **A5 — Research Assistant** (по запросу)
+* **A5 — Research Assistant** (on request)
 
-## 🏁 Входные данные
-* Любые документы проекта (входные, черновики, финальные версии).
-* Текст аналитической задачи от пользователя.
+## 🏁 Inputs
+* Any project documents (inputs, drafts, final versions).
+* The text of the analytical task from the user.
 
-## ⚙️ Пошаговый процесс
+## ⚙️ Step-by-step process
 
-1. **Запуск анализа:**
-   Пользователь вызывает команду:
+1. **Launch the analysis:**
+   The user runs the command:
    ```bash
-   uv run cli.py analyze --project=<name> --task="Найди риски интеграции с CRM"
+   uv run cli.py analyze --project=<name> --task="Find the risks of integrating with the CRM"
    ```
-2. **Анализ контекста:**
-   Агент A6 считывает файлы проекта, сопоставляет их с поставленной задачей и инициирует проверку.
-3. **Формирование отчета:**
-   A6 самостоятельно разрабатывает оптимальную структуру отчета (матрицы, таблицы сравнений, списки рисков) и записывает результаты в `projects/<project-name>/analysis/analysis-vN.md`.
-4. **Обновление состояния:**
-   Оркестратор фиксирует завершение аналитической сессии в `state.json` и уведомляет пользователя о готовности отчета.
-5. **Obsidian Синхронизация:**
-   Результат становится доступен для просмотра и навигации в Obsidian Vault.
+2. **Analyze the context:**
+   Agent A6 reads the project files, matches them against the stated task, and starts the investigation.
+3. **Produce the report:**
+   A6 designs the optimal report structure on its own (matrices, comparison tables, risk lists) and writes the results to `projects/<project-name>/analysis/analysis-vN.md`.
+4. **Update the state:**
+   The orchestrator records the completion of the analytical session in `state.json` and notifies the user that the report is ready.
+5. **Obsidian sync:**
+   The result becomes available for viewing and navigation in the Obsidian Vault.

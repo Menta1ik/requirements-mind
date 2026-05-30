@@ -1,4 +1,4 @@
-"""Тесты на санитизацию имени проекта (`_validate_project_name`)."""
+"""Tests for project-name sanitization (`_validate_project_name`)."""
 from __future__ import annotations
 
 import pytest
@@ -21,12 +21,12 @@ def test_accepts_valid_names(name: str) -> None:
         "../../root",
         "a/b",             # slash
         "a\\b",            # backslash
-        "my project",      # пробел
-        "проект",          # кириллица
-        "",                # пустая строка
-        "x" * 65,          # за пределами длины
-        ".hidden",         # точка в начале
-        "name;rm -rf /",   # инъекция
+        "my project",      # space
+        "проект",          # cyrillic
+        "",                # empty string
+        "x" * 65,          # over the length limit
+        ".hidden",         # leading dot
+        "name;rm -rf /",   # injection
     ],
 )
 def test_rejects_invalid_names(name: str) -> None:

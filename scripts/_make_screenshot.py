@@ -1,11 +1,11 @@
-"""Одноразовый скрипт для генерации SVG-скриншота `cli.py status` для README.
+"""A one-off script to generate an SVG screenshot of `cli.py status` for the README.
 
-Не входит в публичный CLI; запускается вручную при обновлении README:
+Not part of the public CLI; run by hand when updating the README:
     .venv/bin/python scripts/_make_screenshot.py
 
-Требует, чтобы проект `projects/delivery-app/` существовал и был «наполнен»
-демо-артефактами — корректную подготовку проекта делает шелл-обвязка,
-которая вызывает этот скрипт.
+Requires the project `projects/delivery-app/` to exist and be "populated"
+with demo artifacts — the correct project setup is done by the shell wrapper
+that calls this script.
 """
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import argparse
 import sys
 from pathlib import Path
 
-# Импортируем cli как модуль и подменяем его глобальный Console на recording-вариант.
+# Import cli as a module and swap its global Console for a recording variant.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from rich.console import Console  # noqa: E402
@@ -21,7 +21,7 @@ from rich.console import Console  # noqa: E402
 import cli  # noqa: E402
 
 recording_console = Console(record=True, width=100, force_terminal=True)
-cli.console = recording_console  # подмена для всех handle_* в cli.py
+cli.console = recording_console  # swap for all handle_* in cli.py
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--project", required=True)

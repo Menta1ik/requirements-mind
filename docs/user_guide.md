@@ -1,17 +1,17 @@
-# Руководство пользователя: Requirements Mind v2.0 (IDE-Native)
+# User guide: Requirements Mind v2.0 (IDE-Native)
 
-Requirements Mind — это профессиональный инструмент для работы с требованиями, спроектированный для системных аналитиков, бизнес-аналитиков и продакт-менеджеров. 
+Requirements Mind is a professional tool for working with requirements, designed for systems analysts, business analysts, and product managers.
 
-В версии 2.0 инструмент использует философию **IDE-Native AI Agents** на базе фреймворка **BMAD METHOD**. Это означает, что:
-1. **Исполняемым движком ИИ является ваш собственный ИИ-помощник в среде разработки или терминале** — например, Cursor, Claude Code, Antigravity или OpenAI Codex. У них уже есть доступ к лучшим моделям и контексту.
-2. **CLI-инструмент (`cli.py`) выступает в роли чистого контроллера файлов и состояний (Pure State & File Controller)**. Он не требует API-ключей, работает локально, проверяет переходы состояний в `state.json` и синхронизирует проект с внешними средами Obsidian и NotebookLM.
-3. **Накапливаемый источник истины (Cumulative Context Pattern):** Главный файл контекста `context.md` никогда не перезаписывается с нуля при переходах по конвейеру (BRD ➡️ SRS ➡️ Tech Design) и не сжимается. Новые Use Cases, сущности, структуры баз данных и эндпоинты бережно встраиваются ИИ-агентами в соответствующие разделы, сохраняя все ранее утвержденные бизнес-требования, Vision и стек, а лог изменений (реестр) автоматически ведется в отдельном файле `context-changelog.md` рядом с ним.
+In version 2.0 the tool uses the **IDE-Native AI Agents** philosophy built on the **BMAD METHOD** framework. This means that:
+1. **The execution engine for the AI is your own AI assistant in the development environment or terminal** — for example, Cursor, Claude Code, Antigravity, or OpenAI Codex. They already have access to the best models and to your context.
+2. **The CLI tool (`cli.py`) acts as a pure file and state controller (Pure State & File Controller).** It requires no API keys, runs locally, validates state transitions in `state.json`, and syncs the project with the external Obsidian and NotebookLM environments.
+3. **A cumulative source of truth (Cumulative Context Pattern):** The main context file `context.md` is never overwritten from scratch during pipeline transitions (BRD ➡️ SRS ➡️ Tech Design), nor is it compressed. New Use Cases, entities, database structures, and endpoints are carefully embedded by the AI agents into the appropriate sections, preserving all previously approved business requirements, the Vision, and the stack, while a change log (registry) is automatically maintained in a separate file `context-changelog.md` alongside it.
 
 ---
 
-## 0. Первоначальная настройка (Интерактивный установщик)
+## 0. Initial setup (interactive installer)
 
-Для максимальной простоты и автоматизации развертывания рабочего окружения аналитика с нуля в любой папке на вашем компьютере выполните в терминале одну команду — выберите блок под вашу ОС.
+For maximum simplicity and automation of deploying an analyst's working environment from scratch in any folder on your computer, run a single command in the terminal — pick the block for your OS.
 
 **🍎 macOS / 🐧 Linux (Bash / Zsh):**
 ```bash
@@ -23,111 +23,111 @@ curl -fsSL https://raw.githubusercontent.com/Menta1ik/requirements-mind/main/ins
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/Menta1ik/requirements-mind/main/install.py -OutFile install.py; python install.py
 ```
 
-> **Требуется на Windows:** Python 3.10+ (`python --version`), Git и PowerShell 5.1+ (встроен в Windows 10/11).
-> Если `python` не находится — установите Python с [python.org](https://www.python.org/downloads/) и отметьте чек-бокс **«Add Python to PATH»**.
+> **Required on Windows:** Python 3.10+ (`python --version`), Git, and PowerShell 5.1+ (built into Windows 10/11).
+> If `python` is not found — install Python from [python.org](https://www.python.org/downloads/) and check the **"Add Python to PATH"** box.
 
-*(Или, если вы уже склонировали репозиторий локально, запустите `python3 install.py` на macOS/Linux или `python install.py` на Windows в корневой папке).*
+*(Or, if you have already cloned the repository locally, run `python3 install.py` on macOS/Linux or `python install.py` on Windows in the root folder.)*
 
-**Что делает установщик:**
-1. **Проверяет систему:** верность версии Python (требуется >= 3.10) и наличие Git.
-2. **Настраивает виртуальное окружение:** определяет наличие сверхбыстрого менеджера `uv`, создает локальное окружение `.venv` и устанавливает необходимые зависимости из `requirements.txt`.
-3. **Связывает ИИ-навыки с вашей IDE/CLI:** копирует все необходимые сценарии агентов в служебные папки выбранных вами ИИ-ассистентов (Cursor, Claude Code, Google Antigravity, OpenAI Codex).
-4. **Настраивает интеграции:** создает необходимые папки для Obsidian Vault и подготавливает структуру для Google NotebookLM.
-5. **Разворачивает демо-проект:** автоматически создает проект `demo-project` и экспортирует готовый JSON-файл в `notebooklm/demo-project.json`, чтобы вы могли протестировать всю систему мгновенно!
-
----
-
-## 1. 6 Целевых профилей проектов требований
-
-При создании проекта система помогает выбрать один из **6 специализированных профилей требований**, в зависимости от целей вашего проекта:
-
-* **Профиль 1: «Бизнес-концепт»** (цель: концептуальные бизнес-требования **BRD**).
-* **Профиль 2: «Системная спецификация»** (цель: детальные требования и логика системы **BRD ➡️ SRS**).
-* **Профиль 3: «Архитектурное проектирование»** (цель: архитектурные потоки и структура БД **BRD ➡️ SRS ➡️ Tech Design**).
-* **Профиль 4: «Интеграция и API»** (цель: полный цикл проектирования, включая REST/gRPC контракты **BRD ➡️ SRS ➡️ Tech Design ➡️ API Contract**).
-* **Профиль 5: «Аналитическое исследование (Режим B)»** (цель: свободный анализ требований, сравнения документов в папке **`analysis/`**).
-* **Профиль 6: «Сбор требований» (Elicitation Mode)** (цель: сбор требований с нуля через ИИ-интервью в чате, если у аналитика есть только идея).
+**What the installer does:**
+1. **Checks the system:** the correct Python version (>= 3.10 required) and the presence of Git.
+2. **Sets up the virtual environment:** detects whether the ultra-fast `uv` manager is present, creates a local `.venv` environment, and installs the required dependencies from `requirements.txt`.
+3. **Links the AI skills to your IDE/CLI:** copies all the necessary agent scripts into the service folders of the AI assistants you choose (Cursor, Claude Code, Google Antigravity, OpenAI Codex).
+4. **Sets up integrations:** creates the necessary folders for the Obsidian Vault and prepares the structure for Google NotebookLM.
+5. **Deploys a demo project:** automatically creates a `demo-project` and exports a ready JSON file to `notebooklm/demo-project.json`, so you can test the whole system instantly!
 
 ---
 
-## 2. Уникальные коды команд ИИ (Capabilities Menu) в чате IDE
+## 1. The 6 target requirements-project profiles
 
-Вместо написания длинных промптов в чате IDE, используйте буквенные коды для вызова нужных навыков. ИИ автоматически распознает их:
+When creating a project, the system helps you choose one of **6 specialized requirements profiles**, depending on your project's goals:
+
+* **Profile 1: "Business concept"** (goal: conceptual business requirements **BRD**).
+* **Profile 2: "System specification"** (goal: detailed requirements and system logic **BRD ➡️ SRS**).
+* **Profile 3: "Architecture design"** (goal: architectural flows and the database structure **BRD ➡️ SRS ➡️ Tech Design**).
+* **Profile 4: "Integration and API"** (goal: the full design cycle, including REST/gRPC contracts **BRD ➡️ SRS ➡️ Tech Design ➡️ API Contract**).
+* **Profile 5: "Analytical research (Mode B)"** (goal: free-form requirements analysis, document comparisons in the **`analysis/`** folder).
+* **Profile 6: "Requirements elicitation" (Elicitation Mode)** (goal: gathering requirements from scratch through an AI interview in the chat, when the analyst has only an idea).
+
+---
+
+## 2. The unique AI command codes (Capabilities Menu) in the IDE chat
+
+Instead of writing long prompts in the IDE chat, use the letter codes to invoke the skill you need. The AI recognizes them automatically:
 
 > [!WARNING]
-> Все стандартные программные коды БМАД (такие как `DP`, `BP`, `MR`, `DR`, `TR`, `CB`, `WB` и др.) **полностью заблокированы и заглушены** для предотвращения конфликтов и галлюцинаций ИИ-моделей. Используйте исключительно уникальные `RM...` коды:
+> All standard BMAD program codes (such as `DP`, `BP`, `MR`, `DR`, `TR`, `CB`, `WB`, etc.) are **fully blocked and stubbed out** to prevent conflicts and AI-model hallucinations. Use only the unique `RM...` codes:
 
-* **`RMONB`** — **Запустить онбординг проекта** (`a0-onboarding-wizard`). Помогает провести Project Discovery, опрашивает по 6 профилям требований и выдает пошаговый Roadmap.
-* **`RME`** — **Запустить Сбор требований с нуля** (`a3-elicitation`). Запускает сессию глубокого интервью по стандарту «Практичный аналитик» (JTBD + Use Cases + ISO 29148) и создает `requirements.md`.
-* **`RMIN`** — **Запустить Intake-анализ** (`a1-intake-analyst`). Анализирует файлы в `input/`, убирает шум и создает `context.md` (без сжатия данных).
-* **`RMQ`** — **Сгенерировать уточняющие вопросы** (`a3-question-generator`). Проводит опрос прямо в чате IDE (с поддержкой свободного ввода ответа) для закрытия пробелов в контексте.
-* **`RMDW`** — **Написать черновик спецификации** (`a4-document-writer`). Генерирует первый черновик документа (BRD, SRS, Tech Design, API Contract) строго по чеклистам базы `kb/`.
-* **`RMVAL`** — **Провести контроль качества** (`a2-requirements-validator`). Проверяет черновик на edge-cases и полноту, выдает отчет с вердиктом `PASSED`/`FAILED`.
-* **`RMAN`** — **Запустить аналитическое исследование** (`a6-analysis-writer`). Проводит свободный анализ (риски, противоречия, сравнение документов) в папку `analysis/`.
-* **`RMAUG`** — **Запустить доработку существующего документа** (Augment Mode). У вас уже есть SRS/BRD/Tech-Design/API-Contract, и нужно **аккуратно дополнить** его новыми артефактами (транскрипт митинга, обновлённые BR, заметки), **сохранив структуру и формулировки** baseline. ИИ обязан показать diff-план в чате и дождаться вашего подтверждения **до** записи новой версии. См. [подробный walkthrough](walkthroughs/augment-dams-srs.md).
-* **`reqmind`** — **Интерактивное меню управления** (`reqmind`). Выводит наглядную интерактивную шпаргалку по всем доступным RM-кодам, CLI-командам и пошаговым сценариям.
+* **`RMONB`** — **Start project onboarding** (`a0-onboarding-wizard`). Helps run Project Discovery, surveys you across the 6 requirements profiles, and produces a step-by-step Roadmap.
+* **`RME`** — **Start gathering requirements from scratch** (`a3-elicitation`). Launches a deep-interview session per the "Pragmatic Analyst" standard (JTBD + Use Cases + ISO 29148) and creates `requirements.md`.
+* **`RMIN`** — **Start Intake analysis** (`a1-intake-analyst`). Analyzes the files in `input/`, removes noise, and creates `context.md` (without compressing the data).
+* **`RMQ`** — **Generate clarifying questions** (`a3-question-generator`). Runs the survey right in the IDE chat (with free-input support) to close gaps in the context.
+* **`RMDW`** — **Write a specification draft** (`a4-document-writer`). Generates the first draft of a document (BRD, SRS, Tech Design, API Contract) strictly per the `kb/` knowledge-base checklists.
+* **`RMVAL`** — **Run quality control** (`a2-requirements-validator`). Checks the draft for edge cases and completeness, and produces a report with a `PASSED`/`FAILED` verdict.
+* **`RMAN`** — **Start an analytical investigation** (`a6-analysis-writer`). Runs a free-form analysis (risks, contradictions, document comparison) into the `analysis/` folder.
+* **`RMAUG`** — **Start extending an existing document** (Augment Mode). You already have an SRS/BRD/Tech-Design/API-Contract and need to **carefully extend** it with new artifacts (a meeting transcript, updated BRs, notes), **preserving the structure and wording** of the baseline. The AI must show a diff plan in the chat and wait for your confirmation **before** writing a new version. See the [detailed walkthrough](walkthroughs/augment-dams-srs.md).
+* **`reqmind`** — **Interactive control menu** (`reqmind`). Displays a clear interactive cheat sheet of all available RM codes, CLI commands, and step-by-step scenarios.
 
 > [!TIP]
-> **Интерактивный навигатор `/reqmind`:** Набрав в чате IDE команду **`/reqmind`** (в Claude Code / Antigravity) или упомянув **`@reqmind`** (в Cursor), вы мгновенно получите красивое Capabilities Menu, откуда сможете вызвать любого агента или посмотреть список всех шагов!
+> **The interactive navigator `/reqmind`:** By typing the command **`/reqmind`** in the IDE chat (in Claude Code / Antigravity) or by mentioning **`@reqmind`** (in Cursor), you instantly get a nice Capabilities Menu from which you can invoke any agent or view the list of all the steps!
 
-*Все ИИ-агенты обучены **самостоятельно запускать** в вашем терминале IDE нужную команду CLI по окончании своей работы! Вам остается только подтвердить запуск в чате IDE.*
+*All the AI agents are trained to **run the needed CLI command on their own** in your IDE terminal once their work is done! All you have to do is confirm the run in the IDE chat.*
 
-### 🗣️ Форматы ввода команд в чате IDE
-Вы можете общаться с ИИ в любом удобном формате:
-1. **Как обычное слово в предложении:** ИИ автоматически вычленит уникальный код из вашего текстового запроса (например: *«Мэри, привет! Запусти RME для нового проекта delivery-app»*).
-2. **Как короткую «команду-выстрел»:** Отправьте в чат просто код и название проекта (например: `RMONB my-project`).
-3. **Через слэш (`/`):** Если вы привыкли к слэш-командам (например: `/RMONB my-project`).
+### 🗣️ Command input formats in the IDE chat
+You can talk to the AI in whatever format is convenient:
+1. **As an ordinary word in a sentence:** the AI automatically extracts the unique code from your text request (for example: *"Mary, hi! Run RME for the new project delivery-app"*).
+2. **As a short "shot command":** just send the code and the project name to the chat (for example: `RMONB my-project`).
+3. **With a slash (`/`):** if you are used to slash commands (for example: `/RMONB my-project`).
 
-### 🔍 Интеграция RM-кодов в слэш-меню и автодополнение IDE
+### 🔍 Integrating the RM codes into the slash menu and IDE autocomplete
 
-#### 1. В IDE Cursor (через механизм `@` At-Mentions)
-В IDE Cursor встроенный выпадающий список по нажатию слэша (`/ask`, `/edit` и др.) жестко зашит в ядро программы. Но Cursor предлагает невероятно удобную альтернативу — меню **`@` (At-Mentions)**:
-1. Введите в строке ввода символ **`@`**.
-2. В появившемся списке файлов и папок начните писать имя нужного навыка, например: **`@a0-onboarding-wizard`** или **`@a3-elicitation`**.
-3. Прикрепите этот навык к чату и отправьте сообщение (например: *«Запусти для my-project»*). ИИ применит этот навык со 100% точностью!
+#### 1. In the Cursor IDE (via the `@` At-Mentions mechanism)
+In the Cursor IDE, the built-in dropdown for the slash (`/ask`, `/edit`, etc.) is hard-wired into the program's core. But Cursor offers an incredibly convenient alternative — the **`@` (At-Mentions)** menu:
+1. Type the **`@`** symbol in the input line.
+2. In the list of files and folders that appears, start typing the name of the skill you need, for example: **`@a0-onboarding-wizard`** or **`@a3-elicitation`**.
+3. Attach this skill to the chat and send a message (for example: *"Run for my-project"*). The AI will apply this skill with 100% accuracy!
 
-#### 2. В Google Antigravity SDK и Claude Code (Автоматически по `/`)
-Поскольку наш установщик `install.py` скопировал файлы сценариев в служебные папки `.agent/skills/` и `.claude/skills/`, ИИ-помощники **автоматически индексируют их заголовки**. При вводе косой черты (**`/`**) в строке чата эти команды со своими описаниями будут выводиться в выпадающем меню автодополнения!
+#### 2. In the Google Antigravity SDK and Claude Code (automatically via `/`)
+Since our `install.py` installer copied the script files into the `.agent/skills/` and `.claude/skills/` service folders, the AI assistants **automatically index their titles**. When you type a slash (**`/`**) in the chat input line, these commands with their descriptions appear in the autocomplete dropdown!
 
 ---
 
-## 3. Пошаговые сценарии работы
+## 3. Step-by-step work scenarios
 
-### Сценарий А: Сбор требований с нуля (Elicitation Mode - Профиль 6)
-Применяется, когда проекта еще нет, и у вас есть только сырая идея в голове.
+### Scenario A: Gathering requirements from scratch (Elicitation Mode — Profile 6)
+Used when there is no project yet and you have only a raw idea in your head.
 
-#### Шаг A1: Запуск сбора требований в чате IDE (Инициализация и Интервью)
-1. Откройте чат с ИИ-помощником в IDE или запустите его в CLI (Cursor, Claude Code, Antigravity, OpenAI Codex).
-2. Напишите ИИ-агенту Мэри: 
-   > **«Мэри, привет! Запусти RME для нового проекта my-delivery-app»**
-3. ИИ-агент **самостоятельно создаст на диске структуру папок проекта**, сгенерирует файл состояния `state.json` и сразу же начнет пошаговый диалог на основе гибридной методологии **«Практичный аналитик»**:
-   * **Бизнес-цели (JTBD):** ИИ поможет сформулировать Jobs-to-be-Done (например: *«Когда я хочу сделать заказ, я хочу видеть статус, чтобы...»*).
-   * **Границы и Use Cases:** ИИ спросит о ролях пользователей и выделит функциональные блоки (Каталог, Заказы, Курьеры).
-   * **Системные NFR (по ISO 29148):** ИИ выявит требования к безопасности, интеграциям и нагрузке.
-   * **Свободный ответ:** Для каждого вопроса ИИ всегда оставляет вариант свободного ответа («Свой вариант»), чтобы вы могли описать мысли своими словами.
-4. По завершении интервью ИИ самостоятельно сформирует и сохранит на диск:
-   * `projects/my-delivery-app/input/requirements.md` — структурированные требования.
-   * `projects/my-delivery-app/context.md` — стартовый context-файл.
-5. ИИ-агент **автоматически запустит** в терминале команду:
+#### Step A1: Start gathering requirements in the IDE chat (initialization and interview)
+1. Open a chat with the AI assistant in the IDE or launch it in the CLI (Cursor, Claude Code, Antigravity, OpenAI Codex).
+2. Tell the AI agent Mary:
+   > **"Mary, hi! Run RME for the new project my-delivery-app"**
+3. The AI agent will **create the project folder structure on disk on its own**, generate the state file `state.json`, and immediately start a step-by-step dialogue based on the hybrid **"Pragmatic Analyst"** methodology:
+   * **Business goals (JTBD):** the AI helps formulate Jobs-to-be-Done (for example: *"When I want to place an order, I want to see the status, so that..."*).
+   * **Boundaries and Use Cases:** the AI asks about user roles and identifies the functional blocks (Catalog, Orders, Couriers).
+   * **System NFRs (per ISO 29148):** the AI surfaces requirements for security, integrations, and load.
+   * **Free-text answer:** for every question the AI always leaves a free-text option ("Your own option"), so you can describe your thoughts in your own words.
+4. At the end of the interview the AI will build and save to disk on its own:
+   * `projects/my-delivery-app/input/requirements.md` — the structured requirements.
+   * `projects/my-delivery-app/context.md` — the starter context file.
+5. The AI agent will **automatically run** the command in the terminal:
    ```bash
    uv run cli.py onboard --project=my-delivery-app
    ```
-   *(Вам достаточно просто нажать кнопку подтверждения в чате IDE)*.
+   *(All you have to do is press the confirm button in the IDE chat.)*
 
 ---
 
-### Сценарий В: Автономный импорт требований из закрытых веб-ресурсов (Confluence/Jira)
+### Scenario C: Headless import of requirements from closed web resources (Confluence/Jira)
 
-Применяется, когда исходные материалы или спецификации находятся в корпоративной базе знаний Confluence, Jira или на веб-страницах, доступ к которым защищен корпоративным VPN, SSO или 2FA.
+Used when the source materials or specifications live in a corporate Confluence or Jira knowledge base or on web pages protected by a corporate VPN, SSO, or 2FA.
 
-#### Шаг B1: Подготовка браузера Google Chrome
-Для того чтобы ИИ-агент мог считать данные без необходимости ввода паролей и обхода двухфакторной аутентификации (2FA), мы используем подключение к вашему запущенному браузеру:
+#### Step C1: Prepare the Google Chrome browser
+So that the AI agent can read the data without having to enter passwords or bypass two-factor authentication (2FA), we connect to your running browser:
 
-1. **Полностью закройте Chrome:**
+1. **Fully close Chrome:**
    * macOS — **Cmd + Q**.
-   * Windows / Linux — закройте все окна Chrome и убедитесь, что в трее/процессах его нет (Диспетчер задач → завершить все `chrome.exe`).
+   * Windows / Linux — close all Chrome windows and make sure it is not in the tray/processes (Task Manager → end all `chrome.exe`).
 
-2. **Запустите Chrome из терминала с портом удалённой отладки** — выберите блок под вашу ОС:
+2. **Launch Chrome from the terminal with a remote debugging port** — pick the block for your OS:
 
    **🍎 macOS:**
    ```bash
@@ -137,237 +137,237 @@ Invoke-WebRequest -Uri https://raw.githubusercontent.com/Menta1ik/requirements-m
    **🐧 Linux:**
    ```bash
    google-chrome --remote-debugging-port=9222
-   # или: chromium --remote-debugging-port=9222
+   # or: chromium --remote-debugging-port=9222
    ```
 
    **🪟 Windows (PowerShell):**
    ```powershell
    Start-Process "chrome.exe" -ArgumentList "--remote-debugging-port=9222"
    ```
-   > Если `chrome.exe` не находится в PATH, укажите полный путь:
+   > If `chrome.exe` is not in PATH, give the full path:
    > `Start-Process "C:\Program Files\Google\Chrome\Application\chrome.exe" -ArgumentList "--remote-debugging-port=9222"`
 
-3. Откройте в этом окне вкладку со статьей Confluence или тикетом Jira, откуда нужно извлечь требования.
+3. In that window, open the tab with the Confluence article or Jira ticket you want to extract requirements from.
 
-#### Шаг B2: Запрос на автоматический импорт в чате IDE/CLI
-1. Напишите вашему ИИ-помощнику в чате IDE или запустите его в CLI (Cursor, Claude Code, Antigravity, OpenAI Codex):
-   > **«Мэри, импортируй спецификацию из вкладки Confluence для проекта my-app»**
-2. ИИ-агент мгновенно распознает запрос и **САМОСТОЯТЕЛЬНО запустит** в терминале команду импорта:
+#### Step C2: Request an automatic import in the IDE/CLI chat
+1. Write to your AI assistant in the IDE chat or launch it in the CLI (Cursor, Claude Code, Antigravity, OpenAI Codex):
+   > **"Mary, import the specification from the Confluence tab for the project my-app"**
+2. The AI agent instantly recognizes the request and **runs the import command ON ITS OWN** in the terminal:
    ```bash
    uv run cli.py import-web --project=my-app --port=9222 --query="confluence" --filename="confluence_specs.md"
    ```
-   *(Вам останется только нажать кнопку подтверждения запуска в чате IDE или терминале)*.
-3. Локальный Python-скрипт `scripts/import_web.py` подключится к вашему Chrome по CDP-протоколу, найдет нужную вкладку, выкачает ее HTML-код, переведет в чистый Markdown (очистив от веб-мусора: шапок, боковых меню, виджетов) и бережно сохранит в `projects/my-app/input/confluence_specs.md`.
+   *(All you have to do is press the confirm-run button in the IDE chat or terminal.)*
+3. The local Python script `scripts/import_web.py` connects to your Chrome over the CDP protocol, finds the right tab, downloads its HTML, converts it into clean Markdown (stripping web clutter: headers, side menus, widgets), and carefully saves it into `projects/my-app/input/confluence_specs.md`.
 
-После этого ИИ-агент автоматически продолжит стандартный конвейер разбора входов (`RMIN`).
+After that, the AI agent automatically continues the standard input-parsing pipeline (`RMIN`).
 
 > [!TIP]
-> **Архитектурная деталь (Без скачивания браузеров):**
-> Так как импорт идет через подключение к запущенному Chrome (`CDP`), вам **НЕ НУЖНО** скачивать бинарники браузеров Playwright (командой `playwright install`). Скрипт использует ваш рабочий Chrome на той же машине, что обеспечивает высокую скорость, экономию места и автоматический обход авторизаций и VPN.
+> **Architectural detail (no browser downloads):**
+> Because the import goes through a connection to a running Chrome (`CDP`), you do **NOT NEED** to download the Playwright browser binaries (via `playwright install`). The script uses your working Chrome on the same machine, which provides high speed, disk savings, and an automatic bypass of logins and VPNs.
 
 ---
 
-### Сценарий Б: Стандартный конвейер (Профили 1-5, есть сырые данные)
-Цепочка генерации документов: `BRD` (Бизнес-требования) → `SRS` (Технические спецификации) → `Tech Design` (Архитектурный проект) → `API Contract` (Спецификация API).
+### Scenario B: The standard pipeline (Profiles 1–5, raw data exists)
+The document generation chain: `BRD` (business requirements) → `SRS` (technical specifications) → `Tech Design` (architecture design) → `API Contract` (API specification).
 
-#### Шаг Б1: Автоматическая инициализация и подготовка файлов
-1. Просто напишите Мэри в чате вашей IDE: 
-   > **«Мэри, привет! Запусти RMONB для нового проекта my-app»**
-2. ИИ-агент **самостоятельно создаст на диске структуру папок проекта** и сформирует файл состояния `state.json`.
-3. Положите ваши сырые файлы (транскрипты, ТЗ, списки тикетов) в автоматически созданную папку `projects/my-app/input/`.
-4. Ответьте на вопросы онбординг-интервью в чате, после чего ИИ-агент автоматически предложит и выполнит команду фиксации онбординга:
+#### Step B1: Automatic initialization and file preparation
+1. Just tell Mary in your IDE chat:
+   > **"Mary, hi! Run RMONB for the new project my-app"**
+2. The AI agent will **create the project folder structure on disk on its own** and build the state file `state.json`.
+3. Place your raw files (transcripts, specs, ticket lists) into the automatically created folder `projects/my-app/input/`.
+4. Answer the onboarding-interview questions in the chat, after which the AI agent will automatically propose and run the onboarding-completion command:
    ```bash
-   # ЗАПУСКАЕТСЯ АВТОМАТИЧЕСКИ ИИ-АГЕНТОМ ПОСЛЕ ПОДТВЕРЖДЕНИЯ В ЧАТЕ
+   # RUN AUTOMATICALLY BY THE AI AGENT AFTER CONFIRMATION IN THE CHAT
    uv run cli.py onboard --project=my-app
    ```
 
-#### Шаг Б2: Первичный разбор (Intake)
-1. Попросите ИИ-ассистента в IDE:
-   > **«Мэри, запусти RMIN для проекта my-app»**
-2. ИИ проанализирует входы, создаст `context.md` и **самостоятельно предложит запустить команду разбора (Intake)**:
+#### Step B2: Initial parsing (Intake)
+1. Ask the AI assistant in the IDE:
+   > **"Mary, run RMIN for the project my-app"**
+2. The AI analyzes the inputs, creates `context.md`, and **proposes running the parsing command (Intake) on its own**:
    ```bash
-   # ЗАПУСКАЕТСЯ АВТОМАТИЧЕСКИ ИИ-АГЕНТОМ ПОСЛЕ ПОДТВЕРЖДЕНИЯ В ЧАТЕ
+   # RUN AUTOMATICALLY BY THE AI AGENT AFTER CONFIRMATION IN THE CHAT
    uv run cli.py intake --project=my-app
    ```
-* **Проверка полноты:** CLI автоматически проверит `context.md`.
-  * Если обнаружен **Флаг неполноты требований** → статус сменится на `needs_questions`. ИИ-агент A3 автоматически выведет до 5 вопросов прямо в чат IDE с вариантами ответа и обязательным пунктом свободного ввода. Вы отвечаете в чат, ИИ сам записывает ответы в `qa-history.md`, обновляет `context.md` и автоматически предлагает перезапустить Intake.
-  * Если контекст полный → статус сменится на `drafting`.
+* **Completeness check:** the CLI automatically checks `context.md`.
+  * If an **incompleteness flag for the requirements** is detected → the status changes to `needs_questions`. The A3 AI agent automatically prints up to 5 questions right into the IDE chat with answer options and a mandatory free-input item. You answer in the chat, the AI writes the answers into `qa-history.md` itself, updates `context.md`, and automatically proposes rerunning Intake.
+  * If the context is complete → the status changes to `drafting`.
 
-#### Шаг Б3: Генерация черновика спецификации (Draft)
-1. Попросите ИИ-ассистента в IDE:
-   > **«Джон, запусти RMDW для проекта my-app»** (укажите нужный тип документа, например, BRD).
-2. ИИ создаст черновик `projects/my-app/draft/BRD-v1.md` по чеклистам базы `kb/` и **автоматически предложит запустить команду фиксации черновика**:
+#### Step B3: Generating a specification draft (Draft)
+1. Ask the AI assistant in the IDE:
+   > **"John, run RMDW for the project my-app"** (specify the document type you need, for example, BRD).
+2. The AI creates the draft `projects/my-app/draft/BRD-v1.md` per the `kb/` checklists and **automatically proposes running the draft-recording command**:
    ```bash
-   # ЗАПУСКАЕТСЯ АВТОМАТИЧЕСКИ ИИ-АГЕНТОМ ПОСЛЕ ПОДТВЕРЖДЕНИЯ В ЧАТЕ
+   # RUN AUTOMATICALLY BY THE AI AGENT AFTER CONFIRMATION IN THE CHAT
    uv run cli.py draft --project=my-app --doc=BRD
    ```
-Статус проекта изменится на `validating`.
+The project status changes to `validating`.
 
-#### Шаг Б4: Контроль качества (Валидация)
+#### Step B4: Quality control (validation)
 
-Валидация в Requirements Mind двухуровневая. Сначала — дешёвый детерминированный линтер формы (Tier 1, без LLM), потом — семантическая LLM-проверка от A2 (Tier 2).
+Validation in Requirements Mind is two-tier. First — the cheap deterministic form linter (Tier 1, no LLM), then — the semantic LLM check from A2 (Tier 2).
 
-**Б4.0 (опционально, но полезно): Tier 1 — линтер ID и трассируемости.**
+**B4.0 (optional, but useful): Tier 1 — the ID and traceability linter.**
 ```bash
 uv run cli.py trace --project=my-app
-# или один документ:
+# or a single document:
 uv run cli.py trace --project=my-app --doc=BRD --version=1
 ```
-Линтер за миллисекунды ловит:
-* дубли ID (`FR-01` определён дважды);
-* orphan-ссылки (в SRS упомянут `FR-15`, но он нигде не определён);
-* Business Goals из BRD без покрытия FR в SRS;
-* нарушения формата ID (`FR_01`, `fr-01`, `FR-01234567`).
+In milliseconds the linter catches:
+* duplicate IDs (`FR-01` defined twice);
+* orphan references (`FR-15` is mentioned in the SRS but defined nowhere);
+* Business Goals from the BRD without FR coverage in the SRS;
+* ID format violations (`FR_01`, `fr-01`, `FR-01234567`).
 
-`state.json` он не трогает — это чистая проверка формы. **Если есть ошибки (exit code 1)** — почините их перед запуском дорогостоящего LLM-валидатора, иначе A2 потратит контекст на банальные опечатки вместо смысла. Линтер подходит для встраивания в pre-commit hook или CI.
+It does not touch `state.json` — it is a pure form check. **If there are errors (exit code 1)** — fix them before running the expensive LLM validator, otherwise A2 will spend its context on trivial typos instead of meaning. The linter is suitable for embedding into a pre-commit hook or CI.
 
-**Б4.1: Tier 2 — RMVAL (семантическая LLM-валидация).**
-1. Попросите ИИ-ассистента в IDE:
-   > **«Джон, запусти RMVAL для проекта my-app»** (ИИ запустит валидатор A2, запишет отчет в `messages/a2-to-a4-v1.md` и **автоматически предложит запустить команду валидации**):
+**B4.1: Tier 2 — RMVAL (semantic LLM validation).**
+1. Ask the AI assistant in the IDE:
+   > **"John, run RMVAL for the project my-app"** (the AI will run the A2 validator, write a report into `messages/a2-to-a4-v1.md`, and **automatically propose running the validation command**):
    ```bash
-   # ЗАПУСКАЕТСЯ АВТОМАТИЧЕСКИ ИИ-АГЕНТОМ ПОСЛЕ ПОДТВЕРЖДЕНИЯ В ЧАТЕ
+   # RUN AUTOMATICALLY BY THE AI AGENT AFTER CONFIRMATION IN THE CHAT
    uv run cli.py validate --project=my-app --doc=BRD --version=1
    ```
-* **Если FAILED:** Статус меняется на `needs_revision`. Попросите ИИ исправить черновик с помощью `RMDW` на основе замечаний из отчета.
-* **Если PASSED:** Статус меняется на `approved`.
+* **If FAILED:** the status changes to `needs_revision`. Ask the AI to fix the draft via `RMDW` based on the findings in the report.
+* **If PASSED:** the status changes to `approved`.
 
-#### Шаг Б5: Финализация и продвижение по цепочке (Final)
-После одобрения ИИ-агент **самостоятельно предложит выполнить команду финализации** в вашем терминале:
+#### Step B5: Finalization and advancing along the chain (Final)
+After approval, the AI agent **proposes running the finalization command on its own** in your terminal:
 ```bash
-# ЗАПУСКАЕТСЯ АВТОМАТИЧЕСКИ ИИ-АГЕНТОМ ПОСЛЕ ПОДТВЕРЖДЕНИЯ В ЧАТЕ
+# RUN AUTOMATICALLY BY THE AI AGENT AFTER CONFIRMATION IN THE CHAT
 uv run cli.py final --project=my-app --doc=BRD --version=1
 ```
-CLI скопирует документ в `projects/my-app/final/BRD-v1-final.md` и переведет проект к подготовке следующего документа в цепочке — SRS (Техническая спецификация). На следующем цикле ИИ в качестве входа для SRS автоматически возьмет утвержденный `BRD-v1-final.md`.
+The CLI copies the document into `projects/my-app/final/BRD-v1-final.md` and moves the project on to preparing the next document in the chain — the SRS (technical specification). On the next cycle the AI automatically takes the approved `BRD-v1-final.md` as the input for the SRS.
 
 ---
 
-### Сценарий Г: Доработка существующего документа артефактами (Augment Mode)
+### Scenario D: Extending an existing document with artifacts (Augment Mode)
 
-Применяется, когда **формальный документ (SRS / BRD / Tech-Design / API-Contract) уже существует и согласован**, а в работу пришли новые артефакты (транскрипт митинга, обновлённые BR, заметки), которыми его нужно **дополнить, не пересобирая структуру**.
+Used when **a formal document (SRS / BRD / Tech-Design / API-Contract) already exists and is agreed upon**, and new artifacts have come in (a meeting transcript, updated BRs, notes) with which it needs to be **extended without rebuilding the structure**.
 
-> ⚠️ **Когда НЕ использовать augment:** если baseline-документ устарел/некорректен и его осознанно нужно переписать — используйте обычный `Сценарий Б` (draft с нуля). Augment именно про «сохранить как есть и дополнить».
+> ⚠️ **When NOT to use augment:** if the baseline document is outdated/incorrect and you deliberately need to rewrite it — use the regular `Scenario B` (draft from scratch). Augment is precisely about "keep as is and extend".
 
-**Главное отличие от обычного draft:** A4 (Document Writer) работает в **защищённом augment-режиме** — обязан показать вам diff-план в чате и получить явное подтверждение, прежде чем записывать новую версию документа. Структура baseline, формулировки требований, имена полей и сущностей моделей данных — неприкосновенны без вашего отдельного OK.
+**The key difference from a regular draft:** A4 (Document Writer) works in **protected augment mode** — it must show you a diff plan in the chat and get explicit confirmation before writing a new version of the document. The baseline's structure, the wording of requirements, and the field and entity names of the data models are inviolable without your separate OK.
 
-#### Шаг Г1: Запуск augment-режима
+#### Step D1: Launch augment mode
 
-1. Положите baseline-документ в любую папку на диске (например, `path/to/SRS-v1.md`).
-2. В терминале выполните:
+1. Place the baseline document in any folder on disk (for example, `path/to/SRS-v1.md`).
+2. In the terminal, run:
    ```bash
    uv run cli.py augment \
      --project=my-app \
      --baseline=path/to/SRS-v1.md \
      --doc=SRS
    ```
-3. CLI скопирует baseline в `projects/my-app/input/baseline/SRS-v1.md`, создаст `context.md` с frontmatter `rm_mode: augment` и переведёт проект в `status: drafting, mode: augment`.
+3. The CLI copies the baseline into `projects/my-app/input/baseline/SRS-v1.md`, creates `context.md` with the frontmatter `rm_mode: augment`, and moves the project to `status: drafting, mode: augment`.
 
-#### Шаг Г2: Положите артефакты в input/
+#### Step D2: Place the artifacts in input/
 
-Положите все артефакты для обогащения (транскрипты, обновлённые BR, заметки) в `projects/my-app/input/` — **в корень папки, НЕ в подпапку `baseline/`**.
+Place all the enrichment artifacts (transcripts, updated BRs, notes) into `projects/my-app/input/` — **in the root of the folder, NOT in the `baseline/` subfolder**.
 
-#### Шаг Г3: A1 разбирает артефакты в дельту
+#### Step D3: A1 parses the artifacts into a delta
 
-Напишите ИИ в чате IDE:
-> **«Мэри, запусти RMIN для проекта my-app. Это augment-режим, baseline — `input/baseline/SRS-v1.md`. Не растворяй baseline в `context.md`, опиши только дельту из артефактов.»**
+Write to the AI in the IDE chat:
+> **"Mary, run RMIN for the project my-app. This is augment mode, the baseline is `input/baseline/SRS-v1.md`. Do not dissolve the baseline into `context.md`, describe only the delta from the artifacts."**
 
-A1 запишет в `context.md` раздел **«🔄 Дельта для дополнения baseline»** со списком новых фактов из артефактов и привязкой «куда в baseline их встроить». Дальше — стандартная команда:
+A1 writes a **"🔄 Delta to extend the baseline"** section into `context.md` with a list of the new facts from the artifacts and a mapping of "where to embed them in the baseline". Next — the standard command:
 ```bash
 uv run cli.py intake --project=my-app
 ```
 
-#### Шаг Г4: A4 показывает diff-план и ждёт вашего OK
+#### Step D4: A4 shows the diff plan and waits for your OK
 
-> **«Джон, запусти RMAUG для проекта my-app. Покажи мне diff-план и дождись моего подтверждения, прежде чем писать новую версию.»**
+> **"John, run RMAUG for the project my-app. Show me the diff plan and wait for my confirmation before writing the new version."**
 
-A4 выводит в чат структурированный план: что добавит как **новое**, что **изменит** в существующих разделах (с обоснованием и ссылкой на артефакт), какие разделы оставит **1:1**.
+A4 prints a structured plan into the chat: what it will add as **new**, what it will **change** in the existing sections (with justification and a reference to the artifact), and which sections it will keep **1:1**.
 
-⚠️ **Важно:** если A4 пропустил фазу diff-плана и сразу записал файл — это нарушение контракта. Откатывайтесь, просите заново. Master Orchestrator вернёт документ в `needs_revision`, но проверка глазами надёжнее.
+⚠️ **Important:** if A4 skipped the diff-plan phase and wrote the file straight away — that is a contract violation. Roll back and ask again. The Master Orchestrator will return the document to `needs_revision`, but checking with your own eyes is more reliable.
 
-#### Шаг Г5: Подтверждение и запись с маркерами
+#### Step D5: Confirmation and writing with markers
 
-Если план устраивает — ответьте `OK, применяй`. A4 записывает `draft/SRS-v<N+1>.md`, где **каждая новая или изменённая строка несёт маркер**:
-- `*(новое: <источник>)*` — новый раздел/требование/строка таблицы;
-- `*(изменено: <причина>)*` — изменение существующего baseline.
+If the plan suits you — reply `OK, apply`. A4 writes `draft/SRS-v<N+1>.md`, where **every new or changed line carries a marker**:
+- `*(new: <source>)*` — a new section/requirement/table row;
+- `*(changed: <reason>)*` — a change to an existing baseline.
 
-Отсутствие маркера = декларация «здесь baseline сохранён 1:1».
+The absence of a marker = a declaration that "the baseline is preserved here 1:1".
 
-#### Шаг Г6: Фиксация и валидация
+#### Step D6: Recording and validation
 
 ```bash
 uv run cli.py draft --project=my-app --doc=SRS    # → status: validating
-# Дальше — стандартный цикл валидации (RMVAL) и финализации (Шаги Б4-Б5)
+# Next — the standard validation (RMVAL) and finalization cycle (Steps B4–B5)
 ```
 
-> 📖 **Полный walkthrough на реальном кейсе DAMS** — с дельтой Δ1-Δ7, образцом diff-плана и таблицей защитных механизмов: [`docs/walkthroughs/augment-dams-srs.md`](walkthroughs/augment-dams-srs.md).
+> 📖 **A full walkthrough on the real DAMS case** — with the Δ1–Δ7 delta, a sample diff plan, and a table of protection mechanisms: [`docs/walkthroughs/augment-dams-srs.md`](walkthroughs/augment-dams-srs.md).
 
 ---
 
-## 4. Интеграция с Obsidian и NotebookLM
+## 4. Integration with Obsidian and NotebookLM
 
-### Obsidian (Визуальная база знаний)
-1. Установите [Obsidian](https://obsidian.md/).
-2. Откройте папку `vault/` вашего проекта в качестве сейфа (Obsidian Vault).
-3. Запустите синхронизацию в терминале:
+### Obsidian (visual knowledge base)
+1. Install [Obsidian](https://obsidian.md/).
+2. Open the `vault/` folder of your project as a vault (Obsidian Vault).
+3. Run the sync in the terminal:
    ```bash
    uv run cli.py sync-vault
    ```
-4. Вам откроется интерактивный граф связей спецификаций, теги и перекрестные ссылки для удобного чтения.
+4. You get an interactive graph of specification links, tags, and cross-references for convenient reading.
 
-### Google NotebookLM (Умный RAG-поиск и аудиоподкасты)
-1. Подготовьте экспорт проекта:
+### Google NotebookLM (smart RAG search and audio podcasts)
+1. Prepare the project export:
    ```bash
    uv run cli.py export-notebooklm --project=my-app
    ```
-2. Откройте [Google NotebookLM](https://notebooklm.google/).
-3. Создайте новый блокнот и загрузите туда сгенерированные файлы из папки `notebooklm/my-app/`.
-4. Задавайте любые вопросы по проекту ИИ, генерируйте резюме или аудио-подкасты!
+2. Open [Google NotebookLM](https://notebooklm.google/).
+3. Create a new notebook and upload the generated files from the `notebooklm/my-app/` folder there.
+4. Ask the AI any questions about the project, generate summaries or audio podcasts!
 
 ---
 
-## 5. Автоматическое обновление Requirements Mind (Update в 1 клик)
+## 5. Automatic Requirements Mind update (one-click Update)
 
-Для того чтобы обновить инструмент до актуальной версии с GitHub, вам не нужно удалять проект или переустанавливать файлы вручную. Достаточно выполнить одну команду в терминале:
+To update the tool to the latest version from GitHub, you do not need to delete the project or reinstall files by hand. Just run a single command in the terminal:
 
 ```bash
 uv run cli.py update
 ```
 
-**Что делает процесс обновления:**
-1. **Обновление файлов ядра:**
-   * Если проект является репозиторием Git — автоматически выполняется `git pull origin main`.
-   * Если проект установлен из ZIP-архива — скрипт скачивает свежий ZIP-дистрибутив с GitHub и бережно обновляет все файлы ядра (клиент, документацию, сценарии `flows/` и базу знаний `kb/`), при этом ваши папки проектов (`projects/`), кастомизации и файл настроек `.env` остаются в полной безопасности.
-2. **Обновление зависимостей:** Проверяются и переустанавливаются новые библиотеки из `requirements.txt` (с использованием `uv` или стандартного `pip`).
-3. **Обновление ИИ-навыков IDE:** Скрипт автоматически запускает `setup-ide`, чтобы скопировать новые ИИ-навыки, инструкции и правила `.cursorrules` во все ваши ИИ-ассистенты (Cursor, Claude Code, Google Antigravity, OpenAI Codex).
+**What the update process does:**
+1. **Updating the core files:**
+   * If the project is a Git repository — `git pull origin main` is run automatically.
+   * If the project was installed from a ZIP archive — the script downloads a fresh ZIP distribution from GitHub and carefully updates all the core files (the client, the documentation, the `flows/` scripts, and the `kb/` knowledge base), while your project folders (`projects/`), customizations, and the `.env` settings file remain completely safe.
+2. **Updating dependencies:** new libraries from `requirements.txt` are checked and reinstalled (using `uv` or standard `pip`).
+3. **Updating the IDE AI skills:** the script automatically runs `setup-ide` to copy the new AI skills, instructions, and `.cursorrules` rules into all your AI assistants (Cursor, Claude Code, Google Antigravity, OpenAI Codex).
 
 ---
 
-## 6. Запуск через OpenAI Codex CLI
+## 6. Running via the OpenAI Codex CLI
 
-Codex CLI (OpenAI Codex) работает через директивы в терминале:
+The Codex CLI (OpenAI Codex) works through terminal directives:
 
 ```bash
-# Инициализация проекта
-codex --model=gpt-4o --prompt="Запусти установку Requirements Mind"
+# Initialize the project
+codex --model=gpt-4o --prompt="Run the Requirements Mind installation"
 
-# Запуск онбординга
+# Start onboarding
 codex --model=gpt-4o --prompt="@AGENTS.md @.cursorrules
-Запусти RMONB для проекта <name>"
+Run RMONB for the project <name>"
 
-# Запуск Intake
+# Start Intake
 codex --model=gpt-4o --prompt="@AGENTS.md @.cursorrules
-Запусти RMIN для проекта <name>"
+Run RMIN for the project <name>"
 
-# Запуск Elicitation Mode
+# Start Elicitation Mode
 codex --model=gpt-4o --prompt="@AGENTS.md @.cursorrules
-Запусти RME для нового проекта <name>"
+Run RME for the new project <name>"
 
-# Запуск Draft
+# Start Draft
 codex --model=gpt-4o --prompt="@AGENTS.md @.cursorrules
-Запусти RMDW для проекта <name>, нужен SRS"
+Run RMDW for the project <name>, I need an SRS"
 
-# Запуск Validation
+# Start Validation
 codex --model=gpt-4o --prompt="@AGENTS.md @.cursorrules
-Запусти RMVAL для проекта <name>"
+Run RMVAL for the project <name>"
 ```
 
-**Важно:** В Codex CLI нужно явно указывать `@AGENTS.md` и `@.cursorrules` в промпте, чтобы агент видел контекст агентов Rules и Capabilities Menu.
+**Important:** In the Codex CLI you must explicitly include `@AGENTS.md` and `@.cursorrules` in the prompt, so the agent sees the context of the agent Rules and the Capabilities Menu.

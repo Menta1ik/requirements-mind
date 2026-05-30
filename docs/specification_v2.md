@@ -1,183 +1,183 @@
-# Requirements Mind — Финальная спецификация
-**Версия**: 2.0  
-**Дата**: 26 мая 2026  
+# Requirements Mind — Final specification
+**Version**: 2.0  
+**Date**: May 26, 2026  
 
 ---
 
 ## 1. Vision
 
-Requirements Mind — это CLI-first, markdown-first, multi-agent инструмент для работы с проектными требованиями и аналитикой.
+Requirements Mind is a CLI-first, markdown-first, multi-agent tool for working with project requirements and analytics.
 
-Пользователь загружает сырые входные материалы (транскрипты звонков, тикеты, Confluence-страницы, документы, беседы) и получает на выходе структурированные артефакты: формальные документы или аналитические материалы, готовые к использованию.
+The user loads raw input materials (call transcripts, tickets, Confluence pages, documents, conversations) and gets structured artifacts as output: formal documents or analytical materials, ready to use.
 
-Инструмент не является веб-приложением. Он работает через CLI, AI-агентов (Claude Code, Gemini CLI, Codex) и IDE (Cursor). Все артефакты живут в файлах формата Markdown внутри папок проектов.
+The tool is not a web application. It works through the CLI, AI agents (Claude Code, Gemini CLI, Codex), and IDEs (Cursor). All artifacts live in Markdown files inside the project folders.
 
-Основа механики — BMAD METHOD. Агенты, паттерны коллаборации и шаблоны документов адаптированы из BMAD и расширены специфическими навыками Requirements Mind.
-
----
-
-## 2. Два режима работы и 6 профилей проекта требований
-
-Для точной фокусировки ИИ-агентов на целях проектирования, при старте проекта система поддерживает выбор одного из **6 специализированных профилей требований**:
-
-1. **Профиль 1: «Бизнес-концепт»** (цель: концептуальные бизнес-требования **BRD**).
-2. **Профиль 2: «Системная спецификация»** (цель: детальные требования и логика системы **BRD ➡️ SRS**).
-3. **Профиль 3: «Архитектурное проектирование»** (цель: архитектурные потоки и структура БД **BRD ➡️ SRS ➡️ Tech Design**).
-4. **Профиль 4: «Интеграция и API»** (цель: полный цикл проектирования, включая REST/gRPC контракты **BRD ➡️ SRS ➡️ Tech Design ➡️ API Contract**).
-5. **Профиль 5: «Аналитическое исследование (Режим B)»** (цель: свободный анализ требований, сравнения документов в папке **`analysis/`**).
-6. **Профиль 6: «Сбор требований» (Elicitation Mode)** (цель: интерактивный сбор требований с нуля через ИИ-интервью в чате, если у аналитика есть только идея).
+The mechanics are built on the BMAD METHOD. The agents, collaboration patterns, and document templates are adapted from BMAD and extended with Requirements Mind-specific skills.
 
 ---
 
-### Режим A: Генерация формальных документов
-* **Входы:** транскрипты, тикеты, сырые требования, либо интерактивное выявление требований с нуля.
-* **Выходы:** BRD, SRS, Tech Design, API Contract.
-* **Шаблон:** жёсткий, на основе чеклистов из `kb/`.
-* **Иерархия:** BRD → SRS → Tech Design → API Contract (каждый следующий опирается на предыдущий, не противоречит ему).
-* **Сбор требований с нуля (Elicitation Mode - Профиль 6):** интерактивный опрос в чате IDE силами агента `a3-elicitation` на основе гибридной методологии **«Практичный аналитик»** (JTBD для бизнес-целей + Use Cases для функциональных границ + нефункциональные требования NFR по стандарту ISO/IEC/IEEE 29148) с обязательным наличием пункта свободного ответа для каждого вопроса.
+## 2. Two working modes and 6 requirements-project profiles
 
-### Режим B: Общий project-based анализ и обсуждение
-* **Входы:** любые документы, требования, беседы, сравнения.
-* **Выходы:** `analysis/analysis-vN.md` — адаптивный формат.
-* **Задачи:** валидация, сравнение версий, поиск противоречий, выявление рисков, резюмирование, обсуждение.
-* **Шаблон:** гибкий, агент сам определяет структуру под задачу.
-* **Правило:** если контекст непонятен — агент ОБЯЗАН задавать уточняющие вопросы. Не додумывает, не предполагает.
+To focus the AI agents precisely on the design goals, at project start the system supports choosing one of **6 specialized requirements profiles**:
 
-**Оба режима:**
-* Используют единую файловую модель проекта.
-* Синхронизируются с Obsidian и NotebookLM.
-* Поддерживают multi-agent collaborative режим.
+1. **Profile 1: "Business concept"** (goal: conceptual business requirements **BRD**).
+2. **Profile 2: "System specification"** (goal: detailed requirements and system logic **BRD ➡️ SRS**).
+3. **Profile 3: "Architecture design"** (goal: architectural flows and the database structure **BRD ➡️ SRS ➡️ Tech Design**).
+4. **Profile 4: "Integration and API"** (goal: the full design cycle, including REST/gRPC contracts **BRD ➡️ SRS ➡️ Tech Design ➡️ API Contract**).
+5. **Profile 5: "Analytical research (Mode B)"** (goal: free-form requirements analysis, document comparisons in the **`analysis/`** folder).
+6. **Profile 6: "Requirements elicitation" (Elicitation Mode)** (goal: interactive requirements gathering from scratch through an AI interview in the chat, when the analyst has only an idea).
 
 ---
 
-## 3. Источник: BMAD METHOD
+### Mode A: Generating formal documents
+* **Inputs:** transcripts, tickets, raw requirements, or interactive requirements elicitation from scratch.
+* **Outputs:** BRD, SRS, Tech Design, API Contract.
+* **Template:** rigid, based on the `kb/` checklists.
+* **Hierarchy:** BRD → SRS → Tech Design → API Contract (each next one builds on the previous and does not contradict it).
+* **Requirements gathering from scratch (Elicitation Mode — Profile 6):** an interactive survey in the IDE chat run by the `a3-elicitation` agent based on the hybrid **"Pragmatic Analyst"** methodology (JTBD for business goals + Use Cases for functional boundaries + non-functional requirements (NFR) per the ISO/IEC/IEEE 29148 standard), with a mandatory free-text answer option for every question.
 
-Проект использует [BMAD METHOD](https://github.com/bmad-code-org/BMAD-METHOD) как фундамент для агентной механики.
+### Mode B: General project-based analysis and discussion
+* **Inputs:** any documents, requirements, conversations, comparisons.
+* **Outputs:** `analysis/analysis-vN.md` — an adaptive format.
+* **Tasks:** validation, version comparison, finding contradictions, surfacing risks, summarization, discussion.
+* **Template:** flexible; the agent designs the structure for the task itself.
+* **Rule:** if the context is unclear — the agent MUST ask clarifying questions. It does not guess or assume.
 
-### Что берётся из BMAD (форк + выборка нужных модулей)
+**Both modes:**
+* Use a single project file model.
+* Sync with Obsidian and NotebookLM.
+* Support a multi-agent collaborative mode.
 
-#### Из `src/bmm-skills/1-analysis/`
-| Модуль | Как используется |
+---
+
+## 3. Source: BMAD METHOD
+
+The project uses [BMAD METHOD](https://github.com/bmad-code-org/BMAD-METHOD) as the foundation for the agent mechanics.
+
+### What is taken from BMAD (fork + selection of the needed modules)
+
+#### From `src/bmm-skills/1-analysis/`
+| Module | How it is used |
 |---|---|
-| `bmad-agent-analyst` | Основа для **A1 Intake Analyst** |
-| `bmad-agent-tech-writer` | Основа для **A4 Document Writer** |
-| `research` | Основа для **A5 Research Assistant** |
+| `bmad-agent-analyst` | The basis for **A1 Intake Analyst** |
+| `bmad-agent-tech-writer` | The basis for **A4 Document Writer** |
+| `research` | The basis for **A5 Research Assistant** |
 
-#### Из `src/bmm-skills/2-plan-workflows/`
-| Модуль | Как используется |
+#### From `src/bmm-skills/2-plan-workflows/`
+| Module | How it is used |
 |---|---|
-| `bmad-agent-pm` | Основа для **A3 Question Generator** |
-| `bmad-create-prd` | Шаблон и логика создания документов для **A4** |
-| `bmad-edit-prd` | Логика редактирования версий для **A4** |
-| `bmad-validate-prd` | Логика валидации для **A2 Validator** |
-| `bmad-prd` | Шаблон PRD → адаптируем под BRD |
+| `bmad-agent-pm` | The basis for **A3 Question Generator** |
+| `bmad-create-prd` | The template and document-creation logic for **A4** |
+| `bmad-edit-prd` | The version-editing logic for **A4** |
+| `bmad-validate-prd` | The validation logic for **A2 Validator** |
+| `bmad-prd` | The PRD template → adapted for the BRD |
 
-#### Из `src/core-skills/`
-| Модуль | Как используется |
+#### From `src/core-skills/`
+| Module | How it is used |
 |---|---|
-| `bmad-party-mode` | **Master Orchestrator** — multi-agent коллаборация |
-| `bmad-advanced-elicitation` | **A3** — техники сбора требований |
-| `bmad-spec` | **A4** — написание спецификаций |
-| `bmad-review-adversarial-general` | **A2** — критический разбор |
-| `bmad-review-edge-case-hunter` | **A2** — поиск edge cases |
-| `bmad-editorial-review-prose` | **A4** — редактирование текста |
-| `bmad-editorial-review-structure` | **A2** — проверка структуры |
-| `bmad-index-docs` | **A1** — индексация входных документов |
-| `bmad-brainstorming` | **A6 Analysis Writer** — свободный анализ |
+| `bmad-party-mode` | **Master Orchestrator** — multi-agent collaboration |
+| `bmad-advanced-elicitation` | **A3** — requirements-gathering techniques |
+| `bmad-spec` | **A4** — writing specifications |
+| `bmad-review-adversarial-general` | **A2** — critical review |
+| `bmad-review-edge-case-hunter` | **A2** — hunting for edge cases |
+| `bmad-editorial-review-prose` | **A4** — text editing |
+| `bmad-editorial-review-structure` | **A2** — structure checking |
+| `bmad-index-docs` | **A1** — indexing input documents |
+| `bmad-brainstorming` | **A6 Analysis Writer** — free-form analysis |
 
-### Что добавляется поверх BMAD (уникально для Requirements Mind)
-* **A6 Analysis Writer** — Режим B, гибкий аналитический выход.
-* **Иерархия документов** BRD → SRS → Tech Design → API Contract.
-* **SRS, Tech Design, API Contract** — шаблоны и чеклисты.
-* **Файловая модель** — `state.json`, `messages/`, `qa-history.md`.
-* **Obsidian + NotebookLM** интеграция.
-* **CLI** (`cli.py`) с командами под наш workflow.
+### What is added on top of BMAD (unique to Requirements Mind)
+* **A6 Analysis Writer** — Mode B, a flexible analytical output.
+* **The document hierarchy** BRD → SRS → Tech Design → API Contract.
+* **SRS, Tech Design, API Contract** — templates and checklists.
+* **The file model** — `state.json`, `messages/`, `qa-history.md`.
+* **Obsidian + NotebookLM** integration.
+* **The CLI** (`cli.py`) with commands tailored to our workflow.
 
-### Защита от галлюцинаций: Блокировка кодов BMAD и уникальные RM-коды
+### Hallucination protection: blocking the BMAD codes and unique RM codes
 
-ИИ-модели в IDE и CLI (Cursor, Claude Code, Antigravity, OpenAI Codex) обладают устойчивыми ассоциациями с дефолтными кодами фреймворка BMAD, что приводило к вызову встроенных программных плагинов (спринты, кодинг) вместо инженерии требований. Для предотвращения таких "галлюцинаций" и обеспечения стабильной работы:
-1. **Жесткая блокировка старых кодов:** Все стандартные программные коды BMAD (`DP`, `BP`, `MR`, `DR`, `TR`, `CB`, `WB` и др.) заглушены в TOML-файлах настроек агентов (`skills/custom/`). При их вводе ИИ-агенты выводят предупреждающее сообщение и перенаправляют на новые команды.
-2. **Внедрение уникальных RM-кодов:** Взамен зарегистрирована непересекающаяся система требований-ориентированных кодов:
-   * **`RMONB`** — **Онбординг проекта** (`a0-onboarding-wizard`). Запуск Project Discovery, опрос по 6 профилям требований и выдача пошагового Roadmap.
-   * **`RME`** — **Сбор требований с нуля** (`a3-elicitation`). Глубокое интерактивное интервью по гибридному стандарту "Практичный аналитик" (JTBD + Use Cases + ISO 29148 NFR) с обязательной возможностью свободного ввода.
-   * **`RMIN`** — **Анализ входов (Intake)** (`a1-intake-analyst`). Разбор сырых материалов, удаление шума, формирование `context.md` (No Compression).
-   * **`RMQ`** — **Уточнение пробелов (Q&A)** (`a3-question-generator`). Поиск нестыковок в `context.md`, вывод до 5 точечных вопросов в чат IDE с обязательным свободным вводом.
-   * **`RMDW`** — **Написание спецификаций** (`a4-document-writer`). Создание черновиков документов (BRD, SRS, Tech Design, API Contract) строго по шаблонам из `kb/`.
-   * **`RMVAL`** — **Валидация требований** (`a2-requirements-validator`). Многослойный аудит черновиков (Edge Case Hunter, Adversarial Review).
-   * **`RMAN`** — **Аналитическое исследование** (`a6-analysis-writer`). Создание гибких отчетов в Режиме B (сравнения версий, риски, таблицы) в папке `analysis/`.
+The AI models in IDEs and CLIs (Cursor, Claude Code, Antigravity, OpenAI Codex) have strong associations with the BMAD framework's default codes, which led to invoking the built-in program plugins (sprints, coding) instead of requirements engineering. To prevent such "hallucinations" and ensure stable operation:
+1. **Hard blocking of the old codes:** All standard BMAD program codes (`DP`, `BP`, `MR`, `DR`, `TR`, `CB`, `WB`, etc.) are stubbed out in the agents' TOML settings files (`skills/custom/`). When they are entered, the AI agents print a warning message and redirect to the new commands.
+2. **Introducing the unique RM codes:** In their place, a non-overlapping system of requirements-oriented codes is registered:
+   * **`RMONB`** — **Project onboarding** (`a0-onboarding-wizard`). Running Project Discovery, surveying across the 6 requirements profiles, and producing a step-by-step Roadmap.
+   * **`RME`** — **Gathering requirements from scratch** (`a3-elicitation`). A deep interactive interview per the hybrid "Pragmatic Analyst" standard (JTBD + Use Cases + ISO 29148 NFR) with a mandatory free-input option.
+   * **`RMIN`** — **Input analysis (Intake)** (`a1-intake-analyst`). Parsing raw materials, removing noise, building `context.md` (No Compression).
+   * **`RMQ`** — **Gap clarification (Q&A)** (`a3-question-generator`). Finding inconsistencies in `context.md`, printing up to 5 targeted questions into the IDE chat with a mandatory free input.
+   * **`RMDW`** — **Writing specifications** (`a4-document-writer`). Creating document drafts (BRD, SRS, Tech Design, API Contract) strictly per the `kb/` templates.
+   * **`RMVAL`** — **Requirements validation** (`a2-requirements-validator`). A multi-layered audit of drafts (Edge Case Hunter, Adversarial Review).
+   * **`RMAN`** — **Analytical research** (`a6-analysis-writer`). Creating flexible Mode B reports (version comparisons, risks, tables) in the `analysis/` folder.
 
 ---
 
-## 4. Файловая модель проекта
+## 4. The project file model
 
-Каждый проект располагается в каталоге `projects/<project-name>/` и имеет следующую структуру:
+Each project lives in the directory `projects/<project-name>/` and has the following structure:
 
 ```text
 projects/<project-name>/
-├── input/                          # Сырые входные материалы
+├── input/                          # Raw input materials
 │   ├── transcript.md
 │   ├── requirements.md
 │   └── source-doc.md
-├── context.md                      # Сформированный контекст (результат работы A1)
-├── context-changelog.md             # Реестр изменений накапливаемого контекста
-├── questions.md                    # Уточняющие вопросы к пользователю (результат работы A3)
-├── qa-history.md                   # История вопросов и ответов
-├── state.json                      # Состояние: активный документ, итерация, статус, агенты
-├── messages/                       # Межагентные сообщения круглого стола
+├── context.md                      # The built context (the result of A1's work)
+├── context-changelog.md             # The change registry for the cumulative context
+├── questions.md                    # Clarifying questions for the user (the result of A3's work)
+├── qa-history.md                   # The question-and-answer history
+├── state.json                      # State: active document, iteration, status, agents
+├── messages/                       # Cross-agent round-table messages
 │   ├── a2-to-a4-v1.md
 │   ├── a4-feedback-v1.md
 │   └── orchestrator-decision.md
-├── draft/                          # Черновики формальных документов
+├── draft/                          # Drafts of the formal documents
 │   ├── BRD-v1.md
 │   └── BRD-v2.md
-├── validation/                     # Отчёты по валидации документов (результат работы A2)
+├── validation/                     # Document validation reports (the result of A2's work)
 │   └── BRD-v1-report.md
-├── analysis/                       # Аналитические выходы в Режиме B (результат работы A6)
+├── analysis/                       # Analytical outputs in Mode B (the result of A6's work)
 │   └── analysis-v1.md
-├── final/                          # Финальные одобренные версии документов
+├── final/                          # The final approved document versions
 │   └── BRD-v1-final.md
-└── metadata.json                   # Метаданные проекта
+└── metadata.json                   # Project metadata
 ```
 
-### 📝 Единый накапливаемый источник истины: context.md (Cumulative Context Pattern)
+### 📝 The single cumulative source of truth: context.md (Cumulative Context Pattern)
 
-Файл **`context.md`** является главным и единственным динамическим источником истины для всех ИИ-агентов. В Requirements Mind v2.0 жестко запрещено затирание, упрощение или сжатие этого файла при переходах между этапами проектирования (BRD -> SRS -> Tech Design -> API Contract).
+The file **`context.md`** is the main and only dynamic source of truth for all the AI agents. In Requirements Mind v2.0 it is strictly forbidden to overwrite, simplify, or compress this file during transitions between design stages (BRD -> SRS -> Tech Design -> API Contract).
 
-**Правила Cumulative Context Pattern:**
+**Cumulative Context Pattern rules:**
 
-1. **Принцип инкрементального дополнения (No Overwrite):**
-   * Файл создается один раз на этапе Intake. При последующих разборах, интервью или проектировании новых уровней спецификаций ИИ-агенты **никогда не перезаписывают `context.md` с нуля**.
-   * Новые системные требования, Use Cases, структуры данных, схемы БД и API-контракты бережно **интегрируются** в соответствующие разделы или **дописываются** снизу, сохраняя все ранее утвержденные бизнес-требования, Vision и стек.
+1. **The incremental-extension principle (No Overwrite):**
+   * The file is created once at the Intake stage. During subsequent parsing, interviews, or designing new specification levels, the AI agents **never overwrite `context.md` from scratch**.
+   * New system requirements, Use Cases, data structures, DB schemas, and API contracts are carefully **integrated** into the appropriate sections or **appended** at the bottom, preserving all previously approved business requirements, the Vision, and the stack.
 
-2. **Выявление конфликтов требований (Conflict Detection):**
-   * При анализе новых входных данных (например, транскриптов новых встреч на этапе SRS) ИИ-агент A1 может обнаружить явные противоречия с уже зафиксированными требованиями в `context.md` (например, *BRD-сценарий говорит "zero-cloud", а SRS-транскрипт требует "облачную синхронизацию"*).
-   * В таком случае ИИ-агент A1 обязан не перезаписывать данные, а зафиксировать конфликт в специальном разделе в самом верху `context.md`:
+2. **Detecting requirement conflicts (Conflict Detection):**
+   * When analyzing new input data (for example, transcripts of new meetings at the SRS stage), the A1 AI agent may detect explicit contradictions with requirements already recorded in `context.md` (for example, *the BRD scenario says "zero-cloud", while the SRS transcript requires "cloud sync"*).
+   * In that case the A1 AI agent must not overwrite the data, but record the conflict in a dedicated section at the very top of `context.md`:
      ```markdown
-     ## ⚠️ Выявленные конфликты требований
-     - [Источник 1: transcript.md] zero-cloud vs [Источник 2: call-2.md] облачная синхронизация
-       → Статус: Не разрешён, передан A3 для опроса аналитика
+     ## ⚠️ Detected requirement conflicts
+     - [Source 1: transcript.md] zero-cloud vs [Source 2: call-2.md] cloud sync
+       → Status: Unresolved, handed to A3 to interview the analyst
      ```
-   * Наличие неразрешенного конфликта переводит проект в статус `needs_questions` и передает управление агенту A3 для проведения интервью в чате.
+   * The presence of an unresolved conflict moves the project to the status `needs_questions` and hands control to agent A3 to run an interview in the chat.
 
-3. **Обязательная секция открытых вопросов в скелете `context.md`:**
-   * При первом же создании файла `context.md` ИИ-агент в обязательном порядке формирует раздел:
+3. **A mandatory open-questions section in the `context.md` skeleton:**
+   * On the very first creation of the `context.md` file, the AI agent always builds the section:
      ```markdown
-     ## ❓ Открытые вопросы и пробелы
-     - [Раздел / Тема] Описание пробела...
+     ## ❓ Open questions and gaps
+     - [Section / Topic] Description of the gap...
      ```
-   * Этот раздел является жестким триггером для ИИ-агента A3. Наличие записей в этой секции сообщает системе о необходимости сгенерировать точечные вопросы для пользователя и провести Q&A сессию прямо в чате IDE.
+   * This section is a hard trigger for the A3 AI agent. The presence of entries in this section tells the system to generate targeted questions for the user and run a Q&A session right in the IDE chat.
 
-4. **Вынесение реестра изменений в `context-changelog.md`:**
-   * Чтобы не перегружать файл `context.md` историей правок, лог изменений полностью выносится в отдельный файл **`context-changelog.md`** рядом с `context.md`.
-   * При каждом обновлении контекста ИИ-агенты дописывают в начало `context-changelog.md` новую запись: дата, роль ИИ-агента, версия этапа (например, *SRS-v2*) и краткое резюме внесенных дополнений (или разрешенных конфликтов).
+4. **Moving the change registry into `context-changelog.md`:**
+   * To avoid overloading the `context.md` file with edit history, the change log is moved entirely into a separate file **`context-changelog.md`** alongside `context.md`.
+   * On each context update the AI agents prepend a new entry to `context-changelog.md`: the date, the AI agent's role, the stage version (for example, *SRS-v2*), and a brief summary of the additions made (or the conflicts resolved).
 
-5. **Иерархическая структура разделов по этапам:**
-   * **Разделы BRD (Бизнес):** `# 🎯 Vision и бизнес-цели`, `# 👥 Стейкхолдеры`, `# ⚡ Ограничения`.
-   * **Разделы SRS (Системные):** `# 🔄 Use Cases и Сценарии`, `# 📦 Информационная модель (Сущности)`.
-   * **Разделы Tech Design (Архитектура):** `# 🏗️ Архитектурные потоки (Data Flow)`, `# 💾 Структура базы данных`.
-   * **Разделы API Contract (Интеграция):** `# 🔌 Спецификации эндпоинтов`.
+5. **A hierarchical section structure by stage:**
+   * **BRD sections (Business):** `# 🎯 Vision and business goals`, `# 👥 Stakeholders`, `# ⚡ Constraints`.
+   * **SRS sections (System):** `# 🔄 Use Cases and Scenarios`, `# 📦 Information model (Entities)`.
+   * **Tech Design sections (Architecture):** `# 🏗️ Architectural flows (Data Flow)`, `# 💾 Database structure`.
+   * **API Contract sections (Integration):** `# 🔌 Endpoint specifications`.
 
-### Пример state.json
+### Example state.json
 ```json
 {
   "project": "mitzvah-connect",
@@ -194,96 +194,96 @@ projects/<project-name>/
 
 ---
 
-## 5. Агенты
+## 5. Agents
 
-### A0 — Onboarding Wizard (ИИ-Ассистент старта проекта)
-* **Код вызова в IDE:** **`RMONB`**
-* **Задача:** первичный онбординг, опрос аналитика для определения одного из 6 профилей требований, составление Roadmap проекта.
-* **Автоматизация:** после записи стартовых файлов `requirements.md` и `context.md` **автоматически предлагает запустить в терминале** команду `uv run cli.py onboard --project=<project-name>` (пользователю нужно лишь нажать кнопку подтверждения в чате).
+### A0 — Onboarding Wizard (AI project-start assistant)
+* **Invocation code in the IDE:** **`RMONB`**
+* **Task:** initial onboarding, surveying the analyst to determine one of the 6 requirements profiles, building the project Roadmap.
+* **Automation:** after writing the starter files `requirements.md` and `context.md`, it **automatically proposes running** the command `uv run cli.py onboard --project=<project-name>` in the terminal (the user just presses the confirm button in the chat).
 
-### Master Orchestrator (Главный координатор)
-* **Основа:** BMAD `bmad-party-mode`.
-* **Задача:** координирует всех агентов, управляет циклом круглого стола и итераций, обновляет `state.json`.
-* **Автоматизация:** при успешном согласовании черновика (PASSED) **автоматически предлагает запустить в терминале** команду `uv run cli.py final --project=<project-name> --doc=<doc-type> --version=<version>` (пользователю нужно лишь подтвердить запуск в чате).
+### Master Orchestrator
+* **Based on:** BMAD `bmad-party-mode`.
+* **Task:** coordinates all the agents, manages the round-table and iteration cycle, updates `state.json`.
+* **Automation:** on a successful draft approval (PASSED), it **automatically proposes running** the command `uv run cli.py final --project=<project-name> --doc=<doc-type> --version=<version>` in the terminal (the user just confirms the run in the chat).
 
 ### A1 — Intake Analyst
-* **Код вызова в IDE:** **`RMIN`**
-* **Основа:** BMAD `bmad-agent-analyst` + `bmad-index-docs`.
-* **Задача:** анализирует содержимое `input/`, агрегирует данные и формирует единый `context.md` без потери деталей (No Compression).
-* **Автоматизация:** после успешного создания или обновления `context.md` **автоматически предлагает запустить в терминале** команду `uv run cli.py intake --project=<project-name>` (пользователю нужно лишь подтвердить запуск в чате).
+* **Invocation code in the IDE:** **`RMIN`**
+* **Based on:** BMAD `bmad-agent-analyst` + `bmad-index-docs`.
+* **Task:** analyzes the contents of `input/`, aggregates the data, and builds a single `context.md` without losing details (No Compression).
+* **Automation:** after successfully creating or updating `context.md`, it **automatically proposes running** the command `uv run cli.py intake --project=<project-name>` in the terminal (the user just confirms the run in the chat).
 
 ### A2 — Requirements Validator
-* **Код вызова в IDE:** **`RMVAL`**
-* **Основа:** BMAD `bmad-validate-prd` + `bmad-review-adversarial-general` + `bmad-review-edge-case-hunter` + `bmad-editorial-review-structure`.
-* **Задача:** проверяет разработанный документ на соответствие чеклистам из `kb/`, ищет логические противоречия, edge cases и структурные пробелы, выносит вердикты `PASSED`/`FAILED`.
-* **Автоматизация:** после сохранения отчета в `messages/a2-to-a4-vN.md` **автоматически предлагает запустить в терминале** команду `uv run cli.py validate --project=<project-name> --doc=<doc> --version=<ver>` (пользователю нужно лишь подтвердить запуск в чате).
+* **Invocation code in the IDE:** **`RMVAL`**
+* **Based on:** BMAD `bmad-validate-prd` + `bmad-review-adversarial-general` + `bmad-review-edge-case-hunter` + `bmad-editorial-review-structure`.
+* **Task:** checks the produced document against the `kb/` checklists, hunts for logical contradictions, edge cases, and structural gaps, and issues `PASSED`/`FAILED` verdicts.
+* **Automation:** after saving the report in `messages/a2-to-a4-vN.md`, it **automatically proposes running** the command `uv run cli.py validate --project=<project-name> --doc=<doc> --version=<ver>` in the terminal (the user just confirms the run in the chat).
 
 ### A3 — Question Generator & Elicitation Expert
-* **Коды вызова в IDE:** **`RMQ`** (уточнение пробелов) / **`RME`** (сбор требований с нуля)
-* **Основа:** BMAD `bmad-agent-pm` + `bmad-advanced-elicitation`.
-* **Задача:**
-  * В режиме **Elicitation Mode (`RME`)** проводит глубокое пошаговое интервью с нуля по гибридному стандарту «Практичный аналитик» (JTBD + Use Cases + ISO 29148 NFR).
-  * В режиме **уточнения пробелов (`RMQ`)** находит нестыковки в `context.md` и выводит до 5 точечных вопросов прямо в чат IDE.
-  * **Обязательное правило:** К каждому вопросу всегда добавляется финальный пункт **«Свой вариант / Свободный ответ»** для возможности произвольного ввода пользователем.
-* **Автоматизация:** Самостоятельно считывает ответы пользователя из чата IDE, фиксирует их в `qa-history.md`, обновляет `context.md` и **автоматически предлагает перезапустить в терминале** команду `uv run cli.py intake --project=<project-name>` (пользователю нужно лишь подтвердить запуск в чате).
+* **Invocation codes in the IDE:** **`RMQ`** (gap clarification) / **`RME`** (gathering requirements from scratch)
+* **Based on:** BMAD `bmad-agent-pm` + `bmad-advanced-elicitation`.
+* **Task:**
+  * In **Elicitation Mode (`RME`)** it runs a deep step-by-step interview from scratch per the hybrid "Pragmatic Analyst" standard (JTBD + Use Cases + ISO 29148 NFR).
+  * In **gap-clarification mode (`RMQ`)** it finds inconsistencies in `context.md` and prints up to 5 targeted questions right into the IDE chat.
+  * **Mandatory rule:** Every question always includes a final item **"Your own option / Free-text answer"** so the user can enter arbitrary input.
+* **Automation:** It reads the user's answers from the IDE chat on its own, records them in `qa-history.md`, updates `context.md`, and **automatically proposes rerunning** the command `uv run cli.py intake --project=<project-name>` in the terminal (the user just confirms the run in the chat).
 
 ### A4 — Document Writer
-* **Код вызова в IDE:** **`RMDW`**
-* **Основа:** BMAD `bmad-agent-tech-writer` + `bmad-create-prd` + `bmad-edit-prd` + `bmad-spec` + `bmad-editorial-review-prose`.
-* **Задача:** пишет формальные спецификации (BRD, SRS, Tech Design, API Contract) строго по чеклистам `kb/` и на основе ответов.
-* **Автоматизация:** после успешного создания или обновления черновика спецификации в папке `draft/` **автоматически предлагает запустить в терминале** команду `uv run cli.py draft --project=<project-name> --doc=<doc-type>` (пользователю нужно лишь подтвердить запуск в чате).
+* **Invocation code in the IDE:** **`RMDW`**
+* **Based on:** BMAD `bmad-agent-tech-writer` + `bmad-create-prd` + `bmad-edit-prd` + `bmad-spec` + `bmad-editorial-review-prose`.
+* **Task:** writes formal specifications (BRD, SRS, Tech Design, API Contract) strictly per the `kb/` checklists and based on the answers.
+* **Automation:** after successfully creating or updating a specification draft in the `draft/` folder, it **automatically proposes running** the command `uv run cli.py draft --project=<project-name> --doc=<doc-type>` in the terminal (the user just confirms the run in the chat).
 
 ### A5 — Research Assistant
-* **Основа:** BMAD `research` + `bmad-brainstorming`.
-* **Задача:** по запросу изучает внешние стандарты, лучшие практики и обращается к внутренней базе знаний (`kb/`).
+* **Based on:** BMAD `research` + `bmad-brainstorming`.
+* **Task:** on request, studies external standards and best practices and consults the internal knowledge base (`kb/`).
 
-### A6 — Analysis Writer (уникальный агент, нет прямого аналога в BMAD)
-* **Код вызова в IDE:** **`RMAN`**
-* **Задача:** проводит свободный анализ требований и обсуждение в Режиме B.
-* **Формат вывода:** адаптивный (сравнение версий, матрицы рисков, таблицы сравнения) в папке `analysis/analysis-vN.md`.
+### A6 — Analysis Writer (a unique agent, no direct analog in BMAD)
+* **Invocation code in the IDE:** **`RMAN`**
+* **Task:** runs free-form requirements analysis and discussion in Mode B.
+* **Output format:** adaptive (version comparison, risk matrices, comparison tables) in the `analysis/analysis-vN.md` folder.
 
 ---
 
-## 6. Multi-Agent Collaborative Mode (Схема процессов)
+## 6. Multi-Agent Collaborative Mode (process diagram)
 
 ```text
 Orchestrator
-├─ A0 (один раз): приветствие, Discovery 6 профилей требований -> state.json
-│  └─ Профиль 6 (Elicitation с нуля): A3 -> опрос в чате с выбором / свободным вводом -> requirements.md & context.md -> [АВТОЗАПУСК cli.py onboard]
-├─ A1 (один раз): разбор input/ -> context.md -> [АВТОЗАПУСК cli.py intake]
-└─ Цикл (пока state.status != "approved"):
-   ├─ A3 (если есть пробелы): опрос в чате с выбором / свободным вводом -> qa-history.md & context.md -> [АВТОЗАПУСК cli.py intake]
-   ├─ A4 или A6: пишет/правит документ -> draft/ или analysis/ -> [АВТОЗАПУСК cli.py draft]
-   ├─ A2: проверяет -> отчет messages/a2-to-a4-vN.md -> [АВТОЗАПУСК cli.py validate]
-   ├─ A5: если нужно исследование (на любом шаге)
-   ├─ Orchestrator: читает messages/, принимает решение -> [АВТОЗАПУСК cli.py final]
-   └─ [переход к следующему документу по иерархии в соответствии с профилем]
+├─ A0 (once): greeting, Discovery of the 6 requirements profiles -> state.json
+│  └─ Profile 6 (Elicitation from scratch): A3 -> chat survey with choices / free input -> requirements.md & context.md -> [AUTO-RUN cli.py onboard]
+├─ A1 (once): parsing input/ -> context.md -> [AUTO-RUN cli.py intake]
+└─ Loop (while state.status != "approved"):
+   ├─ A3 (if there are gaps): chat survey with choices / free input -> qa-history.md & context.md -> [AUTO-RUN cli.py intake]
+   ├─ A4 or A6: writes/edits the document -> draft/ or analysis/ -> [AUTO-RUN cli.py draft]
+   ├─ A2: validates -> report messages/a2-to-a4-vN.md -> [AUTO-RUN cli.py validate]
+   ├─ A5: if research is needed (at any step)
+   ├─ Orchestrator: reads messages/, makes a decision -> [AUTO-RUN cli.py final]
+   └─ [transition to the next document in the hierarchy according to the profile]
 ```
 
 ---
 
-## 7. Структура репозитория
+## 7. Repository structure
 
 ```text
 requirements-mind/
-├── README.md                           # Общее описание проекта
-├── AGENTS.md                           # Описание команды агентов
-├── .cursorrules                        # Правила для IDE Cursor
-├── .gitignore                          # Исключения Git
-├── pyproject.toml                      # Конфигурация uv и зависимости Python
-├── requirements.txt                    # Список зависимостей
-├── cli.py                              # Главная CLI-точка входа (Python)
+├── README.md                           # General project description
+├── AGENTS.md                           # Description of the agent team
+├── .cursorrules                        # Rules for the Cursor IDE
+├── .gitignore                          # Git exclusions
+├── pyproject.toml                      # uv configuration and Python dependencies
+├── requirements.txt                    # The dependency list
+├── cli.py                              # The main CLI entry point (Python)
 │
-├── kb/                                 # База знаний и чеклисты
+├── kb/                                 # Knowledge base and checklists
 │   ├── brd-checklist.md
 │   ├── srs-checklist.md
 │   ├── tech-design-checklist.md
 │   ├── api-contract-checklist.md
 │   ├── glossary.md
-│   └── standards/                      # Внешние стандарты разработки
+│   └── standards/                      # External development standards
 │
-├── skills/                             # Навыки ИИ-агентов (корень очищен от дубликатов)
-│   ├── bmad/                           # Скопированные официальные модули из BMAD-METHOD
+├── skills/                             # AI agent skills (the root is cleared of duplicates)
+│   ├── bmad/                           # Copied official modules from BMAD-METHOD
 │   │   ├── bmad-agent-analyst/
 │   │   ├── bmad-agent-tech-writer/
 │   │   ├── bmad-agent-pm/
@@ -297,19 +297,19 @@ requirements-mind/
 │   │   ├── bmad-review-edge-case-hunter/
 │   │   └── bmad-index-docs/
 │   │
-│   └── rm/                             # Каноничные кастомные навыки Requirements Mind
-│       ├── master-orchestrator.md      # Координатор круглого стола
-│       ├── a0-onboarding-wizard.md     # Визард онбординга и Project Discovery
-│       ├── a1-intake-analyst.md        # Анализатор входов
-│       ├── a2-requirements-validator.md# Валидатор требований
-│       ├── a3-question-generator.md    # Генератор вопросов и бесшовный Q&A в чате
-│       ├── a3-elicitation.md           # Сбор требований с нуля (Elicitation Mode)
-│       ├── a4-document-writer.md       # Написание документов Режима A
-│       ├── a5-research-assistant.md    # Помощник по исследованиям
-│       └── a6-analysis-writer.md       # Написание аналитики Режима B
+│   └── rm/                             # The canonical custom Requirements Mind skills
+│       ├── master-orchestrator.md      # The round-table coordinator
+│       ├── a0-onboarding-wizard.md     # The onboarding and Project Discovery wizard
+│       ├── a1-intake-analyst.md        # The input analyzer
+│       ├── a2-requirements-validator.md# The requirements validator
+│       ├── a3-question-generator.md    # The question generator and seamless chat Q&A
+│       ├── a3-elicitation.md           # Gathering requirements from scratch (Elicitation Mode)
+│       ├── a4-document-writer.md       # Writing Mode A documents
+│       ├── a5-research-assistant.md    # The research assistant
+│       └── a6-analysis-writer.md       # Writing Mode B analytics
 │
-├── flows/                              # Пошаговые сценарии работы агентов
-│   ├── 00-onboarding.md                # Сценарий онбординга и Project Discovery по 6 профилям
+├── flows/                              # Step-by-step agent work scenarios
+│   ├── 00-onboarding.md                # The onboarding and Project Discovery flow across the 6 profiles
 │   ├── 01-intake.md
 │   ├── 02-context.md
 │   ├── 03-questions.md
@@ -318,70 +318,70 @@ requirements-mind/
 │   ├── 06-final.md
 │   ├── 07-analyze.md
 │   ├── 08-collaborate.md
-│   └── 09-elicitation.md               # Сценарий сбора требований с нуля (Elicitation Mode)
+│   └── 09-elicitation.md               # The gathering-from-scratch flow (Elicitation Mode)
 │
-├── projects/                           # Рабочие проекты пользователей
-│   └── <project-name>/                 # Файловая модель конкретного проекта
+├── projects/                           # The users' working projects
+│   └── <project-name>/                 # The file model of a specific project
 │
-├── vault/                              # Папка синхронизации с Obsidian (Obsidian Vault)
-├── notebooklm/                         # Папка экспорта для Google NotebookLM
+├── vault/                              # The Obsidian sync folder (Obsidian Vault)
+├── notebooklm/                         # The export folder for Google NotebookLM
 │
-├── install.py                          # Интерактивный установщик рабочего окружения
+├── install.py                          # The interactive working-environment installer
 │
-└── scripts/                            # Служебные скрипты автоматизации
-    ├── kb_indexer.py                   # Индексация базы знаний
-    ├── sync_to_vault.py                # Синхронизация с Obsidian Vault
-    ├── export_to_notebooklm.py         # Подготовка файлов к экспорту в NotebookLM
-    └── import_web.py                   # Автономный веб-импорт по протоколу CDP из Chrome
+└── scripts/                            # Service automation scripts
+    ├── kb_indexer.py                   # Knowledge-base indexing
+    ├── sync_to_vault.py                # Sync with the Obsidian Vault
+    ├── export_to_notebooklm.py         # Preparing files for export to NotebookLM
+    └── import_web.py                   # Headless web import over the CDP protocol from Chrome
 ```
 
 ---
 
-## 8. CLI-команды
+## 8. CLI commands
 
-Все команды выполняются через пакетный менеджер `uv` (большинство из них ИИ-агенты запускают в вашем терминале **автоматически** по завершении своих шагов):
+All commands are run through the `uv` package manager (most of them are run by the AI agents in your terminal **automatically** once their steps are complete):
 
 ```bash
-# Инициализация нового проекта (создает папки и дефолтный state.json)
+# Initialize a new project (creates the folders and a default state.json)
 uv run cli.py init --project=<name>
 
-# Запуск интерактивного установщика (настройка окружения, IDE, Obsidian, NotebookLM)
+# Run the interactive installer (environment, IDE, Obsidian, NotebookLM setup)
 python3 install.py
 
-# Фиксация онбординга проекта (вызывается после A0 или сессии a3-elicitation)
+# Record project onboarding (called after A0 or an a3-elicitation session)
 uv run cli.py onboard --project=<name>
 
-# Сбор и индексация сырых входных данных из input/ (вызывается после A1)
+# Gather and index the raw input data from input/ (called after A1)
 uv run cli.py intake --project=<name>
 
-# Генерация черновика формального документа (Режим A)
+# Generate a formal document draft (Mode A)
 uv run cli.py draft --project=<name> --doc=BRD
 uv run cli.py draft --project=<name> --doc=SRS
 uv run cli.py draft --project=<name> --doc=Tech-Design
 uv run cli.py draft --project=<name> --doc=API-Contract
 
-# Свободный проектный анализ (Режим B)
-uv run cli.py analyze --project=<name> --task="Сравни требования v1 и v2"
-uv run cli.py analyze --project=<name> --task="Найди противоречия"
-uv run cli.py analyze --project=<name> --task="Выпиши риски"
+# Free-form project analysis (Mode B)
+uv run cli.py analyze --project=<name> --task="Compare requirements v1 and v2"
+uv run cli.py analyze --project=<name> --task="Find contradictions"
+uv run cli.py analyze --project=<name> --task="Write out the risks"
 
-# Принудительный запуск валидации конкретной версии документа
+# Force-run validation of a specific document version
 uv run cli.py validate --project=<name> --doc=BRD --version=1
 
-# Запуск совместной межагентной коллаборации круглого стола
+# Run a collaborative cross-agent round table
 uv run cli.py collaborate --project=<name> --agents="a2,a4,a6"
 
-# Утверждение и перевод документа в разряд финальных
+# Approve a document and move it into the final category
 uv run cli.py final --project=<name> --doc=BRD --version=2
 
-# Автономный импорт веб-страницы/Confluence из запущенного Chrome по CDP
+# Headless import of a web page/Confluence from a running Chrome over CDP
 uv run cli.py import-web --project=<name> --port=9222 --query="confluence" --filename="confluence_specs.md"
 
-# Синхронизация данных с внешними инструментами
+# Sync data with the external tools
 uv run cli.py sync-vault
 uv run cli.py export-notebooklm --project=<name>
 
-# Автоматическое обновление ядра и навыков IDE с GitHub в 1 команду
+# Automatically update the core and the IDE skills from GitHub in one command
 uv run cli.py update
 ```
 
@@ -389,36 +389,36 @@ uv run cli.py update
 
 ## 9. Obsidian vs NotebookLM
 
-Проект предлагает интеграцию с двумя внешними экосистемами для работы человека:
+The project offers integration with two external ecosystems for human work:
 
-| Характеристика | Obsidian | NotebookLM |
+| Characteristic | Obsidian | NotebookLM |
 |---|---|---|
-| **Роль в системе** | Рабочее пространство человека (Human workspace) | Поиск, RAG и концептуальный синтез |
-| **Назначение** | Чтение, редактирование, навигация, построение графа связей | Поиск по смыслу, глубокий RAG-анализ, ответы на общие вопросы |
-| **Тип доступа** | Локальный (файлы на диске) | Облачный (через аккаунт Google) |
-| **Скрипт синхронизации**| `sync_to_vault.py` | `export_to_notebooklm.py` |
+| **Role in the system** | The human workspace | Search, RAG, and conceptual synthesis |
+| **Purpose** | Reading, editing, navigation, building a link graph | Semantic search, deep RAG analysis, answering general questions |
+| **Access type** | Local (files on disk) | Cloud (via a Google account) |
+| **Sync script** | `sync_to_vault.py` | `export_to_notebooklm.py` |
 
 ---
 
-## 10. Принципы
+## 10. Principles
 
-1. **Не додумывать** — если контекст исходных файлов неполный или противоречивый, агент A3 обязан задать вопросы. Недопустимо генерировать требования «из воздуха».
-2. **Трассируемость (Traceability)** — каждый сгенерированный артефакт ссылается на исходный файл или предыдущий этап проектирования.
-3. **Версионность** — любые изменения документов создают новую версию (v1, v2, v3...), старые версии сохраняются в каталогах проекта для возможности сравнения и отката.
-4. **Итеративность** — разработка требований является циклическим процессом межагентного обсуждения и валидации.
-5. **Файлы как единственный источник истины** — всё состояние системы пишется на диск в файлы. Никаких баз данных со скрытой логикой и веб-сессий.
-6. **CLI-first** — все действия автоматизированы и вызываются через командную строку.
+1. **No guessing** — if the context of the source files is incomplete or contradictory, agent A3 must ask questions. Generating requirements "out of thin air" is not allowed.
+2. **Traceability** — every generated artifact references the source file or the previous design stage.
+3. **Versioning** — any document changes create a new version (v1, v2, v3...); old versions are kept in the project directories for comparison and rollback.
+4. **Iterativeness** — requirements development is a cyclical process of cross-agent discussion and validation.
+5. **Files as the only source of truth** — all of the system's state is written to disk in files. No databases with hidden logic, no web sessions.
+6. **CLI-first** — all actions are automated and invoked through the command line.
 
 ---
 
-## 11. Следующие шаги реализации
+## 11. Next implementation steps
 
-1. **Интеграция с BMAD-METHOD:** Fork репозитория `bmad-code-org/BMAD-METHOD` (или использование локально склонированной копии).
-2. **Разработка скрипта импорта:** Написание `scripts/fetch_bmad_skills.py` для автоматического копирования требуемых файлов навыков из локальной копии BMAD в каталог `skills/bmad/`.
-3. **Создание структуры директорий:** Настройка корневой структуры папок проекта Requirements Mind на диске.
-4. **Реализация кастомных навыков:** Написание Markdown-файлов для RM-агентов в `skills/rm/` на основе промптов BMAD.
-5. **Проработка сценариев (Flows):** Описание пошаговых гайдов `flows/` (01–08) в формате Markdown.
-6. **Создание базы знаний:** Наполнение чеклистов и глоссария в папке `kb/`.
-7. **Разработка ядра CLI:** Реализация `cli.py` на Python с использованием Typer или Click для поддержки всех описанных команд и переходов в `state.json`.
-8. **Документирование проекта:** Написание файлов `AGENTS.md` и `.cursorrules` для корректной координации агентов при работе в IDE Cursor.
-9. **Разработка скриптов интеграции:** Написание `sync_to_vault.py` и `export_to_notebooklm.py`.
+1. **Integration with BMAD-METHOD:** Fork the `bmad-code-org/BMAD-METHOD` repository (or use a locally cloned copy).
+2. **Develop the import script:** Write `scripts/fetch_bmad_skills.py` to automatically copy the required skill files from the local BMAD copy into the `skills/bmad/` directory.
+3. **Create the directory structure:** Set up the root folder structure of the Requirements Mind project on disk.
+4. **Implement the custom skills:** Write the Markdown files for the RM agents in `skills/rm/` based on the BMAD prompts.
+5. **Work out the flows:** Describe the step-by-step guides `flows/` (01–08) in Markdown.
+6. **Build the knowledge base:** Populate the checklists and the glossary in the `kb/` folder.
+7. **Develop the CLI core:** Implement `cli.py` in Python using Typer or Click to support all the described commands and `state.json` transitions.
+8. **Document the project:** Write the `AGENTS.md` and `.cursorrules` files for correct agent coordination when working in the Cursor IDE.
+9. **Develop the integration scripts:** Write `sync_to_vault.py` and `export_to_notebooklm.py`.

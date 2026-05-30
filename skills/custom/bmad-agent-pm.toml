@@ -2,68 +2,69 @@
 
 [agent]
 persistent_facts = [
-  "Requirements Mind — это CLI-first и markdown-first инструмент на базе BMAD METHOD.",
-  "Иерархия проектных документов: BRD -> SRS -> Tech Design -> API Contract.",
-  "Каждый проект имеет структуру в projects/<project-name>/: input/, draft/, final/, validation/, messages/, state.json.",
+  "Requirements Mind is a CLI-first and markdown-first tool built on BMAD METHOD.",
+  "Hierarchy of project documents: BRD -> SRS -> Tech Design -> API Contract.",
+  "Each project has a structure under projects/<project-name>/: input/, draft/, final/, validation/, messages/, state.json.",
   "file:{project-root}/kb/*.md",
   "file:{project-root}/projects/**/state.json",
-  "ВИЗАРД СТАРТА ПРОЕКТА (Project Discovery Wizard):",
-  "1. Если пользователь обращается к вам в пустом рабочем пространстве (в папке projects/ нет проектов, кроме example-project), тепло поприветствуйте его, поздравьте с успешным развертыванием Requirements Mind и предложите начать новый проект прямо сейчас.",
-  "2. Если пользователь соглашается и называет имя проекта (например: 'Да, начни проект delivery-app'), вы обязаны САМОСТОЯТЕЛЬНО создать на диске структуру папок projects/<project-name>/ со всеми подкаталогами (input/, draft/, final/, validation/, messages/) и записать стартовый файл projects/<project-name>/state.json.",
-  "Пример state.json: { \"project\": \"<name>\", \"mode\": \"draft\", \"document\": \"BRD\", \"iteration\": 1, \"status\": \"onboarding\", \"active_agents\": [\"a0\"], \"open_questions\": 0, \"last_updated\": \"<current-iso-timestamp>\" }",
-  "3. Сразу после создания папок переходите к пошаговому онбординг-интервью по сценарию a0-onboarding-wizard (Project Discovery)."
+  "PROJECT DISCOVERY WIZARD:",
+  "1. If the user approaches you in an empty workspace (the projects/ folder contains no projects other than example-project), warmly greet them, congratulate them on the successful deployment of Requirements Mind, and offer to start a new project right now.",
+  "2. If the user agrees and names a project (for example: 'Yes, start the delivery-app project'), you MUST create the projects/<project-name>/ folder structure on disk yourself, with all subdirectories (input/, draft/, final/, validation/, messages/), and write the initial projects/<project-name>/state.json file.",
+  "Example state.json: { \"project\": \"<name>\", \"mode\": \"draft\", \"document\": \"BRD\", \"iteration\": 1, \"status\": \"onboarding\", \"active_agents\": [\"a0\"], \"open_questions\": 0, \"last_updated\": \"<current-iso-timestamp>\" }",
+  "3. Right after creating the folders, proceed to the step-by-step onboarding interview following the a0-onboarding-wizard scenario (Project Discovery).",
+  "Always detect the user's language and respond in it."
 ]
 
-# === УНИКАЛЬНЫЕ КОМАНДЫ REQUIREMENTS MIND ===
+# === REQUIREMENTS MIND UNIQUE COMMANDS ===
 
 [[agent.menu]]
 code = "RMONB"
-description = "Запустить онбординг проекта и Project Discovery (a0-onboarding-wizard)"
-prompt = "Запусти кастомный навык a0-onboarding-wizard для текущего проекта. Проведи первичное онбординг-интервью и помоги мне выбрать один из 6 профилей требований на русском языке."
+description = "Start project onboarding and Project Discovery (a0-onboarding-wizard)"
+prompt = "Run the custom a0-onboarding-wizard skill for the current project. Conduct the initial onboarding interview and help me choose one of the 6 requirement profiles. Detect the user's language and respond in it."
 
 [[agent.menu]]
 code = "RME"
-description = "Запустить Сбор требований с нуля (Elicitation Mode - a3-elicitation)"
-prompt = "Пожалуйста, запусти и выполни кастомный навык a3-elicitation для текущего проекта. Проведи интерактивное интервью на основе гибридной методологии «Практичный аналитик» (JTBD + Use Cases + ISO 29148) и сгенерируй requirements.md на русском языке."
+description = "Start requirements elicitation from scratch (Elicitation Mode - a3-elicitation)"
+prompt = "Please run and execute the custom a3-elicitation skill for the current project. Conduct an interactive interview based on the hybrid 'Pragmatic Analyst' methodology (JTBD + Use Cases + ISO 29148) and generate requirements.md. Detect the user's language and respond in it."
 
 [[agent.menu]]
 code = "RMDW"
-description = "Сгенерировать черновик спецификации (BRD, SRS, Tech Design, API Contract)"
-prompt = "Пожалуйста, запусти и выполни кастомный навык a4-document-writer для текущего проекта. Напиши черновик спецификации (BRD, SRS, Tech Design или API Contract) на основе context.md и чеклиста из папки kb/ и сохрани его в projects/<project-name>/draft/ на русском языке."
+description = "Generate a specification draft (BRD, SRS, Tech Design, API Contract)"
+prompt = "Please run and execute the custom a4-document-writer skill for the current project. Write a specification draft (BRD, SRS, Tech Design, or API Contract) based on context.md and the checklist from the kb/ folder, and save it to projects/<project-name>/draft/. Detect the user's language and respond in it."
 
 [[agent.menu]]
 code = "RMVAL"
-description = "Провести жесткий контроль качества черновика (a2-requirements-validator)"
-prompt = "Пожалуйста, запусти и выполни кастомный навык a2-requirements-validator для текущего проекта. Проверь черновик спецификации в draft/ по соответствующему чеклисту в kb/ и сохрани подробный отчет с вердиктом PASSED или FAILED в projects/<project-name>/messages/ на русском языке."
+description = "Run strict quality control on the draft (a2-requirements-validator)"
+prompt = "Please run and execute the custom a2-requirements-validator skill for the current project. Check the specification draft in draft/ against the matching checklist in kb/ and save a detailed report with a PASSED or FAILED verdict to projects/<project-name>/messages/. Detect the user's language and respond in it."
 
 [[agent.menu]]
 code = "RMQ"
-description = "Сгенерировать уточняющие вопросы по требованиям (a3-question-generator)"
-prompt = "Пожалуйста, запусти и выполни кастомный навык a3-question-generator для текущего проекта. Найди бизнес-пробелы в context.md и запиши до 5 точечных вопросов в projects/<project-name>/questions.md на русском языке."
+description = "Generate clarifying questions about the requirements (a3-question-generator)"
+prompt = "Please run and execute the custom a3-question-generator skill for the current project. Find business gaps in context.md and write up to 5 targeted questions to projects/<project-name>/questions.md. Detect the user's language and respond in it."
 
 [[agent.menu]]
 code = "RMAN"
-description = "Запустить аналитическое исследование спецификаций (Режим B - a6-analysis-writer)"
-prompt = "Пожалуйста, запусти и выполни кастомный навык a6-analysis-writer для проведения свободного аналитического исследования требований и сохранения отчетов в projects/<project-name>/analysis/ на русском языке."
+description = "Run an analytical study of the specifications (Mode B - a6-analysis-writer)"
+prompt = "Please run and execute the custom a6-analysis-writer skill to perform free-form analytical research on the requirements and save the reports to projects/<project-name>/analysis/. Detect the user's language and respond in it."
 
-# === ОТКЛЮЧЕННЫЕ СТАНДАРТНЫЕ БМАД-КОДЫ (Заглушки для предотвращения галлюцинаций) ===
+# === DISABLED STANDARD BMAD CODES (stubs to prevent hallucinations) ===
 
 [[agent.menu]]
 code = "PRD"
-description = "[ОТКЛЮЧЕНО] Используйте RMDW для генерации документов"
-prompt = "Этот код отключен в Requirements Mind v2.0. Пожалуйста, сообщите пользователю, что для создания черновика спецификации (BRD, SRS, Tech Design, API Contract) используется команда RMDW."
+description = "[DISABLED] Use RMDW to generate documents"
+prompt = "This code is disabled in Requirements Mind v2.0. Please tell the user that the RMDW command is used to create a specification draft (BRD, SRS, Tech Design, API Contract)."
 
 [[agent.menu]]
 code = "CE"
-description = "[ОТКЛЮЧЕНО] Используйте RME для сбора требований с нуля"
-prompt = "Этот код отключен. Сообщите пользователю, что для интерактивного сбора требований с нуля используется команда RME."
+description = "[DISABLED] Use RME to elicit requirements from scratch"
+prompt = "This code is disabled. Tell the user that the RME command is used for interactive requirements elicitation from scratch."
 
 [[agent.menu]]
 code = "IR"
-description = "[ОТКЛЮЧЕНО] Используйте RMVAL для жесткого контроля качества"
-prompt = "Этот код отключен. Сообщите пользователю, что для запуска контроля качества черновика по чеклистам используется команда RMVAL."
+description = "[DISABLED] Use RMVAL for strict quality control"
+prompt = "This code is disabled. Tell the user that the RMVAL command is used to run quality control on the draft against the checklists."
 
 [[agent.menu]]
 code = "CC"
-description = "[ОТКЛЮЧЕНО] Используйте RMQ для генерации вопросов"
-prompt = "Этот код отключен. Сообщите пользователю, что для запуска процесса генерации уточняющих вопросов по пробелам используется команда RMQ."
+description = "[DISABLED] Use RMQ to generate questions"
+prompt = "This code is disabled. Tell the user that the RMQ command is used to run the process of generating clarifying questions about gaps."

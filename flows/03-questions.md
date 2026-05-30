@@ -1,23 +1,23 @@
-# Сценарий: 03-questions (Интервьюирование требований)
+# Flow: 03-questions (Requirements interviewing)
 
-Этот сценарий описывает процесс выявления пробелов и генерации уточняющих вопросов для пользователя.
+This flow describes the process of surfacing gaps and generating clarifying questions for the user.
 
-## 👥 Участвующие роли
+## 👥 Roles involved
 * **A3 — Question Generator**
 * **Master Orchestrator**
 
-## 🏁 Входные данные
-* Зафиксированные пробелы в `projects/<project-name>/context.md`.
+## 🏁 Inputs
+* Recorded gaps in `projects/<project-name>/context.md`.
 
-## ⚙️ Пошаговый процесс
+## ⚙️ Step-by-step process
 
-1. **Триггер активации:**
-   Активируется автоматически, если статус в `state.json` равен `needs_questions`.
-2. **Анализ пробелов:**
-   Агент A3 считывает пробелы в `context.md` и формирует список из **не более 5 точечных вопросов**.
-3. **Запись в questions.md:**
-   A3 записывает вопросы в файл `projects/<project-name>/questions.md` с вариантами выбора и описанием влияния на архитектуру.
-4. **Интерактивный опрос в чате IDE (RMQ):**
-   ИИ-агент A3 автоматически выводит вопросы прямо в чат IDE с готовыми вариантами ответа и обязательной возможностью свободного ввода.
-5. **Сохранение ответов:**
-   Ответы пользователя записываются в `projects/<project-name>/qa-history.md`, а статус проекта в `state.json` переводится обратно в `drafting` (ИИ автоматически перезапускает Intake для обновления `context.md`).
+1. **Activation trigger:**
+   Activated automatically when the status in `state.json` is `needs_questions`.
+2. **Analyze the gaps:**
+   Agent A3 reads the gaps in `context.md` and forms a list of **no more than 5 targeted questions**.
+3. **Write to questions.md:**
+   A3 writes the questions into the file `projects/<project-name>/questions.md` with answer options and a description of their impact on the architecture.
+4. **Interactive interview in the IDE chat (RMQ):**
+   The A3 AI agent automatically prints the questions right in the IDE chat with ready-made answer options and a mandatory free-input option.
+5. **Save the answers:**
+   The user's answers are written into `projects/<project-name>/qa-history.md`, and the project status in `state.json` is moved back to `drafting` (the AI automatically reruns Intake to update `context.md`).

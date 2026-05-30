@@ -1,23 +1,23 @@
-# Augment-walkthrough: реальный кейс DAMS
+# Augment walkthrough: the real DAMS case
 
-Этот документ — рабочий пример того, как должен был пройти кейс «доработать SRS на DAMS по транскрипту митинга 26.06», и чем `augment`-режим отличается от `draft`. Сделан для команды на основе разбора 28.05.2026.
+This document is a working example of how the case "extend the DAMS SRS based on the 26.06 meeting transcript" should have gone, and how `augment` mode differs from `draft`. Made for the team based on the 2026-05-28 review.
 
-## 📌 Контекст
+## 📌 Context
 
-**Что было у аналитика:**
-- `SRS-v1.md` — формальный SRS на DAMS (Document Asset Management Service) с детальной структурой: 11 разделов, модель данных в табличной форме, матрица валидаций, ключевые параметры.
-- `2606_meetrecord.txt` — транскрипт обсуждения с командой на 1461 строку: уточнения по async-обработке файла, статусам профиля, формату Content-Hash, поведению при дубликатах.
-- `srs_2605_extracted.txt` — голый каркас SRS от 26.05 (только заголовки, без таблиц).
+**What the analyst had:**
+- `SRS-v1.md` — a formal SRS for DAMS (Document Asset Management Service) with a detailed structure: 11 sections, a data model in tabular form, a validation matrix, key parameters.
+- `2606_meetrecord.txt` — a 1461-line transcript of the discussion with the team: clarifications on async file processing, profile statuses, the Content-Hash format, and duplicate behavior.
+- `srs_2605_extracted.txt` — a bare SRS skeleton from 26.05 (headings only, no tables).
 
-**Чего хотел аналитик:**
-> «Дополни существующий SRS уточнениями из митинга. Структуру не трогай — она согласована.»
+**What the analyst wanted:**
+> "Extend the existing SRS with the clarifications from the meeting. Don't touch the structure — it's agreed upon."
 
-**Что получил:**
-ИИ переписал раздел «6. Модель даних» в новую структуру «7.1 Data Entities + 7.2 Data Dictionary», слил две таблицы атрибутов в единую сущность `DA_PROFILE`, продублировал `content_hash` в `DA_PROFILE` и в новой сущности `FILE`, переименовал `FileRel` → `file_id` — без согласования. Цитата аналитика: **«ИИ переписала один раздел с профилем. Абсолютная отсебятина.»**
+**What they got:**
+The AI rewrote the "6. Data Model" section into a new "7.1 Data Entities + 7.2 Data Dictionary" structure, merged two attribute tables into a single `DA_PROFILE` entity, duplicated `content_hash` in `DA_PROFILE` and in a new `FILE` entity, and renamed `FileRel` → `file_id` — without any agreement. Quote from the analyst: **"The AI rewrote one section with the profile. Absolute made-up nonsense."**
 
-## 🔍 Как правильно гонять этот кейс через Requirements Mind v2.1
+## 🔍 How to run this case correctly through Requirements Mind v2.1
 
-### Шаг 1. Запуск augment-команды
+### Step 1. Launch the augment command
 
 ```bash
 uv run cli.py init --project=dams-srs-augment
@@ -27,9 +27,9 @@ uv run cli.py augment \
   --doc=SRS
 ```
 
-Команда:
-- кладёт `SRS-v1.md` в `projects/dams-srs-augment/input/baseline/`,
-- создаёт `context.md` с frontmatter:
+The command:
+- places `SRS-v1.md` into `projects/dams-srs-augment/input/baseline/`,
+- creates `context.md` with the frontmatter:
   ```yaml
   rm_mode: augment
   baseline_doc:
@@ -37,181 +37,181 @@ uv run cli.py augment \
     type: SRS
     preserve_structure: true
   ```
-- переводит проект в `status: drafting, mode: augment, active_agents: [a1]`.
+- moves the project to `status: drafting, mode: augment, active_agents: [a1]`.
 
-Дальше аналитик кладёт `2606_meetrecord.txt` в `projects/dams-srs-augment/input/` (рядом с подпапкой `baseline/`, **не в неё**).
+Next the analyst places `2606_meetrecord.txt` into `projects/dams-srs-augment/input/` (alongside the `baseline/` subfolder, **not inside it**).
 
-### Шаг 2. A1 разбирает артефакты в дельту (не в полный context.md)
+### Step 2. A1 parses the artifacts into a delta (not into the full context.md)
 
-Промпт ИИ-ассистенту в IDE:
-> «Запусти `a1-intake-analyst` для проекта `dams-srs-augment`. Это augment-режим, baseline — `input/baseline/SRS-v1.md`. Не растворяй baseline в `context.md`. Опиши в разделе «🔄 Дельта для дополнения baseline» только новые факты из `2606_meetrecord.txt` и где их встроить в baseline.»
+Prompt for the AI assistant in the IDE:
+> "Run `a1-intake-analyst` for the project `dams-srs-augment`. This is augment mode, the baseline is `input/baseline/SRS-v1.md`. Do not dissolve the baseline into `context.md`. In the '🔄 Delta to extend the baseline' section describe only the new facts from `2606_meetrecord.txt` and where to embed them in the baseline."
 
-A1 пишет в `context.md` примерно следующее:
+A1 writes roughly the following into `context.md`:
 
 ```markdown
-## 🔄 Дельта для дополнения baseline
+## 🔄 Delta to extend the baseline
 
-### Новые требования из 2606_meetrecord.txt
+### New requirements from 2606_meetrecord.txt
 
-| # | Факт из митинга | Куда в baseline | Тип правки |
+| # | Fact from the meeting | Where in the baseline | Edit type |
 |---|---|---|---|
-| Δ1 | Async-обработка файла: после первичной валидации (хеш, размер, extension) — `202 Accepted`, антивирус и привязка к профилю происходят асинхронно [стр. 616, 700, 1312] | § 3.2 «Додавання файлу» — добавить FR-UPL-2 | новое FR |
-| Δ2 | Статус async-обработки: СК должен иметь способ узнать, когда файл реально привязан [стр. 643, 1201] | § 3.2 — добавить FR-UPL-3; § 4 — добавить UC-UPL-STATUS | новое FR + новый UC |
-| Δ3 | Скачивание файла по pre-signed/временной ссылке — отдельный шаг, не описан в baseline [стр. 109] | § 4 — добавить UC-DWL-2 | новый UC |
-| Δ4 | СК-инициатор фиксируется как часть данных профиля, а не только в логе [стр. 526] | § 6 «Модель даних», табл. 13 — уточнить роль CreatorID (был обязательным, остаётся; добавить пояснение «используется для аудита и атрибуции файла») | уточнение |
-| Δ5 | TTL временной ссылки → нужно явное значение (в baseline `NFR-SEC-02` без числа) | § 4.4 «Безпека», NFR-SEC-02 | открытый вопрос — конкретное значение TTL команда не назвала |
-| Δ6 | Антивирус → async, NSFW → отключён в первой итерации [стр. 616] | § 8 «Налаштовувані параметри», табл. 16 — уже отражено в baseline; согласовать с § 3.2 | уточнение существующего |
-| Δ7 | По хешу: «SHA-256?» в baseline → подтверждено как SHA-256 [стр. 70] | § 9, табл. 17 + § 7, табл. 15 (VAL-03) | уточнение существующего |
+| Δ1 | Async file processing: after the initial validation (hash, size, extension) — `202 Accepted`, antivirus and the binding to the profile happen asynchronously [p. 616, 700, 1312] | § 3.2 "Додавання файлу" — add FR-UPL-2 | new FR |
+| Δ2 | Async-processing status: the client must have a way to find out when the file is actually bound [p. 643, 1201] | § 3.2 — add FR-UPL-3; § 4 — add UC-UPL-STATUS | new FR + new UC |
+| Δ3 | Downloading a file via a pre-signed/temporary link — a separate step, not described in the baseline [p. 109] | § 4 — add UC-DWL-2 | new UC |
+| Δ4 | The initiating client is recorded as part of the profile data, not only in the log [p. 526] | § 6 "Модель даних", table 13 — clarify the role of CreatorID (was mandatory, stays; add the note "used for audit and file attribution") | clarification |
+| Δ5 | The temporary-link TTL → an explicit value is needed (in the baseline `NFR-SEC-02` has no number) | § 4.4 "Безпека", NFR-SEC-02 | open question — the team did not name a concrete TTL value |
+| Δ6 | Antivirus → async, NSFW → disabled in the first iteration [p. 616] | § 8 "Налаштовувані параметри", table 16 — already reflected in the baseline; reconcile with § 3.2 | clarification of the existing |
+| Δ7 | On the hash: "SHA-256?" in the baseline → confirmed as SHA-256 [p. 70] | § 9, table 17 + § 7, table 15 (VAL-03) | clarification of the existing |
 
-### Что НЕ обсуждалось в митинге (остаётся как в baseline)
+### What was NOT discussed in the meeting (stays as in the baseline)
 
-- § 1 «Вступ», § 2.1-2.5 «Загальний опис» — не пересматривались.
-- § 4.1 NFR-AVL-01 (uptime 99.9%) — не пересматривался.
-- § 7 «Матриця валідацій» VAL-01, VAL-02, VAL-04..09 — не пересматривались.
-- Структура «6. Модель даних» (две таблицы: атрибуты файла + атрибуты профиля) — НЕ пересматривалась. Команда не просила объединять сущности.
+- § 1 "Вступ", § 2.1-2.5 "Загальний опис" — were not revisited.
+- § 4.1 NFR-AVL-01 (uptime 99.9%) — was not revisited.
+- § 7 "Матриця валідацій" VAL-01, VAL-02, VAL-04..09 — were not revisited.
+- The structure of "6. Модель даних" (two tables: file attributes + profile attributes) — was NOT revisited. The team did not ask to merge the entities.
 
-## ❓ Открытые вопросы и пробелы
+## ❓ Open questions and gaps
 
-- OQ-01: Конкретное значение TTL временной ссылки (`download_link_ttl`) — команда не назвала число.
-- OQ-02: Формат CreatorID — UUID, строка, что-то ещё? [Δ4]
-- OQ-03: Является ли `Content-Hash` именно SHA-256 hex-строкой 64 символа? Митинг подтвердил «SHA-256», но формат регэкспа не назвали явно. [Δ7]
+- OQ-01: The concrete temporary-link TTL value (`download_link_ttl`) — the team did not name a number.
+- OQ-02: The CreatorID format — UUID, string, something else? [Δ4]
+- OQ-03: Is the `Content-Hash` specifically a 64-character SHA-256 hex string? The meeting confirmed "SHA-256", but the regex format was not stated explicitly. [Δ7]
 ```
 
-В frontmatter A1 ставит `rm_status: incomplete` — у нас есть OQ-01/02/03.
+In the frontmatter A1 sets `rm_status: incomplete` — we have OQ-01/02/03.
 
-### Шаг 3. A3 задаёт уточняющие вопросы (опционально)
+### Step 3. A3 asks clarifying questions (optional)
 
 ```bash
 uv run cli.py intake --project=dams-srs-augment
 ```
 
-Так как `rm_status: incomplete` — проект уходит в `needs_questions`. Аналитик запускает `a3-question-generator`, получает три вопроса по OQ-01/02/03, отвечает или помечает «оставить как ⚠️ TBD в документе». После — обновляет `context.md` → `rm_status: complete` → снова `cli.py intake` → `drafting`.
+Since `rm_status: incomplete`, the project goes to `needs_questions`. The analyst runs `a3-question-generator`, gets three questions on OQ-01/02/03, answers them or marks "leave as ⚠️ TBD in the document". After that — updates `context.md` → `rm_status: complete` → runs `cli.py intake` again → `drafting`.
 
-### Шаг 4. A4 пишет diff-план в чат — **ДО** записи файла
+### Step 4. A4 writes the diff plan into the chat — **BEFORE** writing the file
 
-Промпт:
-> «Запусти `a4-document-writer` для проекта `dams-srs-augment`. Это augment-режим. Покажи мне diff-план и дождись моего подтверждения, прежде чем писать `draft/SRS-v2.md`.»
+Prompt:
+> "Run `a4-document-writer` for the project `dams-srs-augment`. This is augment mode. Show me the diff plan and wait for my confirmation before writing `draft/SRS-v2.md`."
 
-A4 (правильное поведение) выводит в чат:
+A4 (correct behavior) prints into the chat:
 
 ```
-📋 План доработки input/baseline/SRS-v1.md (rm_mode: augment)
+📋 Plan to extend input/baseline/SRS-v1.md (rm_mode: augment)
 ════════════════════════════════════════════════════════════════
 
-➕ Новое (из артефактов):
+➕ New (from the artifacts):
 
-  § 3.2 FR-UPL-2 «Async-приймання файлу з чергою безпеки» *(новое)*
-    Источник: 2606_meetrecord.txt стр. 616, 700, 1312 (Δ1)
-    Текст: «Система повинна синхронно прийняти файл, виконати валідацію
+  § 3.2 FR-UPL-2 "Async-приймання файлу з чергою безпеки" *(new)*
+    Source: 2606_meetrecord.txt p. 616, 700, 1312 (Δ1)
+    Text: "Система повинна синхронно прийняти файл, виконати валідацію
     за матрицею (VAL-01..03, VAL-06, VAL-08), поставити в чергу async
     перевірки безпеки, повернути СК HTTP 202 Accepted. Фактичне
     збереження у сховище та прив'язка до профілю — після успішної
-    async-обробки.»
+    async-обробки."
 
-  § 3.2 FR-UPL-3 «Статус async-обробки файлу» *(новое)*
-    Источник: Δ2 (стр. 643, 1201)
+  § 3.2 FR-UPL-3 "Статус async-обробки файлу" *(new)*
+    Source: Δ2 (p. 643, 1201)
 
-  § 4 UC-UPL-STATUS «Отримання статусу async-обробки файлу» *(новое)*
-    Источник: Δ2
+  § 4 UC-UPL-STATUS "Отримання статусу async-обробки файлу" *(new)*
+    Source: Δ2
 
-  § 4 UC-DWL-2 «Завантаження файлу за тимчасовим посиланням» *(новое)*
-    Источник: Δ3 (стр. 109)
+  § 4 UC-DWL-2 "Завантаження файлу за тимчасовим посиланням" *(new)*
+    Source: Δ3 (p. 109)
 
-✏️ Изменено в baseline:
+✏️ Changed in the baseline:
 
-  § 7 матриця валідацій, VAL-03 «Hash»: уточнить regexp `^[a-f0-9]{64}$`
-    *(изменено: SHA-256? → SHA-256 подтверждён, источник Δ7 / стр. 70)*
+  § 7 validation matrix, VAL-03 "Hash": clarify the regexp `^[a-f0-9]{64}$`
+    *(changed: SHA-256? → SHA-256 confirmed, source Δ7 / p. 70)*
 
-  § 9 ключові параметри, табл. 17: убрать «?» из «SHA-256?»
-    *(изменено: формальное подтверждение из митинга, Δ7)*
+  § 9 key parameters, table 17: remove the "?" from "SHA-256?"
+    *(changed: formal confirmation from the meeting, Δ7)*
 
-  § 6 модель даних, табл. 14 «Стани профілю»:
-    добавить переход Created → File_Linked происходит после успешной
-    async-обработки (а не сразу после UC-UPL-1).
-    *(изменено: уточнение момента перехода, Δ1)*
+  § 6 data model, table 14 "Стани профілю":
+    add that the transition Created → File_Linked happens after a successful
+    async processing (and not immediately after UC-UPL-1).
+    *(changed: clarification of the transition moment, Δ1)*
 
-  § 4.5 NFR-AUD-01: дополнить «CreatorID зберігається у профілі DA
-    та використовується для аудиту».
-    *(изменено: уточнение из Δ4 / стр. 526)*
+  § 4.5 NFR-AUD-01: add "CreatorID зберігається у профілі DA
+    та використовується для аудиту".
+    *(changed: clarification from Δ4 / p. 526)*
 
-⛔ НЕ трогаю (baseline сохраняется 1:1):
+⛔ NOT touching (the baseline is preserved 1:1):
 
-  • § 1. Вступ — целиком
-  • § 2.1-2.5 «Загальний опис» — целиком
-  • § 3.1 FR-REG-01..05 — формулировки не менялись
-  • § 3.3 FR-DWL-1, FR-DWL-2 — формулировки не менялись
-  • § 4.1-4.3 UC-REG-1, UC-UPL-1, UC-DWL-1 — заголовки и нумерация
-  • § 6. Модель даних — структура двух таблиц («Атрибути файлу» +
-    «Атрибути профілю DA») сохраняется. НЕ объединяю в одну сущность,
-    НЕ переименовываю FileRel в file_id, НЕ создаю отдельную сущность
-    FILE с дублирующимся content_hash. Структура — зона аналитика,
-    митинг этого не обсуждал.
-  • § 7 «Матриця валідацій» VAL-01, VAL-02, VAL-04..09 — целиком
-  • § 8. Налаштовувані параметри — целиком
-  • § 9. Ключові параметри — кроме точечной правки SHA-256? → SHA-256
+  • § 1. Вступ — entirely
+  • § 2.1-2.5 "Загальний опис" — entirely
+  • § 3.1 FR-REG-01..05 — the wording did not change
+  • § 3.3 FR-DWL-1, FR-DWL-2 — the wording did not change
+  • § 4.1-4.3 UC-REG-1, UC-UPL-1, UC-DWL-1 — headings and numbering
+  • § 6. Модель даних — the structure of the two tables ("Атрибути файлу" +
+    "Атрибути профілю DA") is preserved. I am NOT merging into one entity,
+    NOT renaming FileRel to file_id, NOT creating a separate FILE entity
+    with a duplicated content_hash. The structure is the analyst's zone,
+    the meeting did not discuss it.
+  • § 7 "Матриця валідацій" VAL-01, VAL-02, VAL-04..09 — entirely
+  • § 8. Налаштовувані параметри — entirely
+  • § 9. Ключові параметри — except for the surgical fix SHA-256? → SHA-256
 
-⚠️ Открытые вопросы (НЕ доклеиваю в документ автоматически):
+⚠️ Open questions (NOT auto-pasted into the document):
 
-  • OQ-01: TTL временной ссылки (NFR-SEC-02) — оставляю как «⚠️ TBD»
-    в существующей формулировке baseline. Команда не назвала число.
-  • OQ-02: Формат CreatorID — оставляю как есть в табл. 13.
+  • OQ-01: temporary-link TTL (NFR-SEC-02) — leaving it as "⚠️ TBD"
+    in the existing baseline wording. The team did not name a number.
+  • OQ-02: CreatorID format — leaving it as is in table 13.
 
 ────────────────────────────────────────────────────────────────
-Подтвердите план или укажите корректировки.
-Только после вашего OK я запишу draft/SRS-v2.md.
+Confirm the plan or specify corrections.
+Only after your OK will I write draft/SRS-v2.md.
 ```
 
-### Шаг 5. Аналитик подтверждает план
+### Step 5. The analyst confirms the plan
 
-Аналитик читает diff-план в чате — **раздел «Модель даних» сохраняется 1:1**, не появилось пересборки в `7.1 Data Entities / 7.2 Data Dictionary`. Если что-то не так — корректирует план в чате. Подтверждает: `OK, применяй`.
+The analyst reads the diff plan in the chat — **the "Модель даних" section is preserved 1:1**, no rebuild into `7.1 Data Entities / 7.2 Data Dictionary` appeared. If something is wrong — corrects the plan in the chat. Confirms: `OK, apply`.
 
-### Шаг 6. A4 записывает SRS-v2.md с маркерами
+### Step 6. A4 writes SRS-v2.md with markers
 
-Каждая новая/изменённая строка в документе несёт маркер:
+Every new/changed line in the document carries a marker:
 ```markdown
-#### FR-UPL-2 — Async-приймання файлу з чергою безпеки *(новое)*
-- **Опис:** ... [Источник: 2606_meetrecord.txt стр. 616-700]
+#### FR-UPL-2 — Async-приймання файлу з чергою безпеки *(new)*
+- **Опис:** ... [Source: 2606_meetrecord.txt p. 616-700]
 - ...
 
-| VAL-03 | Hash | Значення відповідає `^[a-f0-9]{64}$` *(изменено: SHA-256? → SHA-256 підтверджено)* | ... |
+| VAL-03 | Hash | Значення відповідає `^[a-f0-9]{64}$` *(changed: SHA-256? → SHA-256 confirmed)* | ... |
 ```
 
-### Шаг 7. Стандартная фиксация и валидация
+### Step 7. Standard recording and validation
 
 ```bash
 uv run cli.py draft --project=dams-srs-augment --doc=SRS
 # → status: validating
 
-# Промпт ИИ: «Запусти a2-requirements-validator для SRS-v2»
-# A2 проверяет: baseline сохранён, маркеры расставлены, дельта непротиворечива
+# AI prompt: "Run a2-requirements-validator for SRS-v2"
+# A2 checks: the baseline is preserved, the markers are in place, the delta is consistent
 
 uv run cli.py validate --project=dams-srs-augment --doc=SRS --version=2
 uv run cli.py final --project=dams-srs-augment --doc=SRS --version=2
 ```
 
-## 🔐 Что именно защищает аналитика от «отсебятины»
+## 🔐 What exactly protects the analyst from "made-up content"
 
-| Защитный механизм | Где зашит | Что блокирует в случае DAMS |
+| Protection mechanism | Where it is wired in | What it blocks in the DAMS case |
 |---|---|---|
-| `rm_mode: augment` в frontmatter `context.md` | A1 проставляет, все агенты обязаны читать | Маркер «это не draft с нуля, baseline трогать нельзя» |
-| `preserve_structure: true` | Тот же frontmatter | Прямой запрет на переименование разделов, полей, сущностей |
-| Запрет пересборки структуры в A4 (правило 1) | `skills/rm/a4-document-writer.md` блок «Режим Augment» | Не позволил бы слить таблицы 12+13 в `DA_PROFILE`, переименовать `FileRel` → `file_id`, продублировать `content_hash` |
-| Обязательная маркировка `*(новое)*` / `*(изменено: причина)*` | Там же, правило 2 | Любое изменение видно глазами в документе; «тихих» правок нет |
-| Diff-план в чате с явным подтверждением | Там же, правило 3 | Аналитик увидел бы «планирую пересобрать раздел 6 в 7.1+7.2» — и сказал бы СТОП |
-| Soft-режим чеклиста | Правило 4 | Чеклист `srs-checklist.md` требует «7.1 Data Entities + 7.2 Data Dictionary». В augment это уходит в OQ, а не доклеивается в документ автоматически |
-| Master Orchestrator возвращает в `needs_revision` | `skills/rm/master-orchestrator.md` | Если A4 всё-таки записал файл без diff-плана/маркеров — оркестратор не пропустит в `validating` |
+| `rm_mode: augment` in the `context.md` frontmatter | A1 sets it, all agents must read it | The marker "this is not a draft from scratch, the baseline must not be touched" |
+| `preserve_structure: true` | The same frontmatter | A direct ban on renaming sections, fields, entities |
+| The ban on rebuilding the structure in A4 (rule 1) | `skills/rm/a4-document-writer.md`, the "Augment Mode" block | Would not have allowed merging tables 12+13 into `DA_PROFILE`, renaming `FileRel` → `file_id`, duplicating `content_hash` |
+| Mandatory `*(new)*` / `*(changed: reason)*` marking | Same place, rule 2 | Any change is visible to the eye in the document; there are no "silent" edits |
+| A diff plan in the chat with explicit confirmation | Same place, rule 3 | The analyst would have seen "I plan to rebuild section 6 into 7.1+7.2" — and would have said STOP |
+| The soft checklist mode | Rule 4 | The `srs-checklist.md` checklist requires "7.1 Data Entities + 7.2 Data Dictionary". In augment this goes to an OQ rather than being auto-pasted into the document |
+| The Master Orchestrator returns to `needs_revision` | `skills/rm/master-orchestrator.md` | If A4 did write the file without a diff plan/markers — the orchestrator will not let it through to `validating` |
 
-## 🎓 Главные правила для команды
+## 🎓 The main rules for the team
 
-1. **Не используй `cli.py draft`, если есть baseline.** Это команда для написания с нуля. Для доработки — `cli.py augment`.
-2. **Заставь A4 показать diff-план до записи файла.** Если он молча сохранил `draft/<doc>-vN.md` без diff-плана в чате — это нарушение контракта. Откатывайся, проси заново.
-3. **Проверь маркеры в готовом документе.** В augment-выходе каждый новый раздел/строка должны иметь `*(новое: источник)*` или `*(изменено: причина)*`. Отсутствие маркеров = baseline сохранён 1:1, и это должно быть правдой.
-4. **Раздел «Модель даних» — зона аналитика.** ИИ её не пересобирает без явной просьбы. Если ИИ предлагает «улучшить структуру» в diff-плане — это нормальное предложение, но требует твоего отдельного решения. Просто `OK` к плану в целом этого не подтверждает.
-5. **Открытые вопросы → в `## ❓ Открытые вопросы`, не в документ.** Если артефакты не дают конкретного значения (TTL, формат CreatorID), оставляй `⚠️ TBD` в baseline, не давай ИИ «угадывать».
+1. **Do not use `cli.py draft` if a baseline exists.** That command is for writing from scratch. For extending — `cli.py augment`.
+2. **Make A4 show the diff plan before writing the file.** If it silently saved `draft/<doc>-vN.md` without a diff plan in the chat — that is a contract violation. Roll back, ask again.
+3. **Check the markers in the finished document.** In the augment output every new section/line must have `*(new: source)*` or `*(changed: reason)*`. The absence of markers = the baseline is preserved 1:1, and that must be true.
+4. **The "Модель даних" section is the analyst's zone.** The AI does not rebuild it without an explicit request. If the AI proposes "improving the structure" in the diff plan — that is a normal proposal, but it requires your separate decision. Just `OK` to the plan as a whole does not confirm it.
+5. **Open questions → into `## ❓ Open questions`, not into the document.** If the artifacts do not give a concrete value (TTL, CreatorID format), leave `⚠️ TBD` in the baseline; do not let the AI "guess".
 
-## 📚 Связанные документы
+## 📚 Related documents
 
-- `flows/09-augment.md` — формальное описание сценария
-- `skills/rm/a1-intake-analyst.md` — различение baseline vs artifacts
-- `skills/rm/a4-document-writer.md` — блок «Режим Augment»
-- `skills/rm/master-orchestrator.md` — контроль соблюдения контракта
+- `flows/09-augment.md` — the formal flow description
+- `skills/rm/a1-intake-analyst.md` — distinguishing baseline vs artifacts
+- `skills/rm/a4-document-writer.md` — the "Augment Mode" block
+- `skills/rm/master-orchestrator.md` — enforcing the contract

@@ -1,63 +1,63 @@
-# Сценарий: 00 — Онбординг проекта требований и Project Discovery
+# Flow: 00 — Requirements project onboarding and Project Discovery
 
-Этот сценарий описывает самый первый шаг работы системного аналитика в Requirements Mind — создание проекта и проведение первичного онбординг-интервью с ИИ-агентом **Onboarding Wizard (A0)**. 
+This flow describes the very first step of a systems analyst's work in Requirements Mind — creating a project and running the initial onboarding interview with the **Onboarding Wizard (A0)** AI agent.
 
 ---
 
-## 🌟 Шаг 1: Инициализация проекта в CLI
-Аналитик создает новую рабочую область проекта в терминале:
+## 🌟 Step 1: Initialize the project in the CLI
+The analyst creates a new project workspace in the terminal:
 
 ```bash
 uv run cli.py init --project=my-new-app
 ```
 
-**Что происходит:**
-* CLI создает структуру каталогов в `projects/my-new-app/`.
-* Создается стартовый файл состояния `state.json` со статусом `onboarding`.
-* В терминале выводится красивое приглашение запустить Onboarding Wizard (A0).
+**What happens:**
+* The CLI creates the directory structure under `projects/my-new-app/`.
+* A starter state file `state.json` is created with status `onboarding`.
+* The terminal prints a nice prompt to launch the Onboarding Wizard (A0).
 
 ---
 
-## 💬 Шаг 2: Первичное интервью с Onboarding Wizard (A0)
-1. Аналитик открывает чат со своим ИИ-ассистентом в IDE или CLI (Cursor, Claude Code, Antigravity, OpenAI Codex) и вводит команду:
-   > **«Мэри, давай запустим онбординг (RMONB) для нового проекта my-new-app»**
-2. **ИИ-агент A0 вступает в диалог:**
-   * Он пошагово опрашивает аналитика для определения одного из **6 целевых профилей проекта требований**:
-     1. **Профиль 1: «Бизнес-концепт»** (цель: концептуальные бизнес-требования **BRD**).
-     2. **Профиль 2: «Системная спецификация»** (цель: детальные требования и логика системы **BRD ➡️ SRS**).
-     3. **Профиль 3: «Архитектурное проектирование»** (цель: архитектурные потоки и структура БД **BRD ➡️ SRS ➡️ Tech Design**).
-     4. **Профиль 4: «Интеграция и API»** (цель: полный цикл проектирования, включая REST/gRPC контракты **BRD ➡️ SRS ➡️ Tech Design ➡️ API Contract**).
-     5. **Профиль 5: «Аналитическое исследование (Режим B)»** (цель: свободный анализ требований, сравнения документов, матрицы рисков и противоречий в папке **`analysis/`**).
-     6. **Профиль 6: «Сбор требований» (Elicitation Mode)** (цель: сбор требований с нуля через ИИ-интервью в чате, если у аналитика есть только идея).
-   * ИИ-агент записывает выбранный профиль в `state.json` (например, `"profile": 6`).
+## 💬 Step 2: Initial interview with the Onboarding Wizard (A0)
+1. The analyst opens a chat with their AI assistant in the IDE or CLI (Cursor, Claude Code, Antigravity, OpenAI Codex) and enters the command:
+   > **"Mary, let's run onboarding (RMONB) for the new project my-new-app"**
+2. **The A0 AI agent enters the dialogue:**
+   * It interviews the analyst step by step to determine one of the **6 target requirements-project profiles**:
+     1. **Profile 1: "Business concept"** (goal: conceptual business requirements **BRD**).
+     2. **Profile 2: "System specification"** (goal: detailed requirements and system logic **BRD ➡️ SRS**).
+     3. **Profile 3: "Architecture design"** (goal: architectural flows and the database structure **BRD ➡️ SRS ➡️ Tech Design**).
+     4. **Profile 4: "Integration and API"** (goal: the full design cycle, including REST/gRPC contracts **BRD ➡️ SRS ➡️ Tech Design ➡️ API Contract**).
+     5. **Profile 5: "Analytical research (Mode B)"** (goal: free-form requirements analysis, document comparisons, risk and contradiction matrices in the **`analysis/`** folder).
+     6. **Profile 6: "Requirements elicitation" (Elicitation Mode)** (goal: gathering requirements from scratch through an AI interview in the chat, when the analyst has only an idea).
+   * The AI agent records the chosen profile in `state.json` (for example, `"profile": 6`).
 
 ---
 
-## 🧭 Шаг 3: Разветвление логики онбординга
+## 🧭 Step 3: Branching the onboarding logic
 
-### Вариант А: Выбран профиль 1-5 (Есть сырые входы)
-1. Аналитик сообщает, какие документы у него уже есть (транскрипты, ТЗ, списки тикетов).
-2. Onboarding Wizard дает четкую инструкцию, в какие файлы папки `input/` их скопировать:
-   * `input/requirements.md` — текстовые требования.
-   * `input/transcript.md` — расшифровки встреч.
-3. ИИ-агент формирует стартовый файл `context.md` со ссылками на входы.
+### Option A: Profile 1–5 chosen (raw inputs exist)
+1. The analyst states which documents they already have (transcripts, specs, ticket lists).
+2. The Onboarding Wizard gives clear instructions on which files of the `input/` folder to copy them into:
+   * `input/requirements.md` — textual requirements.
+   * `input/transcript.md` — meeting transcripts.
+3. The AI agent builds a starter `context.md` file with references to the inputs.
 
-### Вариант Б: Выбран профиль 6 (Сбор требований с нуля / Elicitation Mode)
-1. Система автоматически активирует кастомный навык **`a3-elicitation`**.
-2. ИИ-интервьюер проводит глубокий опрос по гибридной методологии **«Практичный аналитик»** (JTBD + Use Cases + ISO 29148 NFR).
-3. По окончании диалога ИИ самостоятельно генерирует и сохраняет на диск файлы `input/requirements.md` и `context.md`.
-*(Подробное описание процесса приведено в сценарии [flows/09-elicitation.md](file:///Users/macbook/Projects/requirements-mind/flows/09-elicitation.md))*
+### Option B: Profile 6 chosen (requirements from scratch / Elicitation Mode)
+1. The system automatically activates the custom skill **`a3-elicitation`**.
+2. The AI interviewer conducts a deep survey using the hybrid **"Pragmatic Analyst"** methodology (JTBD + Use Cases + ISO 29148 NFR).
+3. At the end of the dialogue the AI generates and saves the files `input/requirements.md` and `context.md` to disk on its own.
+*(A detailed description of the process is given in the flow [flows/09-elicitation.md](file:///Users/macbook/Projects/requirements-mind/flows/09-elicitation.md))*
 
 ---
 
-## 🏁 Шаг 4: Фиксация завершения онбординга в CLI
-После того как стартовый скелет `context.md` создан (аналитиком вручную или ИИ-агентом `a3-elicitation` автоматически), аналитик выполняет команду в терминале:
+## 🏁 Step 4: Record onboarding completion in the CLI
+Once the starter `context.md` skeleton has been created (manually by the analyst or automatically by the `a3-elicitation` AI agent), the analyst runs the command in the terminal:
 
 ```bash
 uv run cli.py onboard --project=my-new-app
 ```
 
-**Что происходит:**
-* CLI проверяет наличие созданных файлов на диске.
-* Выводит красивое приветственное напутствие и шпаргалку по следующему этапу.
-* Переводит статус проекта в `state.json` из `onboarding` в статус **`intake`** (проект готов к глубокому разбору требований ИИ-агентом `a1-intake-analyst`).
+**What happens:**
+* The CLI checks that the created files are present on disk.
+* It prints a nice welcome message and a cheat sheet for the next stage.
+* It moves the project status in `state.json` from `onboarding` to **`intake`** (the project is ready for a deep requirements analysis by the `a1-intake-analyst` AI agent).

@@ -9,8 +9,8 @@ PROJECTS_SRC = os.path.join(CURRENT_DIR, "projects")
 NOTEBOOK_DEST = os.path.join(CURRENT_DIR, "notebooklm")
 
 def parse_document_metadata(filename: str) -> tuple:
-    """Извлекает тип документа и версию из имени файла"""
-    # Шаблоны вида 'BRD-v1.md' или 'BRD-v2-final.md'
+    """Extracts the document type and version from the file name"""
+    # Patterns like 'BRD-v1.md' or 'BRD-v2-final.md'
     match = re.match(r"^([A-Za-z\-]+)-v(\d+)", filename)
     if match:
         return match.group(1), match.group(2)
@@ -21,10 +21,10 @@ def export_project_to_json(project_name: str):
     dest_file = os.path.join(NOTEBOOK_DEST, f"{project_name}.json")
     
     if not os.path.exists(project_path):
-        print(f"❌ Ошибка: Проект '{project_name}' не найден по пути: {project_path}")
+        print(f"❌ Error: Project '{project_name}' not found at: {project_path}")
         return
-        
-    print(f"📦 Сборка экспорта в JSON для проекта: {project_name}")
+
+    print(f"📦 Building the JSON export for project: {project_name}")
     os.makedirs(NOTEBOOK_DEST, exist_ok=True)
     
     json_data = []
@@ -42,7 +42,7 @@ def export_project_to_json(project_name: str):
                         
                     doc_type, version = parse_document_metadata(file)
                     
-                    # Определяем человекочитаемый заголовок
+                    # Build a human-readable title
                     title = f"{doc_type} — {project_name} v{version}" if doc_type != "none" else f"{file.replace('.md', '')} — {project_name}"
                     
                     entry = {
@@ -55,25 +55,25 @@ def export_project_to_json(project_name: str):
                         "version": version
                     }
                     json_data.append(entry)
-                    print(f"  + Добавлен файл: {file} ({rel_dir})")
+                    print(f"  + Added file: {file} ({rel_dir})")
                 except Exception as e:
-                    print(f"  ❌ Ошибка чтения файла {file}: {e}")
-                    
-    # Записываем JSON на диск
+                    print(f"  ❌ Error reading file {file}: {e}")
+
+    # Write the JSON to disk
     try:
         with open(dest_file, "w", encoding="utf-8") as f:
             json.dump(json_data, f, indent=2, ensure_ascii=False)
         print("====================================================")
-        print(f"🎉 Экспорт в JSON успешно завершен!")
-        print(f"   📁 Файл: {dest_file}")
-        print(f"   Всего экспортировано файлов: {len(json_data)}")
+        print(f"🎉 JSON export completed successfully!")
+        print(f"   📁 File: {dest_file}")
+        print(f"   Total files exported: {len(json_data)}")
         print("====================================================")
     except Exception as e:
-        print(f"❌ Ошибка записи JSON файла: {e}")
+        print(f"❌ Error writing the JSON file: {e}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Подготовка единого JSON-экспорта проекта для Google NotebookLM")
-    parser.add_argument("--project", required=True, help="Название проекта для экспорта")
+    parser = argparse.ArgumentParser(description="Prepare a single JSON export of the project for Google NotebookLM")
+    parser.add_argument("--project", required=True, help="Name of the project to export")
     args = parser.parse_args()
     
     export_project_to_json(args.project)

@@ -1,78 +1,78 @@
-# Сценарий: 09-augment (Доработка существующего документа артефактами)
+# Flow: 09-augment (Extending an existing document with artifacts)
 
-Этот сценарий описывает процесс, когда у аналитика уже есть формальный документ (SRS, BRD, Tech Design, API Contract), и его нужно **дополнить** на основе новых артефактов (транскрипты митингов, обновлённые BR, заметки), **сохранив существующую структуру и формулировки**.
+This flow describes the case where the analyst already has a formal document (SRS, BRD, Tech Design, API Contract) and needs to **extend** it based on new artifacts (meeting transcripts, updated BRs, notes), **while preserving the existing structure and wording**.
 
-Это альтернатива `04-draft` (написание с нуля) и `07-analyze` (отдельный аналитический отчёт). Главное отличие — baseline-документ остаётся «законом», а A4 (Document Writer) работает в защищённом augment-режиме с обязательным diff-планом и явным подтверждением пользователя перед записью.
+This is an alternative to `04-draft` (writing from scratch) and `07-analyze` (a standalone analytical report). The key difference: the baseline document remains "the law", and A4 (Document Writer) works in protected augment mode with a mandatory diff plan and explicit user confirmation before writing.
 
-## 👥 Участвующие роли
+## 👥 Roles involved
 
-* **A1 — Intake Analyst** (различает baseline vs artifacts, проставляет `rm_mode: augment` в `context.md`)
-* **A4 — Document Writer** (работает в защищённом augment-режиме — см. блок «Режим Augment» в `skills/rm/a4-document-writer.md`)
-* **Master Orchestrator** (контролирует соблюдение augment-контракта)
+* **A1 — Intake Analyst** (distinguishes baseline vs artifacts, sets `rm_mode: augment` in `context.md`)
+* **A4 — Document Writer** (works in protected augment mode — see the "Augment Mode" block in `skills/rm/a4-document-writer.md`)
+* **Master Orchestrator** (enforces the augment contract)
 
-## 🏁 Входные данные
+## 🏁 Inputs
 
-* Baseline-документ — существующий SRS/BRD/Tech-Design/API-Contract (`.md`, `.docx`, `.pdf`).
-* Артефакты для обогащения — транскрипты митингов, новые требования, заметки в любом текстовом формате.
+* The baseline document — an existing SRS/BRD/Tech-Design/API-Contract (`.md`, `.docx`, `.pdf`).
+* Artifacts for enrichment — meeting transcripts, new requirements, notes in any textual format.
 
-## ⚙️ Пошаговый процесс
+## ⚙️ Step-by-step process
 
-1. **Запуск augment-режима:**
-   Пользователь вызывает команду:
+1. **Launch augment mode:**
+   The user runs the command:
    ```bash
    uv run cli.py augment --project=<name> --baseline=<path-to-baseline> --doc=SRS
    ```
-   Команда:
-   - копирует baseline в `projects/<name>/input/baseline/`,
-   - создаёт/обновляет `context.md` с frontmatter:
+   The command:
+   - copies the baseline into `projects/<name>/input/baseline/`,
+   - creates/updates `context.md` with frontmatter:
      ```yaml
      rm_mode: augment
      baseline_doc:
-       path: input/baseline/<имя>
+       path: input/baseline/<name>
        type: SRS
        preserve_structure: true
      ```
-   - переводит `state.json` в `status: drafting`, `mode: augment`,
-   - выводит инструкцию для ИИ-ассистента запустить A1 → A4.
+   - moves `state.json` to `status: drafting`, `mode: augment`,
+   - prints instructions for the AI assistant to run A1 → A4.
 
-2. **Intake под augment (A1):**
-   Аналитик просит ИИ запустить `a1-intake-analyst`. A1:
-   - читает все артефакты из `input/` (кроме `input/baseline/`),
-   - **не растворяет baseline в `context.md`** — оставляет ссылку через `baseline_doc.path`,
-   - формирует в `context.md` секцию **«🔄 Дельта для дополнения baseline»** со списком: «какие новые факты пришли из артефактов и где их встроить в baseline»,
-   - выставляет `rm_status: complete` или `incomplete` по обычным правилам.
+2. **Intake under augment (A1):**
+   The analyst asks the AI to run `a1-intake-analyst`. A1:
+   - reads all artifacts from `input/` (except `input/baseline/`),
+   - **does not dissolve the baseline into `context.md`** — it keeps a reference via `baseline_doc.path`,
+   - builds a **"🔄 Delta to extend the baseline"** section in `context.md` with a list of "which new facts came from the artifacts and where to embed them in the baseline",
+   - sets `rm_status: complete` or `incomplete` according to the usual rules.
 
-3. **Diff-план и подтверждение (A4):**
-   После `cli.py intake`, аналитик просит ИИ запустить `a4-document-writer`. A4 в augment-режиме:
-   - читает baseline целиком, читает дельту из `context.md`,
-   - **выводит в чат diff-план**: что новое добавит, что изменит в существующих разделах (с обоснованием и ссылкой на артефакт), какие разделы оставит 1:1,
-   - **ждёт явного подтверждения** пользователя (`OK`, «применяй» и т.п.),
-   - только после подтверждения записывает `draft/<doc>-v<N+1>.md` с маркерами `*(новое: …)*` / `*(изменено: причина)*` в самих заголовках и строках.
+3. **Diff plan and confirmation (A4):**
+   After `cli.py intake`, the analyst asks the AI to run `a4-document-writer`. In augment mode, A4:
+   - reads the baseline in full and reads the delta from `context.md`,
+   - **prints a diff plan in the chat**: what new content it will add, what it will change in the existing sections (with justification and a reference to the artifact), which sections it will keep 1:1,
+   - **waits for the user's explicit confirmation** (`OK`, "apply", etc.),
+   - only after confirmation writes `draft/<doc>-v<N+1>.md` with the markers `*(new: …)*` / `*(changed: reason)*` in the headings and lines themselves.
 
-4. **Фиксация черновика:**
-   После записи файла — стандартная команда:
+4. **Record the draft:**
+   After the file is written — the standard command:
    ```bash
    uv run cli.py draft --project=<name> --doc=<SRS/BRD/...>
    ```
-   Переводит проект в `status: validating`.
+   Moves the project to `status: validating`.
 
-5. **Валидация (A2) — soft-режим:**
-   A2 читает `rm_mode: augment` из `context.md` и применяет к `kb/<doc>-checklist.md` augment-policy: пункты `required` блокируют (FAIL), пункты `optional-augment` уходят в отдельный блок «⚠️ Augment-soft» отчёта как warnings без блокирования вердикта. Дополнительно A2 проверяет augment-контракт: переименованные/удалённые секции baseline без маркировки `*(изменено: причина)*` → Blocker.
+5. **Validation (A2) — soft mode:**
+   A2 reads `rm_mode: augment` from `context.md` and applies the augment policy to `kb/<doc>-checklist.md`: `required` items block (FAIL), `optional-augment` items go into a separate "⚠️ Augment-soft" block of the report as warnings without blocking the verdict. Additionally, A2 checks the augment contract: baseline sections renamed/removed without the `*(changed: reason)*` marker → Blocker.
 
-6. **Финализация:**
+6. **Finalization:**
    ```bash
    uv run cli.py final --project=<name> --doc=<doc> --version=<N+1>
    ```
 
-## 🛡️ Контракт защиты baseline
+## 🛡️ The baseline-protection contract
 
-Контракт прибит в трёх местах одновременно:
-- `skills/rm/a1-intake-analyst.md` — A1 проставляет `rm_mode: augment` в frontmatter.
-- `skills/rm/a4-document-writer.md` — A4 в augment-режиме запрещает пересборку структуры, требует маркеры и diff-план.
-- `skills/rm/master-orchestrator.md` — оркестратор возвращает документ в `needs_revision`, если A4 нарушил контракт (нет diff-плана / нет маркеров).
+The contract is nailed down in three places at once:
+- `skills/rm/a1-intake-analyst.md` — A1 sets `rm_mode: augment` in the frontmatter.
+- `skills/rm/a4-document-writer.md` — in augment mode A4 forbids rebuilding the structure and requires markers and a diff plan.
+- `skills/rm/master-orchestrator.md` — the orchestrator returns the document to `needs_revision` if A4 broke the contract (no diff plan / no markers).
 
-## 📋 Когда НЕ использовать augment
+## 📋 When NOT to use augment
 
-- Если baseline-документ устарел или некорректен по структуре и его осознанно нужно переписать — используйте `04-draft` (с нуля).
-- Если задача — отдельный аналитический отчёт (риски, сравнения, противоречия), а baseline трогать вообще не надо — используйте `07-analyze`.
-- Если нужно межагентное обсуждение спорного решения — используйте `08-collaborate`, затем `09-augment` для применения решения.
+- If the baseline document is outdated or structurally incorrect and you deliberately need to rewrite it — use `04-draft` (from scratch).
+- If the task is a standalone analytical report (risks, comparisons, contradictions) and the baseline should not be touched at all — use `07-analyze`.
+- If you need a cross-agent discussion of a contested decision — use `08-collaborate`, then `09-augment` to apply the decision.

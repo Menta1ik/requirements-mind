@@ -1,25 +1,25 @@
-# Сценарий: 05-validate (Валидация разработанных документов)
+# Flow: 05-validate (Validation of the produced documents)
 
-Этот сценарий описывает процесс автоматического и межагентного контроля качества документов.
+This flow describes the process of automatic and cross-agent document quality control.
 
-## 👥 Участвующие роли
+## 👥 Roles involved
 * **A2 — Requirements Validator**
 * **Master Orchestrator**
 
-## 🏁 Входные данные
-* Черновик документа (например, `projects/<project-name>/draft/BRD-v1.md`).
+## 🏁 Inputs
+* A draft document (for example, `projects/<project-name>/draft/BRD-v1.md`).
 
-## ⚙️ Пошаговый процесс
+## ⚙️ Step-by-step process
 
-1. **Запуск валидации (RMVAL):**
-   ИИ-агент автоматически предлагает выполнить в терминале команду валидации по завершении этапа черновика:
+1. **Launching validation (RMVAL):**
+   The AI agent automatically proposes running the validation command in the terminal once the draft stage is complete:
    ```bash
-   # ЗАПУСКАЕТСЯ АВТОМАТИЧЕСКИ ИИ-АГЕНТОМ ПОСЛЕ ПОДТВЕРЖДЕНИЯ В ЧАТЕ
+   # RUN AUTOMATICALLY BY THE AI AGENT AFTER CONFIRMATION IN THE CHAT
    uv run cli.py validate --project=<name> --doc=BRD --version=1
    ```
-2. **Проверка по граничным условиям:**
-   Агент A2 исследует черновик на соответствие чеклистам `kb/` и выписывает критические замечания в `messages/a2-to-a4-vN.md`.
-3. **Оценка оркестратора:**
-   Master Orchestrator считывает отчет A2:
-   - Если в отчете есть статус `FAILED` или критические замечания (Blockers) → оркестратор меняет статус проекта в `state.json` на `needs_revision` и инициирует повторную итерацию (запускает сценарий `04-draft` для версии vN+1).
-   - Если отчет прошел успешно (статус `PASSED`) → оркестратор меняет статус проекта на `approved`.
+2. **Boundary-condition checks:**
+   Agent A2 inspects the draft for compliance with the `kb/` checklists and writes the critical findings into `messages/a2-to-a4-vN.md`.
+3. **Orchestrator assessment:**
+   The Master Orchestrator reads A2's report:
+   - If the report contains a `FAILED` status or critical findings (Blockers) → the orchestrator changes the project status in `state.json` to `needs_revision` and triggers another iteration (runs the `04-draft` flow for version vN+1).
+   - If the report passed successfully (status `PASSED`) → the orchestrator changes the project status to `approved`.

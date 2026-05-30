@@ -1,107 +1,107 @@
-# Мультиагентная команда Requirements Mind
+# The Requirements Mind multi-agent team
 
-Проект **Requirements Mind** использует децентрализованную ИИ-команду агентов на базе **BMAD METHOD**. Каждый агент является узкоспециализированным экспертом в своей области, полностью сфокусированным на инженерии требований и системном анализе.
-
----
-
-## 👥 Роли и специализация агентов
-
-### 0. 🧭 A0 — Onboarding Wizard (ИИ-Ассистент старта проекта)
-* **Назначение:** Первичная встреча аналитика, проведение Project Discovery, помощь в выборе одного из **6 целевых профилей требований** и составление персонального Roadmap проекта. Направляет пользователя к сбору требований с нуля или разбору сырых входов.
-
-### 1. 👑 Master Orchestrator (Главный координатор)
-* **Основа:** BMAD `bmad-party-mode`
-* **Назначение:** Координация круглого стола, управление сессиями и переходами состояний в `state.json`. Анализирует отчеты Валидатора и принимает решения о готовности артефактов, автоматически запуская финализацию спецификаций в CLI.
-
-### 2. 📊 A1 — Intake Analyst (Аналитик сбора требований)
-* **Основа:** BMAD `bmad-agent-analyst` + `bmad-index-docs`
-* **Назначение:** Разбор сырых текстовых файлов и транскриптов в папке `input/`, удаление разговорного шума, извлечение ключевых фактов и составление единого детального контекста проекта (`context.md`) с жестким запретом на сжатие данных (No Compression).
-
-### 3. 📋 A3 — Question Generator & Elicitation Expert (Интервьюер требований)
-* **Основа:** BMAD `bmad-agent-pm` + `bmad-advanced-elicitation`
-* **Назначение:** 
-  * В режиме **Elicitation Mode (Профиль 6)** проводит глубокое интерактивное интервью с нуля по гибридному стандарту **«Практичный аналитик»** (JTBD + Use Cases + ISO 29148 NFR) и сам создает `requirements.md`.
-  * В режиме **уточнения пробелов** выявляет нестыковки в `context.md`, выводит до 5 точечных вопросов прямо в чат IDE с обязательной возможностью свободного ввода ответов, записывает результаты в `qa-history.md` и переводит проект дальше.
-
-### 4. 💻 A4 — Document Writer (Писатель спецификаций)
-* **Основа:** BMAD `bmad-agent-tech-writer` + `bmad-create-prd` + `bmad-edit-prd` + `bmad-spec`
-* **Назначение:** Написание формальных спецификаций (BRD, SRS, Tech Design, API Contract) строго по чеклистам базы знаний `kb/` и на основе ответов пользователя.
-* **Два режима по полю `rm_mode` в `context.md`:** `draft` (написание с нуля по чеклисту) и `augment` (защищённая доработка baseline-документа — см. раздел «🛡️ Режим Augment» ниже).
-
-### 5. 🏗️ A2 — Requirements Validator (Валидатор требований)
-* **Основа:** BMAD `bmad-validate-prd` + `bmad-review-adversarial-general` + `bmad-review-edge-case-hunter`
-* **Назначение:** Жесткий контроль качества черновиков. Ищет логические нестыковки, пограничные случаи (edge cases) и упущенные детали. Выносит вердикты `PASSED`/`FAILED`.
-
-### 🔍 6. A5 — Research Assistant (Технический исследователь)
-* **Основа:** BMAD `research` + `bmad-brainstorming`
-* **Назначение:** Анализ внешних отраслевых стандартов и лучших практик по запросу разработчика или архитектора.
-
-### 📈 7. A6 — Analysis Writer (Аналитический исследователь)
-* **Назначение:** Гибкий анализ (Режим B). Не привязан к жестким форматам, сам определяет структуру отчетов (таблицы сравнений версий, списки рисков) в папке `analysis/`.
+The **Requirements Mind** project uses a decentralized AI team of agents built on the **BMAD METHOD**. Each agent is a narrowly specialized expert in its own area, fully focused on requirements engineering and systems analysis.
 
 ---
 
-## 🧭 Принципы взаимодействия агентов
+## 👥 Agent roles and specialization
 
-1. **Единый контекст (`context.md`):** Все агенты пишут и сверяют свои выводы только на основе единого контекста проекта. Никакого проектирования "из воздуха".
-2. **Версионность:** Любое изменение черновика порождает новую версию файла (v1, v2, v3...). Старые версии никогда не затираются для сохранения истории в Git.
-3. **Строгая трассировка:** Каждое техническое требование в SRS или Tech Design должно ссылаться на соответствующее бизнес-требование в BRD.
-4. **Автоматизация CLI-команд:** По завершении своей работы (запись файла требований, контекста, черновика или отчета) ИИ-агенты **самостоятельно предлагают и запускают** в терминале IDE нужную команду CLI (`onboard`, `intake`, `draft`, `validate`, `final`). Пользователю не нужно держать команды в голове — достаточно подтвердить запуск в чате IDE.
-5. **Бесшовный интерактивный Q&A прямо в чате IDE:** Любые уточняющие вопросы выводятся агентом A3 прямо в чат с готовыми вариантами ответа.
-6. **Обязательный свободный ответ:** К каждому динамическому вопросу ИИ-интервьюера A3 в обязательном порядке добавляется финальный пункт свободного ввода (например: *«Свой вариант / Свободный ответ»*), чтобы аналитик мог описать требования своими словами. ИИ бережно фиксирует и дописывает ответы в `qa-history.md`.
-7. **Режим работы определяется в `context.md` (`rm_mode`):** Все агенты обязаны прочитать поле `rm_mode` во frontmatter `context.md` и не скатываться в режим по умолчанию при наличии baseline. `draft` — сборка с нуля, `augment` — защищённая доработка существующего документа (см. раздел «🛡️ Режим Augment»).
+### 0. 🧭 A0 — Onboarding Wizard (AI project-start assistant)
+* **Purpose:** The analyst's first meeting, running Project Discovery, helping to choose one of the **6 target requirements profiles**, and building a personal project Roadmap. Directs the user toward gathering requirements from scratch or parsing raw inputs.
+
+### 1. 👑 Master Orchestrator
+* **Based on:** BMAD `bmad-party-mode`
+* **Purpose:** Coordinating the round table, managing sessions and state transitions in `state.json`. Analyzes the Validator's reports and decides whether artifacts are ready, automatically launching specification finalization in the CLI.
+
+### 2. 📊 A1 — Intake Analyst
+* **Based on:** BMAD `bmad-agent-analyst` + `bmad-index-docs`
+* **Purpose:** Parsing raw text files and transcripts in the `input/` folder, removing conversational noise, extracting the key facts, and building a single detailed project context (`context.md`) with a strict ban on data compression (No Compression).
+
+### 3. 📋 A3 — Question Generator & Elicitation Expert (requirements interviewer)
+* **Based on:** BMAD `bmad-agent-pm` + `bmad-advanced-elicitation`
+* **Purpose:**
+  * In **Elicitation Mode (Profile 6)** it runs a deep interactive interview from scratch using the hybrid **"Pragmatic Analyst"** standard (JTBD + Use Cases + ISO 29148 NFR) and creates `requirements.md` itself.
+  * In **gap-clarification mode** it surfaces inconsistencies in `context.md`, prints up to 5 targeted questions right into the IDE chat with a mandatory free-input option, writes the results into `qa-history.md`, and moves the project forward.
+
+### 4. 💻 A4 — Document Writer
+* **Based on:** BMAD `bmad-agent-tech-writer` + `bmad-create-prd` + `bmad-edit-prd` + `bmad-spec`
+* **Purpose:** Writing formal specifications (BRD, SRS, Tech Design, API Contract) strictly per the `kb/` knowledge-base checklists and based on the user's answers.
+* **Two modes via the `rm_mode` field in `context.md`:** `draft` (writing from scratch per the checklist) and `augment` (protected extension of a baseline document — see the "🛡️ Augment Mode" section below).
+
+### 5. 🏗️ A2 — Requirements Validator
+* **Based on:** BMAD `bmad-validate-prd` + `bmad-review-adversarial-general` + `bmad-review-edge-case-hunter`
+* **Purpose:** Rigorous quality control of drafts. Hunts for logical inconsistencies, edge cases, and missed details. Issues `PASSED`/`FAILED` verdicts.
+
+### 🔍 6. A5 — Research Assistant (technical researcher)
+* **Based on:** BMAD `research` + `bmad-brainstorming`
+* **Purpose:** Analyzing external industry standards and best practices on request from a developer or architect.
+
+### 📈 7. A6 — Analysis Writer
+* **Purpose:** Flexible analysis (Mode B). Not tied to rigid formats; designs the report structure itself (version-comparison tables, risk lists) in the `analysis/` folder.
 
 ---
 
-## 🛡️ Режим Augment (доработка baseline без пересборки)
+## 🧭 Principles of agent interaction
 
-Когда у аналитика уже есть формальный документ (SRS/BRD/Tech Design/API Contract) и его нужно **дополнить** артефактами (транскрипты, новые BR, заметки), а не пересобирать с нуля, команда работает в режиме `rm_mode: augment`. Baseline остаётся «законом»; правки вносятся только точечно и только с явного согласия пользователя. Полный сценарий — `flows/09-augment.md`.
-
-Контракт augment-режима распределён по агентам так:
-
-* **A1 — Intake Analyst** различает baseline vs artifacts: идентифицирует baseline-документ, проставляет `rm_mode: augment` и обязательное поле `baseline_doc` во frontmatter `context.md`, и фиксирует в `context.md` только **дельту** (что нового пришло из артефактов), не растворяя baseline в общем контексте.
-* **A4 — Document Writer** работает в защищённом режиме: сохраняет структуру и формулировки baseline, перед записью предъявляет **diff-план** правок и ждёт явного подтверждения пользователя, переопределяет принцип «глубокой детализации» (расплывчатые места baseline уходят в «❓ Открытые вопросы и пробелы», а не дописываются из воздуха). Итог сохраняется как `draft/<doc>-v<N+1>.md`. Детали — блок «Режим Augment» в `skills/rm/a4-document-writer.md`.
-* **A2 — Requirements Validator** в augment-режиме проверяет именно дельту и сохранность baseline (не штрафует за «недетализированность» унаследованных формулировок), опираясь на soft-чеклисты `kb/`.
-* **Master Orchestrator** контролирует соблюдение контракта: блокирует неявное скатывание в `draft` при наличии `baseline_doc` и не допускает запись без подтверждённого diff-плана.
-
-> **A6 — Analysis Writer вне контракта осознанно.** A6 пишет в отдельную папку `analysis/` и никогда не правит baseline, поэтому защита augment-режима ему не нужна — он остаётся гибким (Режим B).
+1. **A single context (`context.md`):** All agents write and cross-check their conclusions based only on the single project context. No designing "out of thin air".
+2. **Versioning:** Any change to a draft produces a new file version (v1, v2, v3...). Old versions are never overwritten, to preserve history in Git.
+3. **Strict traceability:** Every technical requirement in an SRS or Tech Design must reference the corresponding business requirement in the BRD.
+4. **CLI command automation:** Once their work is done (writing a requirements file, a context, a draft, or a report), the AI agents **propose and run the needed CLI command on their own** in the IDE terminal (`onboard`, `intake`, `draft`, `validate`, `final`). The user does not need to keep the commands in mind — they just confirm the run in the IDE chat.
+5. **Seamless interactive Q&A right in the IDE chat:** Any clarifying questions are printed by agent A3 right into the chat with ready-made answer options.
+6. **Mandatory free-text answer:** Every dynamic question from the A3 AI interviewer always includes a final free-input item (for example: *"Your own option / Free-text answer"*), so the analyst can describe requirements in their own words. The AI carefully records and appends the answers into `qa-history.md`.
+7. **The working mode is set in `context.md` (`rm_mode`):** All agents must read the `rm_mode` field in the `context.md` frontmatter and not slide into the default mode when a baseline is present. `draft` — building from scratch; `augment` — protected extension of an existing document (see the "🛡️ Augment Mode" section).
 
 ---
 
-## 💻 Примеры использования в ИИ-инструментах
+## 🛡️ Augment Mode (extending a baseline without rebuilding)
 
-Поскольку ИИ-навыки интегрированы в вашу среду разработки (Cursor, Claude Code, Antigravity, OpenAI Codex), вы можете вызывать агентов с помощью коротких **кодов команд (Capabilities Menu)** в чате IDE или через консольные директивы:
+When the analyst already has a formal document (SRS/BRD/Tech Design/API Contract) and needs to **extend** it with artifacts (transcripts, new BRs, notes) rather than rebuild it from scratch, the team works in `rm_mode: augment`. The baseline remains "the law"; edits are made only surgically and only with the user's explicit consent. The full flow is `flows/09-augment.md`.
 
-### 1. Запуск сбора требований с нуля (Elicitation Mode)
-В чате ИИ-помощника (например, Мэри) напишите:
-> **«Привет! Запусти RME для нового проекта my-app»**
-*ИИ проведет глубокое интервью на основе JTBD, Use Cases и ISO 29148, сам запишет `requirements.md` и `context.md`, после чего автоматически предложит запустить onboard-команду в терминале (пользователю нужно лишь подтвердить запуск в чате).*
+The augment-mode contract is distributed across the agents as follows:
 
-### 2. Запуск онбординга (Project Discovery)
-В чате ИИ-помощника напишите:
-> **«RMONB для проекта my-app»**
-*Агент A0 проведет опрос по 6 профилям требований, составит персональный Roadmap и автоматически предложит запустить onboard-команду в терминале (с подтверждением в чате).*
+* **A1 — Intake Analyst** distinguishes baseline vs artifacts: it identifies the baseline document, sets `rm_mode: augment` and the mandatory `baseline_doc` field in the `context.md` frontmatter, and records only the **delta** in `context.md` (what new content came from the artifacts), without dissolving the baseline into the general context.
+* **A4 — Document Writer** works in protected mode: it preserves the baseline's structure and wording, presents a **diff plan** of the edits before writing and waits for the user's explicit confirmation, and overrides the "deep detailing" principle (vague spots in the baseline go into "❓ Open questions and gaps" rather than being filled in out of thin air). The result is saved as `draft/<doc>-v<N+1>.md`. Details — the "Augment Mode" block in `skills/rm/a4-document-writer.md`.
+* **A2 — Requirements Validator** in augment mode checks exactly the delta and the preservation of the baseline (it does not penalize inherited wording for being "under-detailed"), relying on the soft `kb/` checklists.
+* **Master Orchestrator** enforces the contract: it blocks the implicit slide into `draft` when a `baseline_doc` is present, and does not allow writing without a confirmed diff plan.
 
-### 3. Запуск Intake-анализа сырых файлов
-В чате ИИ-помощника напишите:
-> **«RMIN для проекта my-app»**
-*Агент A1 проанализирует входящую папку `input/`, создаст `context.md` и автоматически предложит запустить команду `uv run cli.py intake` (с подтверждением в чате).*
+> **A6 — Analysis Writer is deliberately outside the contract.** A6 writes into a separate `analysis/` folder and never edits the baseline, so it does not need the augment-mode protection — it stays flexible (Mode B).
 
-### 4. Запуск генерации черновика спецификации
-В чате ИИ-помощника (например, Джона) напишите:
-> **«Джон, запусти RMDW для проекта my-app. Мне нужен SRS-черновик»**
-*Агент A4 сгенерирует спецификацию по стандартам `kb/` и автоматически предложит запустить команду `uv run cli.py draft` (с подтверждением в чате).*
+---
 
-### 5. Запуск проверки черновика
-В чате ИИ-помощника напишите:
-> **«RMVAL для проекта my-app»**
-*Агент A2 проверит документ, запишет подробный отчет в `messages/` с вердиктом `PASSED`/`FAILED` и автоматически предложит запустить команду `uv run cli.py validate` (с подтверждением в чате).*
+## 💻 Usage examples in AI tools
 
-### 6. Tier 1 — детерминированная проверка ID (без LLM)
-Перед запуском `RMVAL` (Tier 2, LLM) рекомендуется прогнать дешёвый regex-линтер, который ловит дубли ID, orphan-ссылки и непокрытые Business Goals за миллисекунды:
+Since the AI skills are integrated into your development environment (Cursor, Claude Code, Antigravity, OpenAI Codex), you can invoke the agents using short **command codes (Capabilities Menu)** in the IDE chat or via console directives:
+
+### 1. Start gathering requirements from scratch (Elicitation Mode)
+In the AI assistant's chat (for example, Mary) write:
+> **"Hi! Run RME for the new project my-app"**
+*The AI will run a deep interview based on JTBD, Use Cases, and ISO 29148, write `requirements.md` and `context.md` itself, and then automatically propose running the onboard command in the terminal (the user just confirms the run in the chat).*
+
+### 2. Start onboarding (Project Discovery)
+In the AI assistant's chat write:
+> **"RMONB for the project my-app"**
+*Agent A0 will run the survey across the 6 requirements profiles, build a personal Roadmap, and automatically propose running the onboard command in the terminal (with confirmation in the chat).*
+
+### 3. Start Intake analysis of raw files
+In the AI assistant's chat write:
+> **"RMIN for the project my-app"**
+*Agent A1 will analyze the incoming `input/` folder, create `context.md`, and automatically propose running the command `uv run cli.py intake` (with confirmation in the chat).*
+
+### 4. Start generating a specification draft
+In the AI assistant's chat (for example, John) write:
+> **"John, run RMDW for the project my-app. I need an SRS draft"**
+*Agent A4 will generate the specification per the `kb/` standards and automatically propose running the command `uv run cli.py draft` (with confirmation in the chat).*
+
+### 5. Start checking a draft
+In the AI assistant's chat write:
+> **"RMVAL for the project my-app"**
+*Agent A2 will check the document, write a detailed report into `messages/` with a `PASSED`/`FAILED` verdict, and automatically propose running the command `uv run cli.py validate` (with confirmation in the chat).*
+
+### 6. Tier 1 — deterministic ID check (no LLM)
+Before running `RMVAL` (Tier 2, LLM) it is recommended to run the cheap regex linter, which catches duplicate IDs, orphan references, and uncovered Business Goals in milliseconds:
 ```bash
 uv run cli.py trace --project=my-app
-# или один документ:
+# or a single document:
 uv run cli.py trace --project=my-app --doc=SRS --version=1
 ```
-Exit codes: `0` — чисто, `1` — есть ошибки трассируемости, `2` — ошибка вызова. **Если агент видит, что черновик только что записан, он должен сам предложить пользователю запустить `trace` до `validate` — это экономит контекст A2.** `state.json` команда не правит — это чистая проверка формы.
+Exit codes: `0` — clean, `1` — there are traceability errors, `2` — invocation error. **If the agent sees that a draft has just been written, it should itself propose that the user run `trace` before `validate` — this saves A2's context.** The command does not modify `state.json` — it is a pure form check.

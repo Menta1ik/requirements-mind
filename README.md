@@ -288,7 +288,7 @@ uv run cli.py update
 > * `vault/` and `notebooklm/` — generated bases and exports;
 > * any customizations of yours outside the core file list.
 
-📖 A full description of the update process and recovery scenarios is in [`docs/user_guide.md` §5](docs/user_guide.md#5-автоматическое-обновление-requirements-mind-update-в-1-клик).
+📖 A full description of the update process and recovery scenarios is in [`docs/user_guide.md` §5](docs/user_guide.md#5-automatic-requirements-mind-update-one-click-update).
 
 ---
 

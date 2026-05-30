@@ -1,60 +1,60 @@
-# Чек-лист: Technical Design Document (Технический дизайн проекта)
+# Checklist: Technical Design Document
 
-Этот чек-лист используется агентом **A2 Validator** для проверки полноты технического дизайна и агентом **A4 Writer** в качестве шаблона для генерации документа.
+This checklist is used by the **A2 Validator** agent to check the completeness of the technical design, and by the **A4 Writer** agent as a template for generating the document.
 
-## Augment-policy (как читать чеклист)
+## Augment policy (how to read the checklist)
 
-С версии v2.2 каждая секция помечена тегом `[required]` или `[optional-augment]` после заголовка:
+As of v2.2, each section is tagged with `[required]` or `[optional-augment]` after the heading:
 
-- `[required]` — критическая секция смысла. **Обязательна в любом режиме.** Отсутствие → `FAILED`. Это: схема БД, стратегия аутентификации/авторизации, целевые метрики производительности, шифрование данных.
-- `[optional-augment]` — рекомендуемая секция формы. В `rm_mode: draft` обязательна (`FAILED`), в `rm_mode: augment` отсутствие → **warning** в блоке «⚠️ Augment-soft», не блокер. Это: диаграммы (могут быть встроены в текст в baseline), формальное описание архитектурного паттерна (если baseline уже зафиксировал — не дублировать), описание миграций.
+- `[required]` — a critical, meaning-bearing section. **Mandatory in any mode.** Its absence → `FAILED`. These are: the DB schema, the authentication/authorization strategy, the target performance metrics, data encryption.
+- `[optional-augment]` — a recommended, form-bearing section. In `rm_mode: draft` it is mandatory (`FAILED`); in `rm_mode: augment` its absence → a **warning** in the "⚠️ Augment-soft" block, not a blocker. These are: diagrams (may be embedded in the text in a baseline), a formal description of the architectural pattern (if the baseline already records it — do not duplicate), a description of migrations.
 
-A2 определяет режим через frontmatter `context.md` (`rm_mode: draft | augment`).
-
----
-
-## 1. Общие сведения и архитектурный стиль `[optional-augment]`
-- [ ] Описан общий архитектурный паттерн (монолит, микросервисы, serverless, CLI-first).
-- [ ] Дано обоснование выбора технологического стека (языки программирования, фреймворки, СУБД).
-- [ ] Описаны ключевые компоненты системы и границы их ответственности.
+A2 determines the mode via the `context.md` frontmatter (`rm_mode: draft | augment`).
 
 ---
 
-## 2. Архитектура данных и СУБД `[required]`
-- [ ] Описана схема базы данных (таблицы, связи, индексы, типы полей). `[required]`
-- [ ] Приведена Mermaid ER-диаграмма связей сущностей. `[optional-augment]`
-- [ ] Описана стратегия миграции данных и управления версиями схем. `[optional-augment]`
-- [ ] Задокументированы требования к резервному копированию и отказоустойчивости СУБД. `[required]`
+## 1. General information and architectural style `[optional-augment]`
+- [ ] The overall architectural pattern is described (monolith, microservices, serverless, CLI-first).
+- [ ] The choice of the technology stack is justified (programming languages, frameworks, DBMS).
+- [ ] The key system components and the boundaries of their responsibility are described.
 
 ---
 
-## 3. Компоненты и интеграции `[required]`
-- [ ] Приведены диаграммы последовательностей (Sequence Diagrams) для ключевых пользовательских сценариев. `[optional-augment]`
-- [ ] Описаны внутренние и внешние интеграции (очереди сообщений, внешние API, кэширование). `[required]`
-- [ ] Указаны протоколы взаимодействия (REST, gRPC, WebSockets). `[required]`
+## 2. Data architecture and DBMS `[required]`
+- [ ] The database schema is described (tables, relationships, indexes, field types). `[required]`
+- [ ] A Mermaid ER diagram of entity relationships is provided. `[optional-augment]`
+- [ ] The data migration and schema versioning strategy is described. `[optional-augment]`
+- [ ] Requirements for DBMS backup and fault tolerance are documented. `[required]`
 
 ---
 
-## 4. Безопасность и соответствие стандартам `[required]`
-- [ ] Задокументирован протокол аутентификации и авторизации (JWT, OAuth2, сессии). `[required]`
-- [ ] Описана политика разграничения доступа (RBAC/ABAC). `[required]`
-- [ ] Указаны требования к шифрованию данных при хранении (at rest) и передаче (in transit). `[required]`
-- [ ] Описаны механизмы логирования критических событий безопасности и аудита. `[required]`
+## 3. Components and integrations `[required]`
+- [ ] Sequence Diagrams are provided for the key user scenarios. `[optional-augment]`
+- [ ] Internal and external integrations are described (message queues, external APIs, caching). `[required]`
+- [ ] The interaction protocols are specified (REST, gRPC, WebSockets). `[required]`
 
 ---
 
-## 5. Производительность и масштабирование `[required]`
-- [ ] Определены целевые метрики производительности (Response Time, throughput, SLA). `[required]`
-- [ ] Описана стратегия кэширования данных. `[optional-augment]`
-- [ ] Указаны механизмы горизонтального и вертикального масштабирования. `[required]`
-- [ ] Описана обработка пиковых нагрузок и механизмы самовосстановления системы (Circuit Breaker, Rate Limiting). `[required]`
+## 4. Security and standards compliance `[required]`
+- [ ] The authentication and authorization protocol is documented (JWT, OAuth2, sessions). `[required]`
+- [ ] The access-control policy is described (RBAC/ABAC). `[required]`
+- [ ] Requirements for data encryption at rest and in transit are specified. `[required]`
+- [ ] Mechanisms for logging critical security and audit events are described. `[required]`
 
 ---
 
-## Блокирующие проблемы (FAIL)
+## 5. Performance and scaling `[required]`
+- [ ] Target performance metrics are defined (Response Time, throughput, SLA). `[required]`
+- [ ] The data-caching strategy is described. `[optional-augment]`
+- [ ] Horizontal and vertical scaling mechanisms are specified. `[required]`
+- [ ] Peak-load handling and system self-recovery mechanisms are described (Circuit Breaker, Rate Limiting). `[required]`
 
-Документ получает статус FAIL если:
-- Отсутствует любой пункт `[required]` (в любом режиме).
-- В режиме `rm_mode: draft` — отсутствует любой пункт `[optional-augment]`.
+---
 
-В режиме `rm_mode: augment` отсутствие `[optional-augment]` пунктов → **warning** в блоке «⚠️ Augment-soft» отчёта, не блокер.
+## Blocking problems (FAIL)
+
+The document gets a FAIL status if:
+- Any `[required]` item is missing (in any mode).
+- In `rm_mode: draft` — any `[optional-augment]` item is missing.
+
+In `rm_mode: augment` mode, the absence of `[optional-augment]` items → a **warning** in the "⚠️ Augment-soft" block of the report, not a blocker.

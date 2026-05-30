@@ -128,7 +128,7 @@ def check_duplicates(idx: DocIndex, issues: list[Issue]) -> None:
                 Issue(
                     severity="error",
                     code="RM-TR-001",
-                    message=f"ID `{ident}` определён {len(lines)} раз (строки: {', '.join(map(str, lines))})",
+                    message=f"ID `{ident}` is defined {len(lines)} times (lines: {', '.join(map(str, lines))})",
                     file=str(idx.path),
                     line=lines[0],
                 )
@@ -149,7 +149,7 @@ def check_id_shape(idx: DocIndex, issues: list[Issue]) -> None:
                 Issue(
                     severity="warning",
                     code="RM-TR-010",
-                    message=f"ID `{ident}` имеет необычно длинный числовой хвост ({len(tail)} цифр) — проверьте",
+                    message=f"ID `{ident}` has an unusually long numeric tail ({len(tail)} digits) — please check",
                     file=str(idx.path),
                     line=lines[0],
                 )
@@ -189,7 +189,7 @@ def cross_doc_check(indexes: list[DocIndex], issues: list[Issue]) -> None:
             Issue(
                 severity="error",
                 code="RM-TR-002",
-                message=f"ID `{ident}` упоминается, но не определён ни в одном документе проекта",
+                message=f"ID `{ident}` is referenced but not defined in any project document",
                 file=str(first_path),
                 line=first_line,
             )
@@ -224,7 +224,7 @@ def check_bg_coverage(indexes: list[DocIndex], issues: list[Issue]) -> None:
                 Issue(
                     severity="warning",
                     code="RM-TR-020",
-                    message=f"Business Goal `{bg}` не покрыт ни одним FR в SRS (нет ссылки)",
+                    message=f"Business Goal `{bg}` is not covered by any FR in the SRS (no reference)",
                     file=str(path),
                     line=line,
                 )
@@ -237,19 +237,19 @@ DOC_SUBDIRS = ("draft", "final")
 def collect_doc_files(project: str, doc: str | None, version: str | None) -> list[Path]:
     """Resolve which files to scan for `--project=...` mode.
 
-    Реальная структура проекта Requirements Mind держит документы в двух папках:
-    `draft/` (рабочие версии BRD-vN.md, SRS-vN.md, …) и `final/` (утверждённые
-    `*-final.md`). Сканируем обе — trace должен ловить нарушения и в свежих
-    черновиках (до RMVAL), и в финалах (если кто-то правил их вручную).
+    The real Requirements Mind project structure keeps documents in two folders:
+    `draft/` (working versions BRD-vN.md, SRS-vN.md, …) and `final/` (approved
+    `*-final.md`). We scan both — trace should catch violations both in fresh
+    drafts (before RMVAL) and in finals (if someone edited them by hand).
     """
     proj_dir = PROJECTS_DIR / project
     if not proj_dir.is_dir():
-        raise FileNotFoundError(f"Папка проекта не найдена: {proj_dir}")
+        raise FileNotFoundError(f"Project folder not found: {proj_dir}")
 
     found_subdirs = [proj_dir / sub for sub in DOC_SUBDIRS if (proj_dir / sub).is_dir()]
     if not found_subdirs:
         raise FileNotFoundError(
-            f"В {proj_dir} нет ни одной из папок документов: {', '.join(DOC_SUBDIRS)}"
+            f"{proj_dir} has none of the document folders: {', '.join(DOC_SUBDIRS)}"
         )
 
     files: list[Path] = []
@@ -257,21 +257,21 @@ def collect_doc_files(project: str, doc: str | None, version: str | None) -> lis
         files.extend(sorted(sub.glob("*.md")))
     if not files:
         raise FileNotFoundError(
-            f"В {proj_dir}/{{{','.join(DOC_SUBDIRS)}}} нет .md файлов"
+            f"No .md files in {proj_dir}/{{{','.join(DOC_SUBDIRS)}}}"
         )
 
     if doc:
         prefix = f"{doc}-"
         files = [f for f in files if f.name.startswith(prefix)]
     if version:
-        # final/-файлы оканчиваются на `-vN-final.md`, draft/ — на `-vN.md`.
+        # final/ files end with `-vN-final.md`, draft/ files end with `-vN.md`.
         files = [
             f for f in files
             if f.name.endswith(f"-v{version}.md") or f.name.endswith(f"-v{version}-final.md")
         ]
 
     if not files:
-        raise FileNotFoundError("Подходящих файлов не найдено по фильтрам --doc/--version")
+        raise FileNotFoundError("No matching files found for the --doc/--version filters")
     return files
 
 
@@ -282,29 +282,29 @@ def print_report(indexes: list[DocIndex], issues: list[Issue]) -> int:
 
     print()
     print("=" * 70)
-    print(f"RM Trace Linter — {len(indexes)} файл(ов) проверено")
+    print(f"RM Trace Linter — {len(indexes)} file(s) checked")
     print("=" * 70)
     for idx in indexes:
-        print(f"  • {idx.path.name}: {len(idx.defs)} ID определено, {len(idx.refs)} ссылок")
+        print(f"  • {idx.path.name}: {len(idx.defs)} IDs defined, {len(idx.refs)} references")
     print()
 
     if errors:
-        print(f"❌ Ошибок: {len(errors)}")
+        print(f"❌ Errors: {len(errors)}")
         for i in errors:
             print(i.fmt())
         print()
     if warnings:
-        print(f"⚠️  Предупреждений: {len(warnings)}")
+        print(f"⚠️  Warnings: {len(warnings)}")
         for i in warnings:
             print(i.fmt())
         print()
 
     if not errors and not warnings:
-        print("✅ Проблем не найдено.")
+        print("✅ No problems found.")
     elif not errors:
-        print("✅ Ошибок нет (есть предупреждения — посмотрите выше).")
+        print("✅ No errors (there are warnings — see above).")
     else:
-        print("❌ Есть блокирующие ошибки трассируемости.")
+        print("❌ There are blocking traceability errors.")
 
     return 1 if errors else 0
 
@@ -314,20 +314,20 @@ def main(argv: list[str] | None = None) -> int:
         prog="trace.py",
         description="Tier 1 deterministic linter for requirement IDs and traceability.",
     )
-    p.add_argument("--project", help="Имя проекта в projects/")
-    p.add_argument("--doc", choices=sorted(DOC_KINDS), help="Тип документа (фильтр)")
-    p.add_argument("--version", help="Номер версии (фильтр, без префикса v)")
-    p.add_argument("--file", help="Путь к одиночному .md (альтернатива --project)")
+    p.add_argument("--project", help="Project name in projects/")
+    p.add_argument("--doc", choices=sorted(DOC_KINDS), help="Document type (filter)")
+    p.add_argument("--version", help="Version number (filter, without the v prefix)")
+    p.add_argument("--file", help="Path to a single .md (alternative to --project)")
     args = p.parse_args(argv)
 
     if not args.project and not args.file:
-        p.error("требуется --project или --file")
+        p.error("--project or --file is required")
 
     files: list[Path]
     if args.file:
         f = Path(args.file)
         if not f.is_file():
-            print(f"error: файл не найден: {f}", file=sys.stderr)
+            print(f"error: file not found: {f}", file=sys.stderr)
             return 2
         files = [f]
     else:

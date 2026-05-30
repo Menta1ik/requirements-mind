@@ -1,51 +1,51 @@
-# Walkthroughs — подробные сценарии работы
+# Walkthroughs — detailed work scenarios
 
-В этой папке лежат **рабочие walkthrough'и** Requirements Mind: пошаговые разборы реальных кейсов с конкретными промптами для ИИ-ассистента, командами CLI, ожидаемыми артефактами и типичными ошибками.
+This folder holds the **working walkthroughs** of Requirements Mind: step-by-step breakdowns of real cases with concrete prompts for the AI assistant, CLI commands, expected artifacts, and typical mistakes.
 
-Они дополняют:
-- `docs/user-guide.md` — общее руководство пользователя,
-- `docs/specification_v2.md` — формальную спецификацию архитектуры,
-- `flows/0X-*.md` — формальное описание сценариев (что делает каждый шаг),
-- `skills/rm/a*.md` — инструкции для агентов (как именно агент должен себя вести).
+They complement:
+- `docs/user-guide.md` — the general user guide,
+- `docs/specification_v2.md` — the formal architecture specification,
+- `flows/0X-*.md` — the formal flow descriptions (what each step does),
+- `skills/rm/a*.md` — the agent instructions (exactly how an agent should behave).
 
-Walkthrough'и нужны там, где формального описания недостаточно — когда команде нужно увидеть **«вот как это выглядит в реальной работе на реальных артефактах»**.
+Walkthroughs are needed where the formal description is not enough — when the team needs to see **"this is what it looks like in real work on real artifacts"**.
 
-## 📚 Доступные walkthrough'и
+## 📚 Available walkthroughs
 
-| Файл | Сценарий | На каком кейсе |
+| File | Scenario | On which case |
 |---|---|---|
-| [`augment-dams-srs.md`](augment-dams-srs.md) | `09-augment` — доработка существующего SRS артефактами | DAMS (Document Asset Management Service): SRS-v1 + транскрипт митинга 26.06 → SRS-v2 с маркерами `*(новое)*` / `*(изменено)*` |
+| [`augment-dams-srs.md`](augment-dams-srs.md) | `09-augment` — extending an existing SRS with artifacts | DAMS (Document Asset Management Service): SRS-v1 + a meeting transcript from 26.06 → SRS-v2 with the markers `*(new)*` / `*(changed)*` |
 
 ## 🗺️ Roadmap
 
-Подобные подробные walkthrough'и планируются для **всех режимов** Requirements Mind. Приоритет — по частоте использования и риску ошибок без них:
+Detailed walkthroughs like this are planned for **all modes** of Requirements Mind. Priority is by usage frequency and the risk of mistakes without them:
 
-| Сценарий | Файл (план) | Когда нужен | Статус |
+| Scenario | File (planned) | When it is needed | Status |
 |---|---|---|---|
-| `09-augment` | `augment-dams-srs.md` | Доработка существующего документа артефактами без пересборки структуры. **Высокий риск «отсебятины», если делать без guardrail'ов.** | ✅ Готов |
-| `04-draft` | `draft-greenfield-srs.md` | Написание SRS/BRD с нуля по чеклисту. Базовый сценарий, но команде нужен эталонный пример «как должен выглядеть качественный context.md → BRD-v1 → SRS-v1». | ⏳ План |
-| `01-intake` | `intake-noisy-inputs.md` | Когда в `input/` приходит «грязь» (разноформатные файлы, противоречия, неполнота). Как A1 правильно фиксирует конфликты в `## ⚠️ Выявленные конфликты требований`. | ⏳ План |
-| `05-validate` + `06-final` | `validation-and-finalize.md` | Цикл валидации A4 ↔ A2 с замечаниями, переход в `final/`. Как читать `messages/a2-to-a4-vN.md` и не зациклиться на итерациях. | ⏳ План |
-| `07-analyze` | `analyze-risk-matrix.md` | Свободный аналитический отчёт (Режим B): риски, противоречия, сравнения. Когда выбирать analyze, а когда — augment. | ⏳ План |
-| `08-collaborate` | `collaborate-conflicting-decision.md` | Party Mode на спорном решении. Как читать `orchestrator-decision.md` и не получать «средневзвешенный мусор». | ⏳ План |
-| `03-questions` | `questions-from-incomplete.md` | A3 генерирует уточняющие вопросы из `## ❓ Открытые вопросы и пробелы`. Как формулировать ответы так, чтобы A1 их корректно встроил в `context.md`. | ⏳ План |
+| `09-augment` | `augment-dams-srs.md` | Extending an existing document with artifacts without rebuilding the structure. **High risk of "made-up content" if done without guardrails.** | ✅ Ready |
+| `04-draft` | `draft-greenfield-srs.md` | Writing an SRS/BRD from scratch per the checklist. The basic scenario, but the team needs a reference example of "what a good context.md → BRD-v1 → SRS-v1 should look like". | ⏳ Planned |
+| `01-intake` | `intake-noisy-inputs.md` | When "dirt" arrives in `input/` (mixed-format files, contradictions, incompleteness). How A1 correctly records conflicts in `## ⚠️ Detected requirement conflicts`. | ⏳ Planned |
+| `05-validate` + `06-final` | `validation-and-finalize.md` | The A4 ↔ A2 validation cycle with findings, the transition to `final/`. How to read `messages/a2-to-a4-vN.md` and not get stuck in iterations. | ⏳ Planned |
+| `07-analyze` | `analyze-risk-matrix.md` | A free-form analytical report (Mode B): risks, contradictions, comparisons. When to choose analyze, and when — augment. | ⏳ Planned |
+| `08-collaborate` | `collaborate-conflicting-decision.md` | Party Mode on a contested decision. How to read `orchestrator-decision.md` and not get "weighted-average garbage". | ⏳ Planned |
+| `03-questions` | `questions-from-incomplete.md` | A3 generates clarifying questions from `## ❓ Open questions and gaps`. How to phrase answers so that A1 embeds them correctly into `context.md`. | ⏳ Planned |
 
-## 🧱 Структура walkthrough'а (шаблон)
+## 🧱 Walkthrough structure (template)
 
-Каждый walkthrough должен содержать:
+Each walkthrough should contain:
 
-1. **Контекст** — что было у аналитика на входе, чего он хотел, что получилось / могло пойти не так.
-2. **Шаги** — конкретные команды CLI и промпты для ИИ-ассистента в IDE. Не «запустите A4», а **дословный текст промпта**.
-3. **Ожидаемые артефакты** — что должно лежать в `context.md`, `draft/`, `messages/` после каждого шага. С реальными фрагментами текста.
-4. **Защитные механизмы** — таблица «какой guardrail сработал бы на типичной ошибке этого сценария».
-5. **Правила для команды** — короткий чек-лист с правилами, которые нельзя нарушать в этом режиме.
+1. **Context** — what the analyst had as input, what they wanted, what came out / could have gone wrong.
+2. **Steps** — concrete CLI commands and prompts for the AI assistant in the IDE. Not "run A4", but the **verbatim prompt text**.
+3. **Expected artifacts** — what should be in `context.md`, `draft/`, `messages/` after each step. With real text fragments.
+4. **Protection mechanisms** — a table of "which guardrail would fire on a typical mistake in this scenario".
+5. **Rules for the team** — a short checklist of the rules that must not be broken in this mode.
 
-Эта структура одинакова для всех walkthrough'ов — команда знает, где искать что.
+This structure is the same for all walkthroughs — the team knows where to look for what.
 
-## 🤝 Как добавить walkthrough
+## 🤝 How to add a walkthrough
 
-1. Возьми реальный кейс из своей работы (или зафиксированный bug-репорт от аналитика).
-2. Заполни шаблон выше.
-3. Положи в эту папку с именем `<сценарий>-<краткий-кейс>.md` (например, `draft-payments-brd.md`).
-4. Добавь строку в таблицу «Доступные walkthrough'и».
-5. Если walkthrough вскрыл новый класс ошибок — заведи задачу на правку соответствующего skill'а или flow'а.
+1. Take a real case from your work (or a recorded bug report from an analyst).
+2. Fill in the template above.
+3. Put it in this folder with the name `<scenario>-<short-case>.md` (for example, `draft-payments-brd.md`).
+4. Add a row to the "Available walkthroughs" table.
+5. If the walkthrough uncovered a new class of mistakes — open a task to fix the corresponding skill or flow.
